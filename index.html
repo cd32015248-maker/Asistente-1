@@ -1,0 +1,3329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Mi Asistente — Asistente Personal Inteligente</title>
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tw.css">
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      overscroll-behavior-y: none;
+    }
+    h1, h2, h3, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Iridescent 3D-style Glowing AI Orb */
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-5px) scale(1.03); }
+    }
+    @keyframes orbSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.08); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    @keyframes orbPulseFast {
+      0%, 100% { transform: scale(0.95); filter: hue-rotate(0deg) brightness(1.05); }
+      50% { transform: scale(1.1); filter: hue-rotate(45deg) brightness(1.2); }
+    }
+    .ai-orb-wrapper {
+      animation: orbFloat 4.5s ease-in-out infinite;
+    }
+    .ai-orb-core {
+      position: relative;
+      border-radius: 9999px;
+      background: radial-gradient(circle at 30% 28%, #ffffff 0%, #c7d2fe 18%, #60a5fa 42%, #7c3aed 72%, #ec4899 100%);
+      box-shadow:
+        inset -10px -12px 24px rgba(30, 27, 75, 0.45),
+        inset 8px 8px 18px rgba(255, 255, 255, 0.85),
+        0 14px 34px -4px rgba(99, 102, 241, 0.5),
+        0 0 48px 4px rgba(56, 189, 248, 0.25);
+      overflow: hidden;
+    }
+    .ai-orb-core::before {
+      content: '';
+      position: absolute;
+      inset: -25%;
+      background: conic-gradient(from 45deg, rgba(56, 189, 248, 0.65), rgba(168, 85, 247, 0.65), rgba(244, 114, 182, 0.55), rgba(52, 211, 153, 0.55), rgba(56, 189, 248, 0.65));
+      mix-blend-mode: overlay;
+      animation: orbSpin 9s linear infinite;
+    }
+    .ai-orb-core::after {
+      content: '';
+      position: absolute;
+      top: 12%;
+      left: 18%;
+      width: 34%;
+      height: 22%;
+      border-radius: 9999px;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 75%);
+      transform: rotate(-28deg);
+    }
+    .ai-orb-thinking .ai-orb-core {
+      animation: orbPulseFast 0.9s ease-in-out infinite;
+    }
+
+    .tab-view {
+      animation: fadeSlideUp 0.2s ease-out;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-[#EEF2F8] dark:bg-[#060A14] text-slate-800 dark:text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Main Mobile App Shell -->
+  <div id="appShell" class="max-w-md mx-auto min-h-screen bg-[#F6F8FC] dark:bg-[#0B1120] relative shadow-2xl overflow-x-hidden pb-28 transition-colors duration-200">
+
+    <!-- Top Sticky Header -->
+    <header class="sticky top-0 z-30 bg-[#F6F8FC]/90 dark:bg-[#0B1120]/90 backdrop-blur-lg border-b border-slate-200/70 dark:border-slate-800/80 px-4 py-3">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <h1 id="headerGreeting" class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white truncate">Hola 👋</h1>
+            <span id="syncDot" title="Estado activo" class="w-2 h-2 rounded-full bg-emerald-500 inline-block flex-shrink-0"></span>
+          </div>
+          <p id="headerDate" class="text-xs font-medium text-slate-500 dark:text-slate-400 capitalize truncate"></p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <!-- Editable Exchange Rate Pill -->
+          <button onclick="openRateModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm active:scale-95 transition">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            <span id="headerRateText" class="text-xs font-bold text-slate-700 dark:text-slate-200">Tasa: 45.00 Bs</span>
+          </button>
+
+          <button onclick="openBackupModal()" aria-label="Respaldo de datos" class="w-9 h-9 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm flex items-center justify-center text-sm active:scale-95 transition">💾</button>
+          <!-- Light / Dark Mode Toggle -->
+          <button onclick="toggleTheme()" aria-label="Cambiar tema" class="w-9 h-9 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm flex items-center justify-center text-slate-700 dark:text-amber-300 active:scale-95 transition">
+            <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+            </svg>
+            <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Content Container -->
+    <main class="px-4 pt-4">
+
+      <!-- ========================================================= -->
+      <!-- MODULE 1: INICIO (HOME DASHBOARD)                         -->
+      <!-- ========================================================= -->
+      <section id="view-inicio" class="tab-view space-y-4">
+
+        <!-- Quick AI Command Input Bar -->
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"></path>
+                </svg>
+              </span>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Habla con tu Asistente IA</span>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">● Listo</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input
+              id="homeQuickInput"
+              type="text"
+              placeholder="Ej: Gasté 5$ en comida, mañana 3pm banco..."
+              onkeydown="if(event.key==='Enter') sendHomeQuickCommand()"
+              class="w-full bg-slate-100/90 dark:bg-[#0B1120] text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-2xl px-3.5 py-2.5 border border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-[#0F172A] outline-none transition"
+            />
+            <button onclick="sendHomeQuickCommand()" class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm active:scale-95 transition flex-shrink-0">
+              Enviar
+            </button>
+          </div>
+        </div>
+
+        <div id="homeAlerts"></div>
+        <div id="wordCard"></div>
+        <button onclick="switchTab('materias')" class="w-full flex items-center justify-between rounded-3xl p-4 bg-white dark:bg-[#151C2C] border border-slate-200/80 dark:border-slate-800 shadow-card active:scale-[0.99] transition">
+          <span class="text-sm font-extrabold text-slate-900 dark:text-white">📚 Materias y notas</span>
+          <span class="text-xs font-bold text-indigo-600 dark:text-indigo-300">Ver →</span>
+        </button>
+
+        <!-- 2x2 Pastel Bento Grid -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Bento 1: Tareas de Hoy -->
+          <div onclick="switchTab('agenda')" class="cursor-pointer rounded-3xl p-4 bg-[#FEF3C7] dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 shadow-card active:scale-[0.98] transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="w-8 h-8 rounded-2xl bg-amber-400/25 dark:bg-amber-500/20 flex items-center justify-center text-amber-800 dark:text-amber-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <rect x="3" y="4" width="18" height="18" rx="3"></rect>
+                  <path d="M16 2v4M8 2v4M3 10h18"></path>
+                </svg>
+              </span>
+              <span class="text-[11px] font-bold text-amber-800/80 dark:text-amber-300/80">Agenda →</span>
+            </div>
+            <div class="text-2xl font-extrabold text-amber-950 dark:text-amber-100 font-display" id="bentoTasksCount">0</div>
+            <div class="text-xs font-semibold text-amber-900/80 dark:text-amber-200/80 mt-0.5">Pendientes Hoy</div>
+            <div class="text-[11px] text-amber-800/70 dark:text-amber-300/70 mt-1 truncate" id="bentoTasksSub">Todo al día</div>
+          </div>
+
+          <!-- Bento 2: Balance Disponible -->
+          <div onclick="switchTab('finanzas')" class="cursor-pointer rounded-3xl p-4 bg-[#EDE9FE] dark:bg-violet-950/40 border border-violet-200/80 dark:border-violet-800/50 shadow-card active:scale-[0.98] transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="w-8 h-8 rounded-2xl bg-violet-400/25 dark:bg-violet-500/20 flex items-center justify-center text-violet-800 dark:text-violet-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </span>
+              <span class="text-[11px] font-bold text-violet-800/80 dark:text-violet-300/80">Finanzas →</span>
+            </div>
+            <div class="text-2xl font-extrabold text-violet-950 dark:text-violet-100 font-display truncate" id="bentoBalanceUsd">$0.00</div>
+            <div class="text-xs font-semibold text-violet-900/80 dark:text-violet-200/80 mt-0.5">Balance Disponible</div>
+            <div class="text-[11px] text-violet-800/75 dark:text-violet-300/75 mt-1 truncate" id="bentoBalanceVes">≈ 0.00 Bs</div>
+          </div>
+
+          <!-- Bento 3: Deudas Netas -->
+          <div onclick="openFinanceSubtab('deudas')" class="cursor-pointer rounded-3xl p-4 bg-[#E0F2FE] dark:bg-sky-950/40 border border-sky-200/80 dark:border-sky-800/50 shadow-card active:scale-[0.98] transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="w-8 h-8 rounded-2xl bg-sky-400/25 dark:bg-sky-500/20 flex items-center justify-center text-sky-800 dark:text-sky-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </span>
+              <span class="text-[11px] font-bold text-sky-800/80 dark:text-sky-300/80">Deudas →</span>
+            </div>
+            <div class="text-sm font-extrabold text-emerald-700 dark:text-emerald-300 font-display truncate" id="bentoOwedToMe">Me deben: $0</div>
+            <div class="text-sm font-extrabold text-rose-600 dark:text-rose-400 font-display truncate" id="bentoIOwe">Debo: $0</div>
+            <div class="text-xs font-semibold text-sky-900/80 dark:text-sky-200/80 mt-0.5">Deudas y Préstamos</div>
+          </div>
+
+          <!-- Bento 4: Rutina Diaria -->
+          <div onclick="switchTab('rutinas')" class="cursor-pointer rounded-3xl p-4 bg-[#DCFCE7] dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/50 shadow-card active:scale-[0.98] transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="w-8 h-8 rounded-2xl bg-emerald-400/25 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-800 dark:text-emerald-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </span>
+              <span class="text-[11px] font-bold text-emerald-800/80 dark:text-emerald-300/80" id="bentoStreakBadge">🔥 0d</span>
+            </div>
+            <div class="text-2xl font-extrabold text-emerald-950 dark:text-emerald-100 font-display" id="bentoRoutinePct">0%</div>
+            <div class="text-xs font-semibold text-emerald-900/80 dark:text-emerald-200/80 mt-0.5">Rutina Diaria</div>
+            <div class="text-[11px] text-emerald-800/75 dark:text-emerald-300/75 mt-1 truncate" id="bentoRoutineSub">0 de 0 hábitos</div>
+          </div>
+        </div>
+
+        <!-- Tareas de Hoy Interactive Checklist -->
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-white">Tareas de Hoy</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Toca para marcar como completada</p>
+            </div>
+            <button onclick="openTaskModal()" class="px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 text-xs font-bold active:scale-95 transition">
+              + Nueva
+            </button>
+          </div>
+          <div id="homeTodayList" class="space-y-2.5"></div>
+        </div>
+
+        <!-- Últimos Movimientos Financieros -->
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-white">Últimos Movimientos</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Ingresos y gastos recientes</p>
+            </div>
+            <button onclick="openTxModal()" class="px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-300 text-xs font-bold active:scale-95 transition">
+              + Registrar
+            </button>
+          </div>
+          <div id="homeRecentTxList" class="space-y-2"></div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- MODULE 2: AGENDA INTELIGENTE                              -->
+      <!-- ========================================================= -->
+      <section id="view-agenda" class="tab-view hidden space-y-4">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Agenda Inteligente</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Organiza tus horarios y compromisos</p>
+          </div>
+          <button onclick="selectToday()" class="px-3 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-bold text-indigo-600 dark:text-indigo-400 shadow-sm active:scale-95 transition">
+            Ir a Hoy
+          </button>
+        </div>
+
+        <!-- Segmented Control: Hoy | Semana | Mes -->
+        <div class="bg-slate-200/70 dark:bg-[#151C2C] p-1 rounded-2xl grid grid-cols-3 gap-1">
+          <button id="calModeToday" onclick="setCalendarMode('today')" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition">
+            Hoy
+          </button>
+          <button id="calModeWeek" onclick="setCalendarMode('week')" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition">
+            Semana
+          </button>
+          <button id="calModeMonth" onclick="setCalendarMode('month')" class="py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#232E47] text-slate-900 dark:text-white shadow-sm transition">
+            Mes
+          </button>
+        </div>
+
+        <!-- Interactive Calendar Card (hidden when 'today' mode is selected) -->
+        <div id="calendarCardWrapper" class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <button onclick="changeCalendarPeriod(-1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 active:scale-90 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <h3 id="calendarMonthLabel" class="text-sm font-extrabold text-slate-900 dark:text-white capitalize">Noviembre 2026</h3>
+            <button onclick="changeCalendarPeriod(1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 active:scale-90 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-7 text-center text-[11px] font-bold text-slate-400 dark:text-slate-500 mb-2">
+            <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+          </div>
+
+          <div id="calendarGrid" class="grid grid-cols-7 gap-y-1.5 text-center"></div>
+        </div>
+
+        <div id="busyCard"></div>
+
+        <!-- Quick Inline Task Add Form -->
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card space-y-2.5">
+          <div class="text-xs font-extrabold text-slate-800 dark:text-slate-200">Agregar tarea rápida</div>
+          <div class="flex items-center gap-2">
+            <input id="quickAgendaTitle" type="text" placeholder="Nombre de la tarea..." onkeydown="if(event.key==='Enter') addQuickAgendaTask()" class="flex-1 bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-2.5 text-xs font-medium text-slate-900 dark:text-white outline-none focus:border-indigo-500 border border-transparent" />
+            <input id="quickAgendaTime" type="time" value="10:00" class="w-24 bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-2.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white outline-none" />
+            <button onclick="addQuickAgendaTask()" class="px-3.5 py-2.5 rounded-2xl bg-indigo-600 text-white text-xs font-bold active:scale-95 transition">+</button>
+          </div>
+        </div>
+
+        <!-- Selected Date Heading + Reorganize Pending with AI Button -->
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <h3 id="selectedDateHeading" class="text-sm font-extrabold text-slate-900 dark:text-white truncate">Tareas para Hoy</h3>
+          <button onclick="reorganizePendingWithAI()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white text-xs font-bold shadow-sm active:scale-95 transition flex-shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"></path></svg>
+            <span>Reorganizar pendientes con IA</span>
+          </button>
+        </div>
+
+        <!-- Tasks List for Selected Date -->
+        <div id="agendaDayTasks" class="space-y-2.5"></div>
+
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- MODULE 3: ASISTENTE IA (GLOWING ORB & ACTION ENGINE)      -->
+      <!-- ========================================================= -->
+      <section id="view-ia" class="tab-view hidden flex flex-col">
+
+        <!-- Header with Discreet AI Settings Gear Button -->
+        <div class="flex items-center justify-between mb-1">
+          <span id="aiEngineBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="aiEngineLabel">IA Inteligente Activa</span>
+          </span>
+          <button onclick="openAiSettingsModal()" aria-label="Configurar API Key de Gemini" title="Ajustes de IA (API Key)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm active:scale-95 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>API Key</span>
+          </button>
+        </div>
+
+        <!-- Glowing Iridescent AI Orb Header -->
+        <div id="aiOrbContainer" class="flex flex-col items-center text-center pt-1 pb-3">
+          <div class="ai-orb-wrapper mb-2.5">
+            <div class="ai-orb-core w-16 h-16"></div>
+          </div>
+          <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Asistente Personal IA</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Anota gastos, agenda tareas, calcula deudas o reorganiza tu día</p>
+        </div>
+
+        <!-- Quick Suggestion Chips -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2.5">
+          <button onclick="sendSuggestion('¿Qué tengo hoy?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">
+            ¿Qué tengo hoy?
+          </button>
+          <button onclick="sendSuggestion('Resumen de mi dinero')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">
+            Resumen de mi dinero
+          </button>
+          <button onclick="sendSuggestion('Organiza mis prioridades')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">
+            Organiza mis prioridades
+          </button>
+          <button onclick="sendSuggestion('Reorganiza mis tareas pendientes')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">
+            Reorganiza mis tareas pendientes
+          </button>
+        </div>
+
+        <!-- Chat Messages Card -->
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-soft flex flex-col">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Chat en tiempo real</span>
+            <button onclick="clearChatHistory()" class="text-[11px] font-semibold text-slate-400 hover:text-rose-500 transition">Limpiar chat</button>
+          </div>
+
+          <div id="aiChatMessages" class="space-y-3 max-h-[38vh] overflow-y-auto pr-1 py-1"></div>
+
+          <!-- Chat Input Bar -->
+          <div class="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+            <input
+              id="aiChatInput"
+              type="text"
+              placeholder="Ej: Gasté 5$ en pasaje y recibí 20$..."
+              onkeydown="if(event.key==='Enter') handleSendChat()"
+              class="w-full bg-slate-100 dark:bg-[#0B1120] text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-2xl px-3.5 py-2.5 outline-none border border-transparent focus:border-indigo-500 transition"
+            />
+            <button onclick="pickPhoto()" aria-label="Foto" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">📷</button>
+            <input id="photoInput" type="file" accept="image/*" class="hidden" onchange="handlePhoto(this)">
+            <button onclick="startVoice()" aria-label="Hablar" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🎤</button>
+            <button onclick="toggleVoiceReplies()" aria-label="Respuestas por voz" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🔊</button>
+            <button id="aiSendBtn" onclick="handleSendChat()" class="w-11 h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-sm active:scale-95 transition flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- MODULE 4: FINANZAS PERSONALES                             -->
+      <!-- ========================================================= -->
+      <section id="view-finanzas" class="tab-view hidden space-y-4">
+
+        <!-- Segmented Control -->
+        <div class="bg-slate-200/70 dark:bg-[#151C2C] p-1 rounded-2xl grid grid-cols-3 gap-1">
+          <button id="finTabResumen" onclick="setFinanceSubtab('resumen')" class="py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#232E47] text-slate-900 dark:text-white shadow-sm transition">
+            Resumen
+          </button>
+          <button id="finTabPresupuesto" onclick="setFinanceSubtab('presupuesto')" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition">
+            Presupuesto y Metas
+          </button>
+          <button id="finTabDeudas" onclick="setFinanceSubtab('deudas')" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition">
+            Deudas
+          </button>
+        </div>
+
+        <!-- SUB-VIEW 4A: RESUMEN -->
+        <div id="finSub-resumen" class="space-y-4">
+          <!-- Dual Currency Balance Card -->
+          <div class="rounded-3xl p-5 bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 text-white shadow-orb">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-semibold text-indigo-100">Balance Total Combinado</span>
+              <button onclick="openRateModal()" class="px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-[11px] font-bold backdrop-blur-sm transition">
+                Tasa: <span id="finCardRate">45.00</span> Bs ✎
+              </button>
+            </div>
+            <div class="text-3xl font-extrabold font-display tracking-tight mt-1" id="finTotalUsd">$0.00</div>
+            <div class="text-xs font-medium text-indigo-100 mt-0.5" id="finTotalVes">En Bolívares: 0.00 Bs</div>
+
+            <div class="grid grid-cols-2 gap-2.5 mt-4 pt-3.5 border-t border-white/15">
+              <div class="bg-white/10 rounded-2xl p-2.5">
+                <div class="text-[11px] text-indigo-100">Ingresos</div>
+                <div class="text-sm font-extrabold text-emerald-300 mt-0.5" id="finTotalIncome">+$0.00</div>
+              </div>
+              <div class="bg-white/10 rounded-2xl p-2.5">
+                <div class="text-[11px] text-indigo-100">Gastos</div>
+                <div class="text-sm font-extrabold text-rose-200 mt-0.5" id="finTotalExpense">-$0.00</div>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="openTxModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Registrar Ingreso o Gasto</span>
+          </button>
+
+          <!-- Interactive SVG Donut Chart -->
+          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white mb-3">Gastos por Categoría</h3>
+            <div class="flex items-center justify-between gap-4">
+              <div class="relative w-36 h-36 flex-shrink-0 mx-auto">
+                <svg id="expenseDonutSvg" viewBox="0 0 120 120" class="w-full h-full -rotate-90"></svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
+                  <span class="text-[10px] font-semibold text-slate-400">Total Gastos</span>
+                  <span id="donutCenterTotal" class="text-sm font-extrabold text-slate-900 dark:text-white font-display">$0.00</span>
+                </div>
+              </div>
+              <div id="expenseCategoryLegend" class="flex-1 space-y-2"></div>
+            </div>
+          </div>
+
+          <!-- Income vs Expenses Bar Chart -->
+          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white mb-3">Ingresos vs. Gastos</h3>
+            <div id="incomeExpenseBarChart" class="space-y-3"></div>
+          </div>
+
+          <!-- Full Transaction List -->
+          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white mb-3">Historial de Movimientos</h3>
+            <div id="finTransactionList" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 4B: PRESUPUESTO Y METAS -->
+        <div id="finSub-presupuesto" class="hidden space-y-4">
+          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Presupuesto Mensual</h3>
+              <button onclick="openBudgetModal()" class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 text-xs font-bold active:scale-95 transition">
+                Editar límite
+              </button>
+            </div>
+            <div class="flex items-baseline justify-between mt-2 mb-1">
+              <span class="text-2xl font-extrabold text-slate-900 dark:text-white font-display" id="budgetSpentBig">$0.00</span>
+              <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">de <strong id="budgetLimitBig" class="text-slate-800 dark:text-slate-200">$250.00</strong></span>
+            </div>
+            <div class="w-full h-3.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden my-2.5">
+              <div id="budgetMainBar" class="h-full rounded-full bg-indigo-600 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div id="budgetAlertBox" class="text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#0B1120] rounded-2xl p-3"></div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Metas de Ahorro</h3>
+            <button onclick="openGoalModal()" class="px-3.5 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-bold shadow-sm active:scale-95 transition">
+              + Nueva Meta
+            </button>
+          </div>
+          <div id="savingsGoalsList" class="space-y-3"></div>
+        </div>
+
+        <!-- SUB-VIEW 4C: DEUDAS -->
+        <div id="finSub-deudas" class="hidden space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-emerald-50 dark:bg-emerald-950/35 border border-emerald-200/80 dark:border-emerald-800/50 rounded-3xl p-4">
+              <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300">Me deben (+)</span>
+              <div id="debtTotalOwedToMe" class="text-xl font-extrabold text-emerald-700 dark:text-emerald-200 font-display mt-1">$0.00</div>
+            </div>
+            <div class="bg-rose-50 dark:bg-rose-950/35 border border-rose-200/80 dark:border-rose-800/50 rounded-3xl p-4">
+              <span class="text-xs font-bold text-rose-800 dark:text-rose-300">Yo debo (-)</span>
+              <div id="debtTotalIOwe" class="text-xl font-extrabold text-rose-700 dark:text-rose-200 font-display mt-1">$0.00</div>
+            </div>
+          </div>
+
+          <button onclick="openDebtModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition">
+            <span>+ Registrar Deuda o Préstamo</span>
+          </button>
+
+          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white mb-3">Cuentas por Cobrar y Pagar</h3>
+            <div id="debtsListContainer" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- MODULE 5: RUTINAS Y ESTADÍSTICAS                          -->
+      <!-- ========================================================= -->
+      <section id="view-rutinas" class="tab-view hidden space-y-4">
+
+        <!-- Interactive Focus / Routine Countdown Timer -->
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-sm font-extrabold text-slate-900 dark:text-white">Temporizador de Enfoque</h2>
+              <p id="timerActiveHabitLabel" class="text-xs text-slate-500 dark:text-slate-400">Rutina de la mañana · Selecciona un paso</p>
+            </div>
+            <select id="timerPresetSelect" onchange="changeTimerPreset()" class="bg-slate-100 dark:bg-[#0B1120] text-xs font-bold text-slate-700 dark:text-slate-200 rounded-xl px-2.5 py-1.5 outline-none border border-slate-200 dark:border-slate-700">
+              <option value="5">5 min</option>
+              <option value="10">10 min</option>
+              <option value="15">15 min</option>
+              <option value="25" selected>25 min</option>
+              <option value="45">45 min</option>
+            </select>
+          </div>
+
+          <select id="timerSubjectSelect" class="w-full mb-2 bg-slate-100 dark:bg-[#0B1120] text-xs font-bold text-slate-700 dark:text-slate-200 rounded-xl px-2.5 py-2 outline-none"></select>
+          <div class="flex items-center justify-between gap-4 py-1">
+            <div class="relative w-28 h-28 flex-shrink-0">
+              <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" fill="none" class="text-slate-100 dark:text-slate-800"></circle>
+                <circle id="timerProgressCircle" cx="50" cy="50" r="42" stroke="#4F46E5" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="263.89" stroke-dashoffset="0" class="transition-all duration-300"></circle>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="timerDisplay" class="text-xl font-extrabold text-slate-900 dark:text-white font-display">25:00</span>
+                <span id="timerStateText" class="text-[10px] font-semibold text-slate-400">Listo</span>
+              </div>
+            </div>
+
+            <div class="flex-1 flex flex-col gap-2">
+              <button id="timerToggleBtn" onclick="toggleFocusTimer()" class="w-full py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition">
+                <span id="timerToggleIcon">▶</span>
+                <span id="timerToggleLabel">Iniciar sesión</span>
+              </button>
+              <button onclick="resetFocusTimer()" class="w-full py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold active:scale-95 transition">
+                Reiniciar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rutina Diaria Checklist -->
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Rutina de la Mañana y Hábitos</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Toca Play para iniciar el temporizador de ese paso</p>
+            </div>
+            <button onclick="openHabitModal()" class="px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold active:scale-95 transition">
+              + Paso
+            </button>
+          </div>
+          <div id="routineChecklist" class="space-y-2.5"></div>
+        </div>
+
+        <!-- Estadísticas de Productividad -->
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Progreso y Racha</h2>
+            <span id="statsStreakPill" class="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold">🔥 4 días</span>
+          </div>
+
+          <div class="flex items-center gap-4 bg-slate-50 dark:bg-[#0B1120] rounded-2xl p-3.5">
+            <div class="relative w-20 h-20 flex-shrink-0">
+              <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="9" fill="none" class="text-slate-200 dark:text-slate-800"></circle>
+                <circle id="focusScoreRing" cx="50" cy="50" r="40" stroke="#10B981" stroke-width="9" stroke-linecap="round" fill="none" stroke-dasharray="251.32" stroke-dashoffset="60"></circle>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="focusScoreValue" class="text-base font-extrabold text-slate-900 dark:text-white font-display">0%</span>
+                <span class="text-[9px] font-bold text-slate-400">Hoy</span>
+              </div>
+            </div>
+            <div class="flex-1 space-y-1.5">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Cumplimiento Diario</div>
+              <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span>Hábitos completados</span>
+                <strong id="statsHabitsRatio" class="text-emerald-600 dark:text-emerald-400">0/0</strong>
+              </div>
+              <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span>Tareas cumplidas</span>
+                <strong id="statsTasksRatio" class="text-indigo-600 dark:text-indigo-400">0/0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5">Racha Semanal</div>
+            <div id="weeklyStreakBars" class="grid grid-cols-7 gap-2 items-end h-28 pt-2 px-1"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="view-materias" class="tab-view hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Materias y notas</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Cuánto llevas y cuánto necesitas para aprobar</p>
+          </div>
+          <button onclick="openEvalModal()" class="px-3.5 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-bold shadow-sm active:scale-95 transition">+ Evaluación</button>
+        </div>
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
+          <span>Nota máxima</span>
+          <input id="gradeMaxInput" type="number" onchange="setGradeScale()" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-slate-900 dark:text-white outline-none" />
+          <span>Para aprobar</span>
+          <input id="gradePassInput" type="number" step="0.5" onchange="setGradeScale()" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-slate-900 dark:text-white outline-none" />
+        </div>
+        <div id="weeklyCard"></div>
+        <div id="subjectsList" class="space-y-3"></div>
+      </section>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- FIXED GLASSMORPHIC BOTTOM NAVIGATION BAR (5 TABS)         -->
+    <!-- ========================================================= -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-30 bg-white/90 dark:bg-[#111827]/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/90 px-2 py-2">
+      <div class="grid grid-cols-5 items-center text-center">
+        <!-- Tab 1: Inicio -->
+        <button id="nav-inicio" onclick="switchTab('inicio')" class="flex flex-col items-center justify-center py-1 text-indigo-600 dark:text-indigo-400 transition">
+          <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span class="text-[10px] font-bold">Inicio</span>
+        </button>
+
+        <!-- Tab 2: Agenda -->
+        <button id="nav-agenda" onclick="switchTab('agenda')" class="flex flex-col items-center justify-center py-1 text-slate-400 dark:text-slate-500 transition">
+          <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span class="text-[10px] font-bold">Agenda</span>
+        </button>
+
+        <!-- Tab 3: Central Elevated Glowing IA Button -->
+        <div class="flex flex-col items-center justify-center">
+          <button id="nav-ia" onclick="switchTab('ia')" aria-label="Asistente IA" class="-mt-7 w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-600 via-blue-500 to-cyan-400 text-white shadow-orb flex items-center justify-center ring-4 ring-[#F6F8FC] dark:ring-[#0B1120] active:scale-90 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"></path></svg>
+          </button>
+          <span id="nav-ia-label" class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 mt-0.5">Asistente IA</span>
+        </div>
+
+        <!-- Tab 4: Finanzas -->
+        <button id="nav-finanzas" onclick="switchTab('finanzas')" class="flex flex-col items-center justify-center py-1 text-slate-400 dark:text-slate-500 transition">
+          <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>
+          <span class="text-[10px] font-bold">Finanzas</span>
+        </button>
+
+        <!-- Tab 5: Rutinas -->
+        <button id="nav-rutinas" onclick="switchTab('rutinas')" class="flex flex-col items-center justify-center py-1 text-slate-400 dark:text-slate-500 transition">
+          <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span class="text-[10px] font-bold">Rutinas</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Toast Notification Banner -->
+    <div id="toastBanner" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden max-w-[90%] px-4 py-2.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold shadow-xl transition-all"></div>
+
+    <!-- ========================================================= -->
+    <!-- MODALS                                                    -->
+    <!-- ========================================================= -->
+
+    <!-- Modal: AI API Key Settings -->
+    <div id="modalAiSettings" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Ajustes de Inteligencia Artificial</h3>
+          <button onclick="closeModal('modalAiSettings')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          La app ya incluye un motor inteligente integrado que funciona al instante sin internet ni claves. Si descargas la app y quieres conectarla también a la nube de Google AI Studio, pega aquí tu clave gratuita (<code>AIza...</code>):
+        </p>
+        <input id="aiApiKeyInput" type="password" placeholder="Pega tu API Key (AIza...) o déjalo vacío" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm font-mono text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" />
+        <div class="flex gap-2">
+          <button onclick="saveAiApiKey()" class="flex-1 py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm">Guardar Clave</button>
+          <button onclick="clearAiApiKey()" class="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold">Borrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Exchange Rate -->
+    <div id="modalRate" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Tasa de Cambio (Bs por 1 $)</h3>
+          <button onclick="closeModal('modalRate')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <input id="modalRateInput" type="number" step="0.01" placeholder="Ej: 45.50" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-base font-bold text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" />
+        <button onclick="fetchBcvRate(true)" class="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold">Traer tasa del BCV</button>
+        <button onclick="saveRateFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm">Actualizar Tasa</button>
+      </div>
+    </div>
+
+    <!-- Modal: Add Task -->
+    <div id="modalTask" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nueva Tarea o Evento</h3>
+          <button onclick="closeModal('modalTask')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <input id="taskTitleInput" type="text" placeholder="¿Qué actividad vas a realizar?" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" />
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Fecha</label>
+            <input id="taskDateInput" type="date" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 dark:text-white outline-none" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Categoría</label>
+            <select id="taskCategoryInput" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 dark:text-white outline-none">
+              <option value="Personal">Personal</option>
+              <option value="Estudio">Estudio</option>
+              <option value="Trabajo">Trabajo</option>
+              <option value="Pago">Pago</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Hora inicio</label>
+            <input id="taskStartInput" type="time" value="09:00" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 dark:text-white outline-none" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Hora fin</label>
+            <input id="taskEndInput" type="time" value="10:00" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 dark:text-white outline-none" />
+          </div>
+        </div>
+        <button onclick="saveTaskFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm">Guardar en Agenda</button>
+      </div>
+    </div>
+
+    <!-- Modal: Register Transaction -->
+    <div id="modalTx" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Registrar Movimiento</h3>
+          <button onclick="closeModal('modalTx')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <select id="txTypeInput" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none">
+            <option value="gasto">Gasto (-)</option>
+            <option value="ingreso">Ingreso (+)</option>
+          </select>
+          <select id="txCurrencyInput" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none">
+            <option value="USD">Dólares ($)</option>
+            <option value="VES">Bolívares (Bs)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <input id="txAmountInput" type="number" step="0.01" placeholder="Monto (ej: 10)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+          <select id="txCategoryInput" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none">
+            <option value="Comida">🍔 Comida</option>
+            <option value="Transporte">🚌 Transporte</option>
+            <option value="Estudios">📚 Estudios</option>
+            <option value="Servicios">💡 Servicios</option>
+            <option value="Otros">✨ Otros</option>
+          </select>
+        </div>
+        <input id="txNoteInput" type="text" placeholder="Descripción (ej: Almuerzo, Pasaje, Pago)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <button onclick="saveTxFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm">Guardar Movimiento</button>
+      </div>
+    </div>
+
+    <!-- Modal: Budget -->
+    <div id="modalBudget" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Presupuesto Mensual ($)</h3>
+          <button onclick="closeModal('modalBudget')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <input id="budgetLimitInput" type="number" step="1" placeholder="Ej: 250" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-base font-bold text-slate-900 dark:text-white outline-none" />
+        <button onclick="saveBudgetFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar Límite</button>
+      </div>
+    </div>
+
+    <!-- Modal: New Goal -->
+    <div id="modalGoal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nueva Meta de Ahorro</h3>
+          <button onclick="closeModal('modalGoal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <input id="goalTitleInput" type="text" placeholder="Nombre de la meta" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <div class="grid grid-cols-2 gap-2.5">
+          <input id="goalTargetInput" type="number" step="1" placeholder="Meta total ($)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+          <input id="goalInitialInput" type="number" step="1" placeholder="Ahorro inicial ($)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+        </div>
+        <button onclick="saveGoalFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Crear Meta</button>
+      </div>
+    </div>
+
+    <!-- Modal: Goal Deposit -->
+    <div id="modalGoalDeposit" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 id="goalDepositHeading" class="text-base font-extrabold text-slate-900 dark:text-white">Abonar a Meta</h3>
+          <button onclick="closeModal('modalGoalDeposit')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <input id="goalDepositAmount" type="number" step="0.01" placeholder="Monto en dólares ($)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-base font-bold text-slate-900 dark:text-white outline-none" />
+        <button onclick="confirmGoalDeposit()" class="w-full py-3 rounded-2xl bg-emerald-600 text-white text-sm font-bold">Confirmar Abono</button>
+      </div>
+    </div>
+
+    <!-- Modal: Register Debt -->
+    <div id="modalDebt" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Registrar Deuda o Préstamo</h3>
+          <button onclick="closeModal('modalDebt')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <select id="debtTypeInput" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none">
+            <option value="me_deben">Me deben (+)</option>
+            <option value="debo">Yo debo (-)</option>
+          </select>
+          <select id="debtCurrencyInput" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none">
+            <option value="USD">Dólares ($)</option>
+            <option value="VES">Bolívares (Bs)</option>
+          </select>
+        </div>
+        <input id="debtPersonInput" type="text" placeholder="Nombre de la persona" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <input id="debtAmountInput" type="number" step="0.01" placeholder="Monto" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+        <input id="debtNoteInput" type="text" placeholder="Motivo (opcional)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <button onclick="saveDebtFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar Deuda</button>
+      </div>
+    </div>
+
+    <div id="modalEval" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nueva evaluación</h3>
+          <button onclick="closeModal('modalEval')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <input id="evalSubjectInput" list="subjectNames" type="text" placeholder="Materia (ej: Química General)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <datalist id="subjectNames"></datalist>
+        <input id="evalNameInput" type="text" placeholder="Evaluación (ej: Examen 1)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <div class="grid grid-cols-2 gap-2.5">
+          <input id="evalWeightInput" type="number" placeholder="Valor (%)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+          <input id="evalGradeInput" type="number" step="0.1" placeholder="Nota (si ya la tienes)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+        </div>
+        <button onclick="saveEvalFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar</button>
+      </div>
+    </div>
+
+    <div id="modalBackup" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Respaldo de datos</h3>
+          <button onclick="closeModal('modalBackup')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Guarda una copia de todo (tareas, finanzas, notas, rutinas). Para restaurar, pega el texto o elige el archivo y toca Restaurar.</p>
+        <button onclick="exportBackup()" class="w-full py-2.5 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar respaldo</button>
+        <textarea id="backupText" rows="4" placeholder="Aquí aparece el respaldo, o pega uno para restaurar" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-[11px] font-mono text-slate-900 dark:text-white outline-none"></textarea>
+        <input type="file" accept=".json,.txt" onchange="loadBackupFile(this)" class="text-xs text-slate-500 w-full" />
+        <button onclick="importBackup()" class="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold">Restaurar (reemplaza lo actual)</button>
+      </div>
+    </div>
+
+    <!-- Modal: Add Routine Habit -->
+    <div id="modalHabit" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nuevo Paso de Rutina</h3>
+          <button onclick="closeModal('modalHabit')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <input id="habitTitleInput" type="text" placeholder="Ej: Leer 15 páginas, Estiramiento..." class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Ícono</label>
+            <select id="habitIconInput" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-sm font-semibold text-slate-900 dark:text-white outline-none">
+              <option value="✨">✨ General</option>
+              <option value="📚">📚 Estudio / Lectura</option>
+              <option value="🏃">🏃 Ejercicio</option>
+              <option value="💧">💧 Salud / Agua</option>
+              <option value="🧘">🧘 Enfoque / Calma</option>
+              <option value="💰">💰 Finanzas</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-400 block mb-1">Minutos</label>
+            <input id="habitDurationInput" type="number" value="15" min="1" max="180" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-2.5 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+          </div>
+        </div>
+        <button onclick="saveHabitFromModal()" class="w-full py-3 rounded-2xl bg-emerald-600 text-white text-sm font-bold">Agregar a Rutina</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- COMPLETE APPLICATION LOGIC (SAFE STORAGE + GEMINI + LOCAL SMART ENGINE) -->
+  <!-- ======================================================================= -->
+  <script>
+    // =========================================================================
+    // 1. SAFE STORAGE WRAPPER WITH MEMORY FALLBACK (NEVER FAILS IN IFRAMES)
+    // =========================================================================
+    const memoryStorageFallback = {};
+    function safeGetItem(key) {
+      try {
+        return window.localStorage.getItem(key);
+      } catch (e) {
+        return memoryStorageFallback[key] || null;
+      }
+    }
+    function safeSetItem(key, value) {
+      memoryStorageFallback[key] = value;
+      try {
+        window.localStorage.setItem(key, value);
+      } catch (e) {
+        // Fallback already stored in memoryStorageFallback
+      }
+    }
+
+    // =========================================================================
+    // 2. DATE & TIME UTILITIES
+    // =========================================================================
+    function getIsoDateOffset(days = 0) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getNextWeekdayIso(targetWeekdayIndex) {
+      // 0=domingo, 1=lunes, 2=martes, 3=miércoles, 4=jueves, 5=viernes, 6=sábado
+      const now = new Date();
+      const current = now.getDay();
+      let diff = (targetWeekdayIndex - current + 7) % 7;
+      if (diff === 0) diff = 7;
+      return getIsoDateOffset(diff);
+    }
+
+    function addOneHour(hhmm) {
+      const [h, m] = (hhmm || '09:00').split(':').map(Number);
+      const nextH = (h + 1) % 24;
+      return `${String(nextH).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`;
+    }
+
+    // =========================================================================
+    // 3. INITIAL DEFAULT STATE
+    // =========================================================================
+    const STORAGE_KEY = 'mi_asistente_completo_v2';
+
+    function createDefaultState() {
+      const today = getIsoDateOffset(0);
+      const tomorrow = getIsoDateOffset(1);
+      return {
+        theme: 'light',
+        subjects: [],
+        gradeMax: 20,
+        gradePass: 10,
+        busyWeekdays: [],
+        busyDates: [],
+        voiceReplies: true,
+        studyLog: [],
+        rateUpdated: '',
+        customApiKey: '',
+        exchangeRate: 45.00,
+        monthlyBudget: 250.00,
+        tasks: [
+          { id: 101, title: 'Revisar prioridades y mensajes del día', date: today, startTime: '08:30', endTime: '09:15', category: 'Personal', done: true },
+          { id: 102, title: 'Bloque de estudio y repaso', date: today, startTime: '10:00', endTime: '11:30', category: 'Estudio', done: false },
+          { id: 103, title: 'Pagar servicio de internet', date: today, startTime: '15:00', endTime: '15:30', category: 'Pago', done: false },
+          { id: 104, title: 'Reunión de trabajo y seguimiento', date: tomorrow, startTime: '09:30', endTime: '10:30', category: 'Trabajo', done: false }
+        ],
+        transactions: [
+          { id: 201, type: 'ingreso', currency: 'USD', amount: 120.00, category: 'Otros', note: 'Saldo inicial disponible', date: today },
+          { id: 202, type: 'gasto', currency: 'USD', amount: 12.50, category: 'Comida', note: 'Almuerzo y café', date: today },
+          { id: 203, type: 'gasto', currency: 'VES', amount: 180.00, category: 'Transporte', note: 'Pasaje del día', date: today }
+        ],
+        goals: [
+          { id: 301, title: 'Fondo de Emergencia', saved: 65, target: 200 },
+          { id: 302, title: 'Teléfono / Equipo Nuevo', saved: 90, target: 300 }
+        ],
+        debts: [
+          { id: 401, type: 'me_deben', person: 'Carlos', currency: 'USD', amount: 15.00, note: 'Préstamo almuerzo', paid: false },
+          { id: 402, type: 'debo', person: 'María', currency: 'USD', amount: 8.00, note: 'Copias y materiales', paid: false }
+        ],
+        habits: [
+          { id: 501, title: 'Planificar metas del día', icon: '✨', duration: 5, done: true },
+          { id: 502, title: 'Estudio o lectura enfocada', icon: '📚', duration: 25, done: false },
+          { id: 503, title: 'Caminata o estiramiento', icon: '🏃', duration: 15, done: false },
+          { id: 504, title: 'Registrar gastos del día', icon: '💰', duration: 5, done: false }
+        ],
+        streakDays: 4,
+        weeklyHistory: [65, 80, 100, 75, 90, 0, 0],
+        chat: [
+          {
+            role: 'ai',
+            text: '¡Hola! Soy tu Asistente Personal. Conozco tu agenda, tu dinero en dólares y bolívares, tus deudas y tus rutinas. Prueba escribirme: "Gasté 5$ en pasaje y recibí 20$", "Mañana a las 3 pm ir al banco" o "¿Cuánto dinero me queda?".',
+            actions: []
+          }
+        ]
+      };
+    }
+
+    let appState = (() => {
+      const raw = safeGetItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          return { ...createDefaultState(), ...JSON.parse(raw) };
+        } catch (e) {}
+      }
+      return createDefaultState();
+    })();
+
+    function saveState() {
+      safeSetItem(STORAGE_KEY, JSON.stringify(appState));
+      renderAll();
+      scheduleNotifSoon();
+    }
+
+    // Transient UI State
+    let activeTab = 'inicio';
+    let calendarMode = 'month';
+    let selectedDate = getIsoDateOffset(0);
+    let viewMonthDate = new Date();
+    let financeSubtab = 'resumen';
+    let activeDepositGoalId = null;
+
+    // Timer State
+    let timerTotalSeconds = 25 * 60;
+    let timerRemainingSeconds = 25 * 60;
+    let timerInterval = null;
+    let timerLinkedHabitId = null;
+
+    // =========================================================================
+    // 4. THEME & NAVIGATION
+    // =========================================================================
+    function applyTheme() {
+      if (appState.theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function toggleTheme() {
+      appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
+      applyTheme();
+      saveState();
+    }
+
+    function switchTab(tabName) {
+      activeTab = tabName;
+      ['inicio', 'agenda', 'ia', 'finanzas', 'rutinas', 'materias'].forEach(t => {
+        const viewEl = document.getElementById(`view-${t}`);
+        if (viewEl) viewEl.classList.toggle('hidden', t !== tabName);
+
+        const navBtn = document.getElementById(`nav-${t}`);
+        if (navBtn && t !== 'ia') {
+          if (t === tabName) {
+            navBtn.classList.remove('text-slate-400', 'dark:text-slate-500');
+            navBtn.classList.add('text-indigo-600', 'dark:text-indigo-400');
+          } else {
+            navBtn.classList.add('text-slate-400', 'dark:text-slate-500');
+            navBtn.classList.remove('text-indigo-600', 'dark:text-indigo-400');
+          }
+        }
+      });
+
+      const iaLabel = document.getElementById('nav-ia-label');
+      if (iaLabel) {
+        iaLabel.className = tabName === 'ia'
+          ? 'text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5'
+          : 'text-[10px] font-extrabold text-slate-500 dark:text-slate-400 mt-0.5';
+      }
+
+      if (tabName === 'ia') {
+        const box = document.getElementById('aiChatMessages');
+        if (box) box.scrollTop = box.scrollHeight;
+      }
+      renderAll();
+    }
+
+    function openFinanceSubtab(sub) {
+      switchTab('finanzas');
+      setFinanceSubtab(sub);
+    }
+
+    function setFinanceSubtab(sub) {
+      financeSubtab = sub;
+      const tabs = {
+        resumen: 'finTabResumen',
+        presupuesto: 'finTabPresupuesto',
+        deudas: 'finTabDeudas'
+      };
+      Object.entries(tabs).forEach(([key, btnId]) => {
+        const btn = document.getElementById(btnId);
+        const panel = document.getElementById(`finSub-${key}`);
+        if (key === sub) {
+          btn.className = 'py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#232E47] text-slate-900 dark:text-white shadow-sm transition';
+          panel.classList.remove('hidden');
+        } else {
+          btn.className = 'py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition';
+          panel.classList.add('hidden');
+        }
+      });
+      renderFinances();
+    }
+
+    // =========================================================================
+    // 5. TOAST & MODALS
+    // =========================================================================
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toastBanner');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function openAiSettingsModal() {
+      document.getElementById('aiApiKeyInput').value = appState.customApiKey || '';
+      openModal('modalAiSettings');
+    }
+    function saveAiApiKey() {
+      appState.customApiKey = document.getElementById('aiApiKeyInput').value.trim();
+      closeModal('modalAiSettings');
+      saveState();
+      showToast(appState.customApiKey ? 'API Key de Gemini guardada' : 'Usando motor inteligente local');
+    }
+    function clearAiApiKey() {
+      appState.customApiKey = '';
+      document.getElementById('aiApiKeyInput').value = '';
+      closeModal('modalAiSettings');
+      saveState();
+      showToast('Clave eliminada');
+    }
+
+    function openRateModal() {
+      document.getElementById('modalRateInput').value = appState.exchangeRate;
+      openModal('modalRate');
+    }
+    function saveRateFromModal() {
+      const val = parseFloat(document.getElementById('modalRateInput').value);
+      if (val && val > 0) {
+        appState.exchangeRate = val;
+        closeModal('modalRate');
+        saveState();
+        showToast(`Tasa actualizada: ${val.toFixed(2)} Bs`);
+      }
+    }
+
+    function openTaskModal() {
+      document.getElementById('taskTitleInput').value = '';
+      document.getElementById('taskDateInput').value = selectedDate || getIsoDateOffset(0);
+      openModal('modalTask');
+    }
+    function saveTaskFromModal() {
+      const title = document.getElementById('taskTitleInput').value.trim();
+      const date = document.getElementById('taskDateInput').value || getIsoDateOffset(0);
+      const startTime = document.getElementById('taskStartInput').value || '09:00';
+      const endTime = document.getElementById('taskEndInput').value || '10:00';
+      const category = document.getElementById('taskCategoryInput').value || 'Personal';
+      if (!title) {
+        showToast('Escribe el nombre de la tarea');
+        return;
+      }
+      appState.tasks.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        title, date, startTime, endTime, category, done: false
+      });
+      selectedDate = date;
+      closeModal('modalTask');
+      saveState();
+      showToast('Tarea guardada en la agenda');
+    }
+
+    function addQuickAgendaTask() {
+      const title = document.getElementById('quickAgendaTitle').value.trim();
+      const startTime = document.getElementById('quickAgendaTime').value || '10:00';
+      if (!title) {
+        showToast('Escribe una tarea');
+        return;
+      }
+      appState.tasks.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        title,
+        date: selectedDate || getIsoDateOffset(0),
+        startTime,
+        endTime: addOneHour(startTime),
+        category: 'Personal',
+        done: false
+      });
+      document.getElementById('quickAgendaTitle').value = '';
+      saveState();
+      showToast('Tarea agregada');
+    }
+
+    function openTxModal() {
+      document.getElementById('txAmountInput').value = '';
+      document.getElementById('txNoteInput').value = '';
+      openModal('modalTx');
+    }
+    function saveTxFromModal() {
+      const type = document.getElementById('txTypeInput').value;
+      const currency = document.getElementById('txCurrencyInput').value;
+      const amount = parseFloat(document.getElementById('txAmountInput').value);
+      const category = document.getElementById('txCategoryInput').value;
+      const note = document.getElementById('txNoteInput').value.trim() || category;
+      if (!amount || amount <= 0) {
+        showToast('Ingresa un monto válido');
+        return;
+      }
+      appState.transactions.unshift({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        type, currency, amount, category, note, date: getIsoDateOffset(0)
+      });
+      closeModal('modalTx');
+      saveState();
+      showToast(`${type === 'ingreso' ? 'Ingreso' : 'Gasto'} registrado`);
+    }
+
+    function openBudgetModal() {
+      document.getElementById('budgetLimitInput').value = appState.monthlyBudget;
+      openModal('modalBudget');
+    }
+    function saveBudgetFromModal() {
+      const val = parseFloat(document.getElementById('budgetLimitInput').value);
+      if (val && val > 0) {
+        appState.monthlyBudget = val;
+        closeModal('modalBudget');
+        saveState();
+        showToast('Presupuesto actualizado');
+      }
+    }
+
+    function openGoalModal() {
+      document.getElementById('goalTitleInput').value = '';
+      document.getElementById('goalTargetInput').value = '';
+      document.getElementById('goalInitialInput').value = '';
+      openModal('modalGoal');
+    }
+    function saveGoalFromModal() {
+      const title = document.getElementById('goalTitleInput').value.trim();
+      const target = parseFloat(document.getElementById('goalTargetInput').value);
+      const saved = parseFloat(document.getElementById('goalInitialInput').value) || 0;
+      if (!title || !target || target <= 0) {
+        showToast('Completa los datos de la meta');
+        return;
+      }
+      appState.goals.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        title, saved, target
+      });
+      closeModal('modalGoal');
+      saveState();
+      showToast('Meta creada');
+    }
+
+    function openDepositModal(goalId) {
+      const g = appState.goals.find(x => x.id === goalId);
+      if (!g) return;
+      activeDepositGoalId = goalId;
+      document.getElementById('goalDepositHeading').textContent = `Abonar a: ${g.title}`;
+      document.getElementById('goalDepositAmount').value = '';
+      openModal('modalGoalDeposit');
+    }
+    function confirmGoalDeposit() {
+      const amt = parseFloat(document.getElementById('goalDepositAmount').value);
+      const g = appState.goals.find(x => x.id === activeDepositGoalId);
+      if (!g || !amt || amt <= 0) {
+        showToast('Ingresa un monto válido');
+        return;
+      }
+      g.saved += amt;
+      closeModal('modalGoalDeposit');
+      saveState();
+      showToast(`Abonaste $${amt.toFixed(2)}`);
+    }
+
+    function openDebtModal() {
+      document.getElementById('debtPersonInput').value = '';
+      document.getElementById('debtAmountInput').value = '';
+      document.getElementById('debtNoteInput').value = '';
+      openModal('modalDebt');
+    }
+    function saveDebtFromModal() {
+      const type = document.getElementById('debtTypeInput').value;
+      const currency = document.getElementById('debtCurrencyInput').value;
+      const person = document.getElementById('debtPersonInput').value.trim();
+      const amount = parseFloat(document.getElementById('debtAmountInput').value);
+      const note = document.getElementById('debtNoteInput').value.trim();
+      if (!person || !amount || amount <= 0) {
+        showToast('Ingresa la persona y el monto');
+        return;
+      }
+      appState.debts.unshift({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        type, person, currency, amount, note, paid: false
+      });
+      closeModal('modalDebt');
+      saveState();
+      showToast('Deuda registrada');
+    }
+
+    function openHabitModal() {
+      document.getElementById('habitTitleInput').value = '';
+      document.getElementById('habitDurationInput').value = '15';
+      openModal('modalHabit');
+    }
+    function saveHabitFromModal() {
+      const title = document.getElementById('habitTitleInput').value.trim();
+      const icon = document.getElementById('habitIconInput').value;
+      const duration = parseInt(document.getElementById('habitDurationInput').value, 10) || 15;
+      if (!title) {
+        showToast('Escribe el nombre del paso');
+        return;
+      }
+      appState.habits.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        title, icon, duration, done: false
+      });
+      closeModal('modalHabit');
+      saveState();
+      showToast('Paso agregado a la rutina');
+    }
+
+    // =========================================================================
+    // 6. CORE MUTATIONS
+    // =========================================================================
+    function toggleTaskDone(id) {
+      const t = appState.tasks.find(x => x.id === id);
+      if (t) {
+        t.done = !t.done;
+        saveState();
+      }
+    }
+    function deleteTask(id) {
+      appState.tasks = appState.tasks.filter(x => x.id !== id);
+      saveState();
+      showToast('Tarea eliminada');
+    }
+    function deleteTransaction(id) {
+      appState.transactions = appState.transactions.filter(x => x.id !== id);
+      saveState();
+      showToast('Movimiento eliminado');
+    }
+    function toggleDebtPaid(id) {
+      const d = appState.debts.find(x => x.id === id);
+      if (d) {
+        d.paid = !d.paid;
+        saveState();
+        showToast(d.paid ? 'Deuda marcada como saldada' : 'Deuda reabierta');
+      }
+    }
+    function deleteDebt(id) {
+      appState.debts = appState.debts.filter(x => x.id !== id);
+      saveState();
+      showToast('Registro eliminado');
+    }
+    function toggleHabitDone(id) {
+      const h = appState.habits.find(x => x.id === id);
+      if (h) {
+        h.done = !h.done;
+        updateTodayWeeklyHistory();
+        saveState();
+      }
+    }
+    function deleteHabit(id) {
+      appState.habits = appState.habits.filter(x => x.id !== id);
+      updateTodayWeeklyHistory();
+      saveState();
+      showToast('Paso eliminado');
+    }
+
+    function updateTodayWeeklyHistory() {
+      const jsDay = new Date().getDay();
+      const monIdx = jsDay === 0 ? 6 : jsDay - 1;
+      const total = appState.habits.length;
+      const done = appState.habits.filter(h => h.done).length;
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      if (!Array.isArray(appState.weeklyHistory) || appState.weeklyHistory.length !== 7) {
+        appState.weeklyHistory = [60, 75, 85, 70, 90, 0, 0];
+      }
+      appState.weeklyHistory[monIdx] = pct;
+    }
+
+    // =========================================================================
+    // 7. HELPERS & FINANCIAL METRICS
+    // =========================================================================
+    function calcDurationLabel(start, end) {
+      if (!start || !end) return '1h';
+      const [sh, sm] = start.split(':').map(Number);
+      const [eh, em] = end.split(':').map(Number);
+      let mins = (eh * 60 + em) - (sh * 60 + sm);
+      if (mins <= 0) mins = 60;
+      if (mins < 60) return `${mins}m`;
+      const hrs = mins / 60;
+      return Number.isInteger(hrs) ? `${hrs}h` : `${hrs.toFixed(1)}h`;
+    }
+
+    function getCategoryStyle(cat) {
+      const map = {
+        Personal: { bar: 'bg-blue-500', pill: 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300' },
+        Estudio: { bar: 'bg-violet-500', pill: 'bg-violet-50 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300' },
+        Trabajo: { bar: 'bg-amber-500', pill: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300' },
+        Pago: { bar: 'bg-rose-500', pill: 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300' }
+      };
+      return map[cat] || map.Personal;
+    }
+
+    function computeFinanceMetrics() {
+      const rate = appState.exchangeRate || 45;
+      let netUsdWallet = 0;
+      let netVesWallet = 0;
+      let incomeUsdEquiv = 0;
+      let expenseUsdEquiv = 0;
+
+      const catTotals = { Comida: 0, Transporte: 0, Estudios: 0, Servicios: 0, Otros: 0 };
+
+      appState.transactions.forEach(tx => {
+        const amt = Number(tx.amount) || 0;
+        const inUsd = tx.currency === 'USD' ? amt : amt / rate;
+
+        if (tx.currency === 'USD') {
+          netUsdWallet += tx.type === 'ingreso' ? amt : -amt;
+        } else {
+          netVesWallet += tx.type === 'ingreso' ? amt : -amt;
+        }
+
+        if (tx.type === 'ingreso') {
+          incomeUsdEquiv += inUsd;
+        } else {
+          expenseUsdEquiv += inUsd;
+          const key = catTotals.hasOwnProperty(tx.category) ? tx.category : 'Otros';
+          catTotals[key] += inUsd;
+        }
+      });
+
+      const totalCombinedUsd = netUsdWallet + (netVesWallet / rate);
+      const totalCombinedVes = totalCombinedUsd * rate;
+
+      let owedToMeUsd = 0;
+      let iOweUsd = 0;
+      appState.debts.filter(d => !d.paid).forEach(d => {
+        const inUsd = d.currency === 'USD' ? d.amount : d.amount / rate;
+        if (d.type === 'me_deben') owedToMeUsd += inUsd;
+        else iOweUsd += inUsd;
+      });
+
+      return {
+        rate,
+        netUsdWallet,
+        netVesWallet,
+        totalCombinedUsd,
+        totalCombinedVes,
+        incomeUsdEquiv,
+        expenseUsdEquiv,
+        catTotals,
+        owedToMeUsd,
+        iOweUsd
+      };
+    }
+
+    // =========================================================================
+    // 8. RENDERING: INICIO
+    // =========================================================================
+    // ---- Modo app: notificaciones y voz ----
+    const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    function nativePlugin(name) { try { return NATIVE ? window.Capacitor.registerPlugin(name) : null; } catch (e) { return null; } }
+    function wordForSlot(dayN, slot) {
+      const n = dayN * 3 + slot, mode = appState.wordMode || 'ambos', step = mode === 'ambos' ? 2 : 1;
+      if (mode === 'versiculos' || (mode === 'ambos' && n % 2 === 0)) { const v = WORD_VERSOS[Math.floor(n / step) % WORD_VERSOS.length]; return v.r + ' — ' + v.t; }
+      return WORD_FRASES[Math.floor(n / step) % WORD_FRASES.length];
+    }
+    let notifTimer = null;
+    function scheduleNotifSoon() { clearTimeout(notifTimer); notifTimer = setTimeout(scheduleAllNotifications, 1500); }
+    async function scheduleAllNotifications() {
+      const LN = nativePlugin('LocalNotifications');
+      if (!LN) return;
+      try {
+        const perm = await LN.requestPermissions();
+        if (perm.display !== 'granted') return;
+        const pend = await LN.getPending();
+        if (pend.notifications.length) await LN.cancel({ notifications: pend.notifications });
+        const now = new Date(), list = [];
+        let id = 1;
+        const add = (at, title, body) => { if (at > now && list.length < 60) list.push({ id: id++, title, body, schedule: { at, allowWhileIdle: true } }); };
+        appState.tasks.filter(t => !t.done).forEach(t => {
+          const nm = (t.title || '').replace('📝 ', '');
+          add(new Date(t.date + 'T' + (t.startTime || '09:00') + ':00'), '📌 ' + nm, 'Empieza a las ' + (t.startTime || '09:00'));
+          if (t.exam || (t.title || '').startsWith('📝')) add(new Date(shiftIso(t.date, -1) + 'T08:00:00'), '⏰ Mañana: ' + nm, 'Haz un repaso suave y descansa bien.');
+        });
+        const slots = [[7, 0, 'Palabra de la mañana'], [13, 1, 'Palabra de la tarde'], [20, 2, 'Palabra de la noche']];
+        for (let i = 0; i < 7; i++) {
+          const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+          const dayN = Math.floor((day - new Date(day.getFullYear(), 0, 0)) / 86400000);
+          slots.forEach(([h, sl, title]) => add(new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, 0, 0), title, wordForSlot(dayN, sl)));
+        }
+        if (list.length) await LN.schedule({ notifications: list });
+      } catch (e) {}
+    }
+    window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
+    async function speak(text) {
+      const clean = String(text || '').replace(/[•\n]+/g, '. ').slice(0, 600);
+      const TTS = nativePlugin('TextToSpeech');
+      try {
+        if (TTS) { await TTS.speak({ text: clean, lang: 'es-ES', rate: 1.0 }); return; }
+        if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(clean); u.lang = 'es-ES'; speechSynthesis.cancel(); speechSynthesis.speak(u); }
+      } catch (e) {}
+    }
+    function toggleVoiceReplies() {
+      appState.voiceReplies = !appState.voiceReplies;
+      if (!appState.voiceReplies && window.speechSynthesis) speechSynthesis.cancel();
+      saveState();
+      showToast(appState.voiceReplies ? 'Te responderé en voz alta' : 'Respuestas por voz apagadas');
+    }
+    async function startVoice() {
+      const SR = nativePlugin('SpeechRecognition');
+      const inp = document.getElementById('aiChatInput');
+      try {
+        if (SR) {
+          const p = await SR.requestPermissions();
+          if (p.speechRecognition !== 'granted') { showToast('Necesito permiso del micrófono'); return; }
+          const r = await SR.start({ language: 'es-ES', maxResults: 1, prompt: 'Habla ahora', partialResults: false, popup: true });
+          if (r && r.matches && r.matches[0]) { inp.value = r.matches[0]; handleSendChat(); }
+          return;
+        }
+        const W = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!W) { showToast('Este navegador no permite dictado por voz'); return; }
+        const rec = new W();
+        rec.lang = 'es-ES';
+        rec.onresult = e => { inp.value = e.results[0][0].transcript; handleSendChat(); };
+        rec.onerror = () => showToast('No pude escucharte, intenta otra vez');
+        rec.start();
+        showToast('Escuchando…');
+      } catch (e) { showToast('No pude usar el micrófono'); }
+    }
+
+    // ---- Tasa BCV, foto, modo examen, resumen semanal ----
+    async function fetchBcvRate(manual) {
+      try {
+        const r = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
+        const d = await r.json();
+        const v = Number(d.promedio || d.venta || d.compra || d.price);
+        if (!(v > 0)) throw new Error('dato inválido');
+        appState.exchangeRate = Math.round(v * 100) / 100;
+        appState.rateUpdated = getIsoDateOffset(0);
+        closeModal('modalRate');
+        saveState();
+        if (manual) showToast('Tasa BCV: ' + appState.exchangeRate.toFixed(2) + ' Bs');
+      } catch (e) { if (manual) showToast('No pude traer la tasa del BCV, usa la manual'); }
+    }
+    window.addEventListener('load', () => setTimeout(() => { if (appState.rateUpdated !== getIsoDateOffset(0)) fetchBcvRate(false); }, 3000));
+    function pickPhoto() { document.getElementById('photoInput').click(); }
+    async function handlePhoto(inp) {
+      const f = inp.files && inp.files[0];
+      inp.value = '';
+      if (!f) return;
+      if (!appState.customApiKey) { showToast('Para leer fotos necesito la clave de Gemini (botón API Key)'); return; }
+      showToast('Leyendo la imagen…');
+      try {
+        window._pendingImage = await new Promise((res, rej) => {
+          const img = new Image(), url = URL.createObjectURL(f);
+          img.onload = () => {
+            const sc = Math.min(1, 1024 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+            c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            URL.revokeObjectURL(url);
+            res(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
+          };
+          img.onerror = rej;
+          img.src = url;
+        });
+        document.getElementById('aiChatInput').value = 'Analiza la foto adjunta: si es un horario, calendario o lista de tareas crea las tareas con crear_tarea usando fechas reales a partir de fecha_hoy; si es un recibo o factura registra el gasto con registrar_movimiento. Si no se entiende, dilo.';
+        handleSendChat();
+      } catch (e) { showToast('No pude leer esa imagen'); }
+    }
+    function populateTimerSubjects() {
+      const sel = document.getElementById('timerSubjectSelect');
+      if (!sel) return;
+      const cur = sel.value;
+      const names = [...new Set([...(appState.subjects || []).map(x => x.name), ...getExams().map(e => e.title)])];
+      sel.innerHTML = '<option value="">Sin materia (no registrar)</option>' + names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('') + '<option value="Otra">Otra</option>';
+      sel.value = (names.includes(cur) || cur === 'Otra') ? cur : '';
+    }
+    function logStudy(min) {
+      const sel = document.getElementById('timerSubjectSelect');
+      if (!sel || !sel.value) return;
+      appState.studyLog = appState.studyLog || [];
+      appState.studyLog.push({ date: getIsoDateOffset(0), subject: sel.value, minutes: min });
+      saveState();
+    }
+    function fmtMin(m) { return m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : '') : m + ' min'; }
+    function weeklySummary() {
+      const today = getIsoDateOffset(0), from = shiftIso(today, -6), inWeek = d => d >= from && d <= today;
+      const by = {};
+      let total = 0, spent = 0;
+      (appState.studyLog || []).filter(x => inWeek(x.date)).forEach(x => { by[x.subject] = (by[x.subject] || 0) + x.minutes; total += x.minutes; });
+      const wt = appState.tasks.filter(t => inWeek(t.date)), rate = appState.exchangeRate || 45;
+      appState.transactions.filter(t => t.type === 'gasto' && inWeek(t.date)).forEach(t => { spent += t.currency === 'USD' ? t.amount : t.amount / rate; });
+      return { by, total, done: wt.filter(t => t.done).length, tasks: wt.length, spent };
+    }
+    function weeklySummaryText() {
+      const w = weeklySummary();
+      const subj = Object.entries(w.by).sort((a, b) => b[1] - a[1]).map(([k, v]) => `• ${k}: ${fmtMin(v)}`).join('\n');
+      return `Tu semana (últimos 7 días):\n⏱ Estudio registrado: ${w.total ? fmtMin(w.total) : 'nada todavía (usa el temporizador de Rutinas y elige una materia)'}${subj ? '\n' + subj : ''}\n✅ Tareas cumplidas: ${w.done} de ${w.tasks}\n💸 Gastos: $${w.spent.toFixed(2)} (presupuesto mensual $${appState.monthlyBudget})`;
+    }
+    function renderWeekly() {
+      const el = document.getElementById('weeklyCard');
+      if (!el) return;
+      el.innerHTML = `<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft"><div class="flex items-center justify-between mb-2"><h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Resumen semanal</h3><button onclick="askWeeklyAi()" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-300">Análisis con IA →</button></div><pre class="whitespace-pre-wrap text-xs font-medium text-slate-700 dark:text-slate-200" style="font-family:inherit">${escapeHtml(weeklySummaryText())}</pre></div>`;
+    }
+    function askWeeklyAi() { switchTab('ia'); sendSuggestion('Hazme un resumen de mi semana con consejos'); }
+    async function testNotification() {
+      const LN = nativePlugin('LocalNotifications');
+      if (!LN) { showToast('Esto solo funciona en la app instalada'); return; }
+      try {
+        const p = await LN.requestPermissions();
+        if (p.display !== 'granted') { showToast('Activa el permiso de notificaciones'); return; }
+        await LN.schedule({ notifications: [{ id: 999, title: 'Palabra del día', body: currentWord().text, schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true } }] });
+        showToast('Cierra la app: llegará en 5 segundos');
+      } catch (e) { showToast('No pude programarla'); }
+    }
+
+    // ---- Planificador de estudio (varios exámenes, sin choques, con disponibilidad) ----
+    const STUDY_LABELS = ['Repaso final suave', 'Practicar con ejercicios', 'Temas difíciles', 'Esquemas y puntos clave', 'Organizar y resumir el temario', 'Primera lectura del temario', 'Estudiar y practicar el temario', 'Estudiar los temas principales', 'Practicar y repaso final'];
+    const STRATEGIES = {
+      examen: ['Hazte preguntas de cada tema y respóndelas sin mirar los apuntes.', 'Practica con ejercicios o exámenes anteriores, con el tiempo cronometrado.', 'Explica cada tema en voz alta con tus palabras, como si se lo enseñaras a alguien.', 'Anota lo que falles y repásalo de nuevo al día siguiente.'],
+      exposicion: ['Reduce el tema a 3 ideas principales y arma todo alrededor de ellas.', 'Ensáyala en voz alta, de pie y con cronómetro, al menos 3 veces.', 'Usa láminas con poco texto y habla desde tus ideas, sin leer.', 'Prepara 3 preguntas que podrían hacerte y sus respuestas.'],
+      discusion: ['Resume tu postura en una frase y respáldala con 3 argumentos y ejemplos.', 'Anticipa los argumentos contrarios y prepara cómo responderlos.', 'Ten a mano datos o citas concretas del tema.', 'Practica explicar tu postura en un minuto.']
+    };
+    function strategyKey(word) { return /exposici/.test(word) ? 'exposicion' : /discusi|debate/.test(word) ? 'discusion' : 'examen'; }
+    function dayDiff(a, b) {
+      const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number);
+      return Math.round((new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1)) / 86400000);
+    }
+    function getExams() {
+      const today = getIsoDateOffset(0);
+      return appState.tasks.filter(t => !t.done && t.date > today && (t.exam || (t.title || '').startsWith('📝')))
+        .map(t => ({ id: t.id, title: t.title.replace('📝 ', ''), date: t.date }));
+    }
+    function scheduleStudy(exams) {
+      const today = getIsoDateOffset(0);
+      const busyW = appState.busyWeekdays || [], busyD = new Set(appState.busyDates || []);
+      const examDates = new Set(exams.map(e => e.date));
+      const dow = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
+      const isBusy = iso => busyD.has(iso) || busyW.includes(dow(iso));
+      const occ = {};
+      appState.tasks.filter(t => t.session && t.done).forEach(t => { occ[t.date] = (occ[t.date] || 0) + 1; });
+      const steps = [[1, STUDY_LABELS[0]], [2, STUDY_LABELS[1]], [4, STUDY_LABELS[2]], [6, STUDY_LABELS[3]], [9, STUDY_LABELS[4]], [13, STUDY_LABELS[5]]];
+      const out = [];
+      const sorted = exams.slice().sort((a, b) => a.date.localeCompare(b.date));
+      let free = 0;
+      for (let i = 0; sorted.length && i < dayDiff(today, sorted[sorted.length - 1].date); i++) {
+        const d = shiftIso(today, i);
+        if (!isBusy(d) && !examDates.has(d) && !occ[d]) free++;
+      }
+      const cap = {}, alloc = {};
+      sorted.forEach(e => { cap[e.id] = Math.min(5, steps.filter(x => x[0] <= dayDiff(today, e.date)).length); alloc[e.id] = 0; });
+      const goal = Math.max(free, sorted.length);
+      let total = 0, moved = true;
+      while (total < goal && moved) {
+        moved = false;
+        for (const e of sorted) {
+          if (total < goal && alloc[e.id] < cap[e.id]) { alloc[e.id]++; total++; moved = true; }
+        }
+      }
+      sorted.forEach(e => {
+        const left = dayDiff(today, e.date);
+        if (left < 1) return;
+        const mine = new Set();
+        const days = [];
+        for (let i = 0; i < left; i++) days.push(shiftIso(today, i));
+        steps.filter(x => x[0] <= left).slice(0, alloc[e.id]).forEach(([k, label]) => {
+          const want = shiftIso(e.date, -k);
+          const order = days.filter(x => !mine.has(x) && !isBusy(x)).sort((a, b) => Math.abs(dayDiff(a, want)) - Math.abs(dayDiff(b, want)) || a.localeCompare(b));
+          let d = order.find(x => !occ[x] && !examDates.has(x));
+          if (!d) d = order.find(x => !examDates.has(x) && (occ[x] || 0) < 2);
+          if (!d) d = order.find(x => (occ[x] || 0) < 2);
+          if (!d) return;
+          mine.add(d); occ[d] = (occ[d] || 0) + 1;
+          out.push({ examId: e.id, date: d, label, double: occ[d] > 1 });
+        });
+      });
+      const SETS = {
+        1: ['Estudiar y practicar el temario'],
+        2: ['Estudiar los temas principales', 'Practicar y repaso final'],
+        3: ['Organizar y resumir el temario', 'Temas difíciles y práctica', 'Repaso final suave'],
+        4: ['Organizar y resumir el temario', 'Esquemas y puntos clave', 'Practicar con ejercicios', 'Repaso final suave'],
+        5: ['Primera lectura del temario', 'Organizar y resumir el temario', 'Temas difíciles', 'Practicar con ejercicios', 'Repaso final suave']
+      };
+      const by = {};
+      out.forEach(x => { (by[x.examId] = by[x.examId] || []).push(x); });
+      Object.values(by).forEach(g => {
+        g.sort((a, b) => a.date.localeCompare(b.date));
+        const set = SETS[Math.min(g.length, 5)];
+        g.forEach((x, i) => { x.label = set[i]; });
+      });
+      return out.sort((a, b) => a.date.localeCompare(b.date));
+    }
+    function replanStudy() {
+      const exams = getExams();
+      appState.tasks = appState.tasks.filter(t => !(!t.done && (t.session || (!t.exam && t.category === 'Estudio' && STUDY_LABELS.some(l => (t.title || '').startsWith(l + ' — '))))));
+      const plan = scheduleStudy(exams);
+      plan.forEach((x, i) => {
+        const ex = exams.find(e => e.id === x.examId);
+        appState.tasks.push({ id: Date.now() + 500 + i + Math.floor(Math.random() * 10000), title: `${x.label} — ${ex.title}`, date: x.date, startTime: x.double ? '20:00' : '18:00', endTime: x.double ? '21:00' : (x.label === STUDY_LABELS[0] ? '19:00' : '19:30'), category: 'Estudio', done: false, session: true, examId: x.examId });
+      });
+      return plan;
+    }
+    function replanAndSave() { const n = replanStudy().length; saveState(); showToast(`Plan rearmado (${n} sesiones)`); }
+    function setBusyWeekday(i) {
+      const a = appState.busyWeekdays || [];
+      appState.busyWeekdays = a.includes(i) ? a.filter(x => x !== i) : a.concat(i);
+      replanStudy(); saveState();
+    }
+    function toggleBusySelected() {
+      const a = appState.busyDates || [];
+      appState.busyDates = a.includes(selectedDate) ? a.filter(x => x !== selectedDate) : a.concat(selectedDate);
+      replanStudy(); saveState();
+    }
+    function removeBusyDate(iso) { appState.busyDates = (appState.busyDates || []).filter(x => x !== iso); replanStudy(); saveState(); }
+    function renderBusy() {
+      const el = document.getElementById('busyCard');
+      if (!el) return;
+      const today = getIsoDateOffset(0);
+      const bw = appState.busyWeekdays || [];
+      const bd = (appState.busyDates || []).filter(x => x >= today).sort();
+      const names = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      const isBlocked = (appState.busyDates || []).includes(selectedDate);
+      el.innerHTML = `
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card space-y-2.5">
+          <div class="text-xs font-extrabold text-slate-800 dark:text-slate-200">Días en que no puedo estudiar</div>
+          <div class="flex gap-1.5">${names.map((n, i) => `<button onclick="setBusyWeekday(${i})" class="flex-1 py-1.5 rounded-xl text-[11px] font-bold ${bw.includes(i) ? 'bg-rose-500 text-white' : 'bg-slate-100 dark:bg-[#0B1120] text-slate-600 dark:text-slate-300'}">${n}</button>`).join('')}</div>
+          <div class="flex gap-2">
+            <button onclick="toggleBusySelected()" class="flex-1 py-2 rounded-2xl bg-slate-100 dark:bg-[#0B1120] text-[11px] font-bold text-slate-700 dark:text-slate-200">${isBlocked ? 'Liberar' : 'Bloquear'} el día seleccionado</button>
+            <button onclick="replanAndSave()" class="px-3 py-2 rounded-2xl bg-indigo-600 text-white text-[11px] font-bold">↻ Rearmar plan</button>
+          </div>
+          ${bd.length ? `<div class="flex flex-wrap gap-1.5">${bd.map(x => `<button onclick="removeBusyDate('${x}')" class="px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-[11px] font-bold">${x.slice(8)}/${x.slice(5, 7)} ✕</button>`).join('')}</div>` : ''}
+        </div>`;
+    }
+
+    // ---- Avisos, Palabra del día y calendario ----
+    const WORD_FRASES = [
+      'Un paso pequeño hoy vale más que un plan perfecto mañana.',
+      'No tienes que hacerlo todo hoy, solo lo siguiente.',
+      'La constancia le gana al talento cuando el talento no se esfuerza.',
+      'Descansar también es parte de avanzar.',
+      'Lo que estudias hoy es la tranquilidad de tu examen.',
+      'Empieza aunque sea con diez minutos; lo difícil es arrancar.',
+      'Cada tarea terminada es una preocupación menos.',
+      'Tu esfuerzo de hoy está construyendo a la persona que quieres ser.'
+    ];
+    const WORD_VERSOS = [
+      { t: 'Todo lo puedo en Cristo que me fortalece.', r: 'Filipenses 4:13' },
+      { t: 'Fíate de Jehová de todo tu corazón, y no estribes en tu prudencia.', r: 'Proverbios 3:5' },
+      { t: 'Encomienda a Jehová tu camino, y espera en él; y él hará.', r: 'Salmo 37:5' },
+      { t: 'Jehová es mi pastor; nada me faltará.', r: 'Salmo 23:1' },
+      { t: 'Encomienda a Jehová tus obras, y tus pensamientos serán afirmados.', r: 'Proverbios 16:3' },
+      { t: 'Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.', r: 'Mateo 6:33' },
+      { t: 'No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo.', r: 'Isaías 41:10' },
+      { t: 'Esfuérzate y sé valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo.', r: 'Josué 1:9' }
+    ];
+    const WORD_ESTUDIO = [
+      'Hoy toca estudiar: un bloque a la vez y sin distracciones.',
+      'Quien estudia con constancia no necesita suerte.',
+      'Silencia el teléfono 25 minutos y empieza.',
+      'Lo que repasas hoy lo recuerdas el día del examen.',
+      'Estudia lo difícil primero, mientras tienes la mente fresca.',
+      'Termina esta sesión y te habrás ganado un descanso.'
+    ];
+    function todayStudy() { const t = getIsoDateOffset(0); return appState.tasks.find(x => x.session && !x.done && x.date === t) || null; }
+    let wordOffset = 0;
+    function currentWord() {
+      const now = new Date();
+      const slot = now.getHours() < 12 ? 0 : now.getHours() < 19 ? 1 : 2;
+      const dayN = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+      const n = dayN * 3 + slot + wordOffset;
+      const mode = appState.wordMode || 'ambos';
+      const verse = mode === 'versiculos' || (mode === 'ambos' && n % 2 === 0);
+      const step = mode === 'ambos' ? 2 : 1;
+      const label = ['Palabra de la mañana', 'Palabra de la tarde', 'Palabra de la noche'][slot];
+      if (verse) { const v = WORD_VERSOS[Math.floor(n / step) % WORD_VERSOS.length]; return { label, text: '“' + v.t + '”', ref: v.r }; }
+      const pool = todayStudy() ? WORD_ESTUDIO : WORD_FRASES;
+      return { label, text: pool[Math.floor(n / step) % pool.length], ref: '' };
+    }
+    function nextWord() { wordOffset++; renderWord(); }
+    function setWordMode(m) { appState.wordMode = m; wordOffset = 0; saveState(); }
+    function renderWord() {
+      const el = document.getElementById('wordCard');
+      if (!el) return;
+      const w = currentWord();
+      const study = todayStudy();
+      const mode = appState.wordMode || 'ambos';
+      const chip = (k, l) => `<button onclick="setWordMode('${k}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold ${mode === k ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}">${l}</button>`;
+      el.innerHTML = `
+        <div class="rounded-3xl p-4 bg-gradient-to-br from-indigo-50 to-sky-50 dark:from-indigo-950/50 dark:to-sky-950/30 border border-indigo-100 dark:border-indigo-900/60 shadow-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">${w.label}</span>
+            <button onclick="nextWord()" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-300">Otra ↻</button>
+          </div>
+          ${study ? `<p class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">📚 Hoy toca: ${escapeHtml(study.title)}</p>` : ''}
+          <p class="text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-100">${w.text}</p>
+          ${w.ref ? `<p class="text-xs font-bold text-indigo-600 dark:text-indigo-300 mt-1.5">${w.ref}</p>` : ''}
+          <div class="flex items-center gap-1.5 mt-3">${chip('ambos', 'Ambos')}${chip('frases', 'Frases')}${chip('versiculos', 'Versículos')}${NATIVE ? '<button onclick="testNotification()" class="ml-auto px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">🔔 Probar</button>' : ''}</div>
+        </div>`;
+    }
+    function renderAlerts() {
+      const el = document.getElementById('homeAlerts');
+      if (!el) return;
+      const today = getIsoDateOffset(0), tom = getIsoDateOffset(1);
+      const isExam = t => (t.title || '').startsWith('📝');
+      const rows = [];
+      const overdue = appState.tasks.filter(t => !t.done && t.date < today).length;
+      if (overdue) rows.push({ hot: true, text: `⚠️ Tienes ${overdue} ${overdue === 1 ? 'tarea atrasada' : 'tareas atrasadas'}` });
+      appState.tasks.filter(t => !t.done && t.date === tom).forEach(t => rows.push({ hot: isExam(t), text: `${isExam(t) ? '' : '📅 '}Mañana: ${t.title}` }));
+      appState.tasks.filter(t => isExam(t) && !t.done && t.date > tom).forEach(t => {
+        const days = Math.round((new Date(t.date) - new Date(today)) / 86400000);
+        if (days <= 3) rows.push({ hot: true, text: `Faltan ${days} días: ${t.title}` });
+      });
+      const hoy = appState.tasks.filter(t => !t.done && t.date === today);
+      if (hoy.length) rows.push({ hot: false, text: `⏳ Hoy te faltan ${hoy.length} ${hoy.length === 1 ? 'tarea' : 'tareas'}: ${hoy[0].title}${hoy.length > 1 ? '…' : ''}` });
+      el.innerHTML = rows.length ? `
+        <div class="rounded-3xl p-4 bg-white dark:bg-[#151C2C] border border-amber-200 dark:border-amber-800/60 shadow-card">
+          <div class="text-xs font-extrabold text-amber-700 dark:text-amber-300 mb-2">🔔 Avisos</div>
+          <div class="space-y-1.5">${rows.slice(0, 6).map(r => `<div class="text-xs font-semibold ${r.hot ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-200'}">${escapeHtml(r.text)}</div>`).join('')}</div>
+        </div>` : '';
+    }
+    function gcalUrl(title, date, start, end) {
+      const f = (d, t) => d.replace(/-/g, '') + 'T' + (t || '09:00').replace(':', '') + '00';
+      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + f(date, start) + '/' + f(date, end || addOneHour(start)) + '&details=' + encodeURIComponent('Desde Mi Asistente');
+    }
+
+    // ---- Materias y notas ----
+    function subjectStats(sub) {
+      const max = appState.gradeMax || 20, pass = appState.gradePass || 10;
+      let acc = 0, wg = 0, wt = 0;
+      sub.evals.forEach(e => {
+        wt += e.weight;
+        if (e.grade !== null && e.grade !== undefined && e.grade !== '') { acc += e.grade * e.weight / 100; wg += e.weight; }
+      });
+      const left = 100 - wg;
+      return { acc, wg, wt, left, max, pass, need: left > 0 ? (pass - acc) / (left / 100) : null };
+    }
+    function setGradeScale() {
+      const mx = parseFloat(document.getElementById('gradeMaxInput').value);
+      const ps = parseFloat(document.getElementById('gradePassInput').value);
+      if (mx > 0 && ps > 0 && ps <= mx) { appState.gradeMax = mx; appState.gradePass = ps; saveState(); }
+      else showToast('Revisa la escala de notas');
+    }
+    function openEvalModal() {
+      ['evalSubjectInput', 'evalNameInput', 'evalWeightInput', 'evalGradeInput'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('subjectNames').innerHTML = appState.subjects.map(x => `<option value="${escapeHtml(x.name)}">`).join('');
+      openModal('modalEval');
+    }
+    function saveEvalFromModal() {
+      const sname = document.getElementById('evalSubjectInput').value.trim();
+      const ename = document.getElementById('evalNameInput').value.trim() || 'Evaluación';
+      const weight = parseFloat(document.getElementById('evalWeightInput').value);
+      const gv = document.getElementById('evalGradeInput').value;
+      const grade = gv === '' ? null : parseFloat(gv);
+      if (!sname || !(weight > 0) || weight > 100) { showToast('Pon la materia y el valor (1 a 100%)'); return; }
+      let sub = appState.subjects.find(x => x.name.toLowerCase() === sname.toLowerCase());
+      if (!sub) { sub = { id: Date.now(), name: sname, evals: [] }; appState.subjects.push(sub); }
+      sub.evals.push({ id: Date.now() + 1, name: ename, weight, grade });
+      closeModal('modalEval');
+      saveState();
+      showToast('Evaluación guardada');
+    }
+    function setEvalGrade(sid, eid, v) {
+      const sub = appState.subjects.find(x => x.id === sid);
+      const ev = sub && sub.evals.find(x => x.id === eid);
+      if (ev) { ev.grade = v === '' ? null : parseFloat(v); saveState(); }
+    }
+    function deleteEval(sid, eid) {
+      const sub = appState.subjects.find(x => x.id === sid);
+      if (sub) { sub.evals = sub.evals.filter(x => x.id !== eid); saveState(); }
+    }
+    function deleteSubject(sid) {
+      appState.subjects = appState.subjects.filter(x => x.id !== sid);
+      saveState();
+      showToast('Materia eliminada');
+    }
+    function renderSubjects() {
+      renderWeekly();
+      const el = document.getElementById('subjectsList');
+      if (!el) return;
+      document.getElementById('gradeMaxInput').value = appState.gradeMax;
+      document.getElementById('gradePassInput').value = appState.gradePass;
+      if (!appState.subjects.length) {
+        el.innerHTML = '<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 text-center text-xs font-semibold text-slate-400">Aún no tienes materias. Toca <b>+ Evaluación</b> y escribe la materia, el nombre del examen y su valor en %.</div>';
+        return;
+      }
+      el.innerHTML = appState.subjects.map(sub => {
+        const st = subjectStats(sub);
+        let msg, color;
+        if (st.acc >= st.pass) { msg = '✅ Ya llegaste a la nota para aprobar'; color = 'text-emerald-600 dark:text-emerald-400'; }
+        else if (st.left <= 0) { msg = '❌ Con las notas cargadas no alcanza para aprobar'; color = 'text-rose-600 dark:text-rose-400'; }
+        else if (st.need > st.max) { msg = `Ya no alcanza ni sacando ${st.max} en el ${st.left}% restante`; color = 'text-rose-600 dark:text-rose-400'; }
+        else { msg = `Necesitas promediar ${st.need.toFixed(1)} en el ${st.left}% que falta`; color = 'text-indigo-600 dark:text-indigo-300'; }
+        const pct = Math.min(100, Math.round(st.acc / st.pass * 100));
+        const warn = st.wt !== 100 ? `<div class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1">Los valores suman ${st.wt}%, no 100%</div>` : '';
+        const evals = sub.evals.map(e => `
+          <div class="flex items-center gap-2 py-1.5">
+            <div class="flex-1 min-w-0"><div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(e.name)}</div><div class="text-[11px] text-slate-400">${e.weight}%</div></div>
+            <input type="number" step="0.1" value="${e.grade ?? ''}" placeholder="—" onchange="setEvalGrade(${sub.id}, ${e.id}, this.value)" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-xs font-bold text-slate-900 dark:text-white outline-none" />
+            <button onclick="deleteEval(${sub.id}, ${e.id})" aria-label="Eliminar" class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-500 text-xs font-bold">✕</button>
+          </div>`).join('');
+        return `
+          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(sub.name)}</h3>
+              <button onclick="deleteSubject(${sub.id})" class="text-[11px] font-semibold text-slate-400 hover:text-rose-500">Quitar</button>
+            </div>
+            <div class="flex items-baseline justify-between mt-2">
+              <span class="text-2xl font-extrabold font-display text-slate-900 dark:text-white">${st.acc.toFixed(1)}<span class="text-xs font-bold text-slate-400"> / ${st.max}</span></span>
+              <span class="text-[11px] font-semibold text-slate-400">aprobar: ${st.pass}</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden my-2"><div class="h-full rounded-full bg-indigo-600" style="width:${pct}%"></div></div>
+            <div class="text-xs font-bold ${color}">${msg}</div>${warn}
+            <div class="mt-2 divide-y divide-slate-100 dark:divide-slate-800">${evals}</div>
+          </div>`;
+      }).join('');
+    }
+
+    // ---- Respaldo ----
+    function openBackupModal() { document.getElementById('backupText').value = ''; openModal('modalBackup'); }
+    async function exportBackup() {
+      const data = JSON.stringify(appState, null, 1);
+      let d = null;
+      try { d = window.claude ? await window.claude.use('downloads') : null; } catch (e) { d = null; }
+      if (d) {
+        try { await d.save({ filename: 'mi-asistente-respaldo.json', data }); showToast('Respaldo guardado'); return; }
+        catch (e) { if (e && e.code === 'declined') return; }
+      }
+      document.getElementById('backupText').value = data;
+      showToast('Copia ese texto y guárdalo en tus notas');
+    }
+    function loadBackupFile(inp) {
+      const f = inp.files && inp.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => { document.getElementById('backupText').value = String(r.result || ''); };
+      r.readAsText(f);
+    }
+    function importBackup() {
+      try {
+        const o = JSON.parse(document.getElementById('backupText').value.trim());
+        if (!o || !Array.isArray(o.tasks) || !Array.isArray(o.transactions)) throw new Error('bad');
+        appState = { ...createDefaultState(), ...o };
+        closeModal('modalBackup');
+        saveState();
+        showToast('Datos restaurados');
+      } catch (e) { showToast('Ese texto no es un respaldo válido'); }
+    }
+
+    function renderHome() {
+      const today = getIsoDateOffset(0);
+      const fin = computeFinanceMetrics();
+
+      const todayTasks = appState.tasks
+        .filter(t => t.date === today)
+        .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+      const pendingToday = todayTasks.filter(t => !t.done);
+
+      document.getElementById('bentoTasksCount').textContent = pendingToday.length;
+      document.getElementById('bentoTasksSub').textContent = pendingToday.length > 0
+        ? `Próx: ${pendingToday[0].title}`
+        : '¡Todo completado!';
+
+      document.getElementById('bentoBalanceUsd').textContent = `$${fin.totalCombinedUsd.toFixed(2)}`;
+      document.getElementById('bentoBalanceVes').textContent = `≈ ${fin.totalCombinedVes.toFixed(2)} Bs`;
+
+      document.getElementById('bentoOwedToMe').textContent = `Me deben: $${fin.owedToMeUsd.toFixed(0)}`;
+      document.getElementById('bentoIOwe').textContent = `Debo: $${fin.iOweUsd.toFixed(0)}`;
+
+      const totalHabits = appState.habits.length;
+      const doneHabits = appState.habits.filter(h => h.done).length;
+      const habitPct = totalHabits > 0 ? Math.round((doneHabits / totalHabits) * 100) : 0;
+      document.getElementById('bentoRoutinePct').textContent = `${habitPct}%`;
+      document.getElementById('bentoRoutineSub').textContent = `${doneHabits} de ${totalHabits} pasos`;
+      document.getElementById('bentoStreakBadge').textContent = `🔥 ${appState.streakDays}d`;
+
+      // Today's Tasks
+      const listEl = document.getElementById('homeTodayList');
+      if (todayTasks.length === 0) {
+        listEl.innerHTML = `<div class="text-center py-4 text-xs text-slate-400">No tienes tareas para hoy. Toca <b>+ Nueva</b> o pídeselo a la IA.</div>`;
+      } else {
+        listEl.innerHTML = todayTasks.map(t => {
+          const st = getCategoryStyle(t.category);
+          const dur = calcDurationLabel(t.startTime, t.endTime);
+          return `
+            <div onclick="toggleTaskDone(${t.id})" class="cursor-pointer flex items-center gap-3 p-3 rounded-2xl bg-slate-50/90 dark:bg-[#0B1120] border border-slate-100 dark:border-slate-800/80 active:scale-[0.99] transition">
+              <div class="w-1 self-stretch rounded-full ${st.bar}"></div>
+              <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${t.done ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 dark:border-slate-600'}">
+                ${t.done ? '<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold truncate ${t.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}">${escapeHtml(t.title)}</div>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-[11px] font-medium text-slate-400">${t.startTime || '09:00'}</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${st.pill}">${escapeHtml(t.category)}</span>
+                </div>
+              </div>
+              <span class="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 bg-white dark:bg-[#151C2C] px-2.5 py-1 rounded-xl border border-slate-200/70 dark:border-slate-700/70 flex-shrink-0">${dur}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Recent Transactions on Home
+      const recentEl = document.getElementById('homeRecentTxList');
+      const recentTxs = appState.transactions.slice(0, 3);
+      if (recentTxs.length === 0) {
+        recentEl.innerHTML = `<div class="text-center py-3 text-xs text-slate-400">Sin movimientos recientes.</div>`;
+      } else {
+        recentEl.innerHTML = recentTxs.map(tx => {
+          const isInc = tx.type === 'ingreso';
+          const symbol = tx.currency === 'USD' ? '$' : 'Bs ';
+          return `
+            <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-100 dark:border-slate-800/80">
+              <div class="min-w-0 pr-2">
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(tx.note)}</div>
+                <div class="text-[10px] text-slate-400">${escapeHtml(tx.category)}</div>
+              </div>
+              <span class="text-xs font-extrabold flex-shrink-0 ${isInc ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}">
+                ${isInc ? '+' : '-'}${symbol}${Number(tx.amount).toFixed(2)}
+              </span>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // =========================================================================
+    // 9. RENDERING: AGENDA INTELIGENTE
+    // =========================================================================
+    function setCalendarMode(mode) {
+      calendarMode = mode;
+      const stylesActive = 'py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#232E47] text-slate-900 dark:text-white shadow-sm transition';
+      const stylesIdle = 'py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition';
+
+      document.getElementById('calModeToday').className = mode === 'today' ? stylesActive : stylesIdle;
+      document.getElementById('calModeWeek').className = mode === 'week' ? stylesActive : stylesIdle;
+      document.getElementById('calModeMonth').className = mode === 'month' ? stylesActive : stylesIdle;
+
+      const card = document.getElementById('calendarCardWrapper');
+      if (mode === 'today') {
+        selectedDate = getIsoDateOffset(0);
+        card.classList.add('hidden');
+      } else {
+        card.classList.remove('hidden');
+      }
+      renderAgenda();
+    }
+
+    function selectToday() {
+      selectedDate = getIsoDateOffset(0);
+      viewMonthDate = new Date();
+      renderAgenda();
+    }
+
+    function changeCalendarPeriod(delta) {
+      if (calendarMode === 'month') {
+        viewMonthDate = new Date(viewMonthDate.getFullYear(), viewMonthDate.getMonth() + delta, 1);
+      } else {
+        const [y, m, d] = selectedDate.split('-').map(Number);
+        const dt = new Date(y, m - 1, d + (delta * 7));
+        selectedDate = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+        viewMonthDate = new Date(dt.getFullYear(), dt.getMonth(), 1);
+      }
+      renderAgenda();
+    }
+
+    function selectCalendarDay(iso) {
+      selectedDate = iso;
+      renderAgenda();
+      renderBusy();
+    }
+
+    function renderAgenda() {
+      const todayIso = getIsoDateOffset(0);
+      const taskDatesSet = new Set(appState.tasks.map(t => t.date));
+      const gridEl = document.getElementById('calendarGrid');
+
+      if (calendarMode === 'month') {
+        const year = viewMonthDate.getFullYear();
+        const month = viewMonthDate.getMonth();
+        document.getElementById('calendarMonthLabel').textContent = new Date(year, month, 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+
+        const firstWeekday = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let cells = '';
+        for (let i = 0; i < firstWeekday; i++) cells += `<div class="h-10"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const isSelected = iso === selectedDate;
+          const isToday = iso === todayIso;
+          const hasEvent = taskDatesSet.has(iso);
+
+          cells += `
+            <button onclick="selectCalendarDay('${iso}')" class="flex flex-col items-center justify-center h-10 rounded-2xl relative transition ${
+              isSelected
+                ? 'bg-blue-500 text-white font-extrabold shadow-sm'
+                : isToday
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 font-extrabold'
+                  : 'text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800'
+            }">
+              <span class="text-xs">${d}</span>
+              ${hasEvent ? `<span class="w-1.5 h-1.5 rounded-full mt-0.5 ${isSelected ? 'bg-white' : 'bg-blue-500'}"></span>` : '<span class="h-1.5 mt-0.5"></span>'}
+            </button>
+          `;
+        }
+        gridEl.innerHTML = cells;
+      } else if (calendarMode === 'week') {
+        const [sy, sm, sd] = selectedDate.split('-').map(Number);
+        const selObj = new Date(sy, sm - 1, sd);
+        const startOfWeek = new Date(sy, sm - 1, sd - selObj.getDay());
+        document.getElementById('calendarMonthLabel').textContent = selObj.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+
+        let cells = '';
+        for (let i = 0; i < 7; i++) {
+          const cur = new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate() + i);
+          const iso = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
+          const isSelected = iso === selectedDate;
+          const hasEvent = taskDatesSet.has(iso);
+
+          cells += `
+            <button onclick="selectCalendarDay('${iso}')" class="flex flex-col items-center justify-center h-12 rounded-2xl transition ${
+              isSelected
+                ? 'bg-blue-500 text-white font-extrabold shadow-sm'
+                : 'text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800'
+            }">
+              <span class="text-xs">${cur.getDate()}</span>
+              ${hasEvent ? `<span class="w-1.5 h-1.5 rounded-full mt-1 ${isSelected ? 'bg-white' : 'bg-blue-500'}"></span>` : '<span class="h-1.5 mt-1"></span>'}
+            </button>
+          `;
+        }
+        gridEl.innerHTML = cells;
+      }
+
+      const [y, m, d] = selectedDate.split('-').map(Number);
+      const datePretty = selectedDate === todayIso
+        ? 'Hoy'
+        : selectedDate === getIsoDateOffset(1)
+          ? 'Mañana'
+          : new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+      document.getElementById('selectedDateHeading').textContent = `Tareas (${datePretty})`;
+
+      const dayTasks = appState.tasks
+        .filter(t => t.date === selectedDate)
+        .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+
+      const container = document.getElementById('agendaDayTasks');
+      if (dayTasks.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 text-center">
+            <p class="text-xs font-semibold text-slate-400">No hay tareas programadas para este día.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = dayTasks.map(t => {
+          const st = getCategoryStyle(t.category);
+          const dur = calcDurationLabel(t.startTime, t.endTime);
+          return `
+            <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card flex items-center gap-3">
+              <div class="w-1.5 self-stretch rounded-full ${st.bar}"></div>
+              <button onclick="toggleTaskDone(${t.id})" class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${t.done ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 dark:border-slate-600'}">
+                ${t.done ? '<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+              </button>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold truncate ${t.done ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">${escapeHtml(t.title)}</div>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-xs font-medium text-slate-400">${t.startTime || '09:00'} – ${t.endTime || '10:00'}</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${st.pill}">${escapeHtml(t.category)}</span>
+                </div>
+              </div>
+              <span class="text-xs font-extrabold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-[#0B1120] px-2.5 py-1 rounded-xl">${dur}</span>
+              <a href="${gcalUrl(t.title, t.date, t.startTime, t.endTime)}" target="_blank" rel="noopener" aria-label="Añadir al calendario" title="Añadir al calendario del teléfono" class="w-7 h-7 rounded-full flex items-center justify-center text-sm">🔔</a>
+              ${(t.title || '').startsWith('📝') ? `<a href="${gcalUrl('⏰ Mañana: ' + t.title.replace('📝 ', ''), shiftIso(t.date, -1), '08:00', '08:30')}" target="_blank" rel="noopener" aria-label="Aviso un día antes" title="Aviso un día antes" class="w-7 h-7 rounded-full flex items-center justify-center text-sm">⏰</a>` : ''}
+              <button onclick="deleteTask(${t.id})" aria-label="Eliminar" class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center text-xs font-bold transition">✕</button>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // =========================================================================
+    // 10. RENDERING: FINANZAS PERSONALES
+    // =========================================================================
+    function renderFinances() {
+      const fin = computeFinanceMetrics();
+
+      document.getElementById('finCardRate').textContent = fin.rate.toFixed(2);
+      document.getElementById('finTotalUsd').textContent = `$${fin.totalCombinedUsd.toFixed(2)}`;
+      document.getElementById('finTotalVes').textContent = `Equiv. total: ${fin.totalCombinedVes.toFixed(2)} Bs · Caja Bs: ${fin.netVesWallet.toFixed(2)} Bs`;
+      document.getElementById('finTotalIncome').textContent = `+$${fin.incomeUsdEquiv.toFixed(2)}`;
+      document.getElementById('finTotalExpense').textContent = `-$${fin.expenseUsdEquiv.toFixed(2)}`;
+
+      // Donut Chart
+      const catConfig = [
+        { key: 'Comida', color: '#4F46E5' },
+        { key: 'Transporte', color: '#0EA5E9' },
+        { key: 'Estudios', color: '#8B5CF6' },
+        { key: 'Servicios', color: '#F59E0B' },
+        { key: 'Otros', color: '#10B981' }
+      ];
+
+      const totalExp = fin.expenseUsdEquiv;
+      document.getElementById('donutCenterTotal').textContent = `$${totalExp.toFixed(2)}`;
+
+      const radius = 44;
+      const circumference = 2 * Math.PI * radius;
+      let cumulativeOffset = 0;
+      let svgCircles = `<circle cx="60" cy="60" r="${radius}" fill="none" stroke="currentColor" stroke-width="14" class="text-slate-100 dark:text-slate-800"></circle>`;
+
+      if (totalExp > 0) {
+        catConfig.forEach(c => {
+          const val = fin.catTotals[c.key] || 0;
+          if (val > 0) {
+            const dash = (val / totalExp) * circumference;
+            svgCircles += `<circle cx="60" cy="60" r="${radius}" fill="none" stroke="${c.color}" stroke-width="14" stroke-dasharray="${dash} ${circumference}" stroke-dashoffset="${-cumulativeOffset}"></circle>`;
+            cumulativeOffset += dash;
+          }
+        });
+      }
+      document.getElementById('expenseDonutSvg').innerHTML = svgCircles;
+
+      document.getElementById('expenseCategoryLegend').innerHTML = catConfig.map(c => {
+        const val = fin.catTotals[c.key] || 0;
+        const pct = totalExp > 0 ? Math.round((val / totalExp) * 100) : 0;
+        return `
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${c.color}"></span>
+              <span class="font-semibold text-slate-700 dark:text-slate-300 truncate">${c.key}</span>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <span class="font-bold text-slate-900 dark:text-white">$${val.toFixed(0)}</span>
+              <span class="text-[10px] text-slate-400 ml-1">${pct}%</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Income vs Expense Bars
+      const maxVal = Math.max(fin.incomeUsdEquiv, fin.expenseUsdEquiv, 1);
+      const incPct = Math.round((fin.incomeUsdEquiv / maxVal) * 100);
+      const expPct = Math.round((fin.expenseUsdEquiv / maxVal) * 100);
+      document.getElementById('incomeExpenseBarChart').innerHTML = `
+        <div>
+          <div class="flex justify-between text-xs font-bold mb-1">
+            <span class="text-slate-600 dark:text-slate-300">Ingresos</span>
+            <span class="text-emerald-600 dark:text-emerald-400">$${fin.incomeUsdEquiv.toFixed(2)}</span>
+          </div>
+          <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width:${incPct}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs font-bold mb-1">
+            <span class="text-slate-600 dark:text-slate-300">Gastos</span>
+            <span class="text-rose-500">$${fin.expenseUsdEquiv.toFixed(2)}</span>
+          </div>
+          <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-rose-500 rounded-full transition-all duration-500" style="width:${expPct}%"></div>
+          </div>
+        </div>
+      `;
+
+      // Transaction History
+      const txListEl = document.getElementById('finTransactionList');
+      if (appState.transactions.length === 0) {
+        txListEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Aún no hay movimientos registrados.</p>`;
+      } else {
+        txListEl.innerHTML = appState.transactions.map(tx => {
+          const isInc = tx.type === 'ingreso';
+          const symbol = tx.currency === 'USD' ? '$' : 'Bs ';
+          return `
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-100 dark:border-slate-800/80">
+              <div class="min-w-0 pr-2">
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(tx.note)}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(tx.category)} · ${tx.date}</div>
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span class="text-xs font-extrabold ${isInc ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}">
+                  ${isInc ? '+' : '-'}${symbol}${Number(tx.amount).toFixed(2)}
+                </span>
+                <button onclick="deleteTransaction(${tx.id})" class="w-6 h-6 rounded-full text-slate-400 hover:text-rose-500 text-xs font-bold">✕</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Budget & Goals
+      const limit = appState.monthlyBudget || 250;
+      const bPct = Math.min(100, Math.round((fin.expenseUsdEquiv / limit) * 100));
+      const remaining = limit - fin.expenseUsdEquiv;
+      document.getElementById('budgetSpentBig').textContent = `$${fin.expenseUsdEquiv.toFixed(2)}`;
+      document.getElementById('budgetLimitBig').textContent = `$${limit.toFixed(2)}`;
+      document.getElementById('budgetMainBar').style.width = `${bPct}%`;
+      document.getElementById('budgetMainBar').className = bPct >= 90
+        ? 'h-full rounded-full bg-rose-500 transition-all duration-500'
+        : 'h-full rounded-full bg-indigo-600 transition-all duration-500';
+      document.getElementById('budgetAlertBox').textContent = remaining >= 0
+        ? `Te quedan $${remaining.toFixed(2)} disponibles dentro de tu presupuesto mensual.`
+        : `Has superado tu presupuesto por $${Math.abs(remaining).toFixed(2)}.`;
+
+      const goalsEl = document.getElementById('savingsGoalsList');
+      if (appState.goals.length === 0) {
+        goalsEl.innerHTML = `<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-5 text-center text-xs text-slate-400">Crea tu primera meta tocando <b>+ Nueva Meta</b>.</div>`;
+      } else {
+        goalsEl.innerHTML = appState.goals.map(g => {
+          const pct = Math.min(100, Math.round((g.saved / g.target) * 100));
+          const r = 24;
+          const circ = 2 * Math.PI * r;
+          const offset = circ - (pct / 100) * circ;
+          return `
+            <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-card flex items-center justify-between gap-3">
+              <div class="relative w-16 h-16 flex-shrink-0">
+                <svg viewBox="0 0 60 60" class="w-full h-full -rotate-90">
+                  <circle cx="30" cy="30" r="${r}" stroke="currentColor" stroke-width="5.5" fill="none" class="text-slate-100 dark:text-slate-800"></circle>
+                  <circle cx="30" cy="30" r="${r}" stroke="#4F46E5" stroke-width="5.5" stroke-linecap="round" fill="none" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"></circle>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-slate-900 dark:text-white">${pct}%</div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-bold text-slate-900 dark:text-white truncate">${escapeHtml(g.title)}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">$${g.saved.toFixed(2)} de $${g.target.toFixed(2)}</div>
+              </div>
+              <button onclick="openDepositModal(${g.id})" class="px-3 py-2 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 text-xs font-bold active:scale-95 transition flex-shrink-0">
+                + Abonar
+              </button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Debts
+      document.getElementById('debtTotalOwedToMe').textContent = `$${fin.owedToMeUsd.toFixed(2)}`;
+      document.getElementById('debtTotalIOwe').textContent = `$${fin.iOweUsd.toFixed(2)}`;
+
+      const debtsEl = document.getElementById('debtsListContainer');
+      if (appState.debts.length === 0) {
+        debtsEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No tienes deudas ni préstamos pendientes.</p>`;
+      } else {
+        debtsEl.innerHTML = appState.debts.map(d => {
+          const isOwedToMe = d.type === 'me_deben';
+          const symbol = d.currency === 'USD' ? '$' : 'Bs ';
+          return `
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-100 dark:border-slate-800/80 gap-2">
+              <div class="min-w-0">
+                <div class="text-xs font-bold truncate ${d.paid ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">
+                  ${escapeHtml(d.person)} ${d.note ? `<span class="font-normal text-slate-400">· ${escapeHtml(d.note)}</span>` : ''}
+                </div>
+                <span class="inline-block mt-1 text-[11px] font-extrabold px-2 py-0.5 rounded-full ${
+                  isOwedToMe
+                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+                    : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'
+                }">
+                  ${isOwedToMe ? 'Me debe' : 'Le debo'}: ${symbol}${Number(d.amount).toFixed(2)}
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="toggleDebtPaid(${d.id})" class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold ${
+                  d.paid
+                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                    : 'bg-emerald-600 text-white'
+                } active:scale-95 transition">
+                  ${d.paid ? 'Reabrir' : 'Saldar'}
+                </button>
+                <button onclick="deleteDebt(${d.id})" class="w-7 h-7 rounded-xl text-slate-400 hover:text-rose-500 text-xs font-bold">✕</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // =========================================================================
+    // 11. RENDERING: RUTINAS & FOCUS TIMER
+    // =========================================================================
+    function formatSeconds(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function updateTimerUI() {
+      document.getElementById('timerDisplay').textContent = formatSeconds(timerRemainingSeconds);
+      const circ = 263.89;
+      const ratio = timerTotalSeconds > 0 ? timerRemainingSeconds / timerTotalSeconds : 1;
+      document.getElementById('timerProgressCircle').style.strokeDashoffset = circ * (1 - ratio);
+
+      const btnLabel = document.getElementById('timerToggleLabel');
+      const btnIcon = document.getElementById('timerToggleIcon');
+      const stateText = document.getElementById('timerStateText');
+      if (timerInterval) {
+        btnLabel.textContent = 'Pausar';
+        btnIcon.textContent = '❚❚';
+        stateText.textContent = 'En curso';
+      } else {
+        btnLabel.textContent = 'Iniciar sesión';
+        btnIcon.textContent = '▶';
+        stateText.textContent = 'Listo';
+      }
+    }
+
+    function changeTimerPreset() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timerLinkedHabitId = null;
+      document.getElementById('timerActiveHabitLabel').textContent = 'Sesión de enfoque personalizada';
+      const mins = parseInt(document.getElementById('timerPresetSelect').value, 10) || 25;
+      timerTotalSeconds = mins * 60;
+      timerRemainingSeconds = timerTotalSeconds;
+      updateTimerUI();
+    }
+
+    function startHabitFocus(habitId) {
+      const h = appState.habits.find(x => x.id === habitId);
+      if (!h) return;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timerLinkedHabitId = h.id;
+      timerTotalSeconds = (h.duration || 15) * 60;
+      timerRemainingSeconds = timerTotalSeconds;
+      document.getElementById('timerActiveHabitLabel').textContent = `Enfocando: ${h.title}`;
+      toggleFocusTimer();
+      showToast(`Temporizador iniciado (${h.duration} min)`);
+    }
+
+    function toggleFocusTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        updateTimerUI();
+        return;
+      }
+      timerInterval = setInterval(() => {
+        if (timerRemainingSeconds > 0) {
+          timerRemainingSeconds--;
+          updateTimerUI();
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          if (timerLinkedHabitId) {
+            const h = appState.habits.find(x => x.id === timerLinkedHabitId);
+            if (h && !h.done) {
+              h.done = true;
+              updateTodayWeeklyHistory();
+              saveState();
+            }
+          }
+          logStudy(Math.round(timerTotalSeconds / 60));
+          timerRemainingSeconds = timerTotalSeconds;
+          updateTimerUI();
+          showToast('🎉 ¡Sesión completada!');
+        }
+      }, 1000);
+      updateTimerUI();
+    }
+
+    function resetFocusTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timerRemainingSeconds = timerTotalSeconds;
+      updateTimerUI();
+    }
+
+    function renderRoutines() {
+      const listEl = document.getElementById('routineChecklist');
+      if (appState.habits.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Agrega pasos a tu rutina tocando <b>+ Paso</b>.</p>`;
+      } else {
+        listEl.innerHTML = appState.habits.map(h => `
+          <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-100 dark:border-slate-800/80 gap-2.5">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <span class="w-9 h-9 rounded-2xl bg-white dark:bg-[#151C2C] flex items-center justify-center text-base shadow-sm flex-shrink-0">${h.icon || '✨'}</span>
+              <div class="min-w-0">
+                <div class="text-xs font-bold truncate ${h.done ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">${escapeHtml(h.title)}</div>
+                <button onclick="startHabitFocus(${h.id})" class="mt-0.5 inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                  <span>▶ ${h.duration} min · Iniciar</span>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button onclick="toggleHabitDone(${h.id})" aria-label="Completar paso" class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition ${
+                h.done
+                  ? 'bg-emerald-500 border-emerald-500 text-white'
+                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-[#151C2C]'
+              }">
+                ${h.done ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+              </button>
+              <button onclick="deleteHabit(${h.id})" class="w-6 h-6 rounded-full text-slate-400 hover:text-rose-500 text-xs font-bold">✕</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const today = getIsoDateOffset(0);
+      const todayTasks = appState.tasks.filter(t => t.date === today);
+      const doneTasks = todayTasks.filter(t => t.done).length;
+      const doneHabits = appState.habits.filter(h => h.done).length;
+
+      const totalItems = todayTasks.length + appState.habits.length;
+      const totalDone = doneTasks + doneHabits;
+      const score = totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0;
+
+      document.getElementById('focusScoreValue').textContent = `${score}%`;
+      const ringCirc = 251.32;
+      document.getElementById('focusScoreRing').style.strokeDashoffset = ringCirc - (score / 100) * ringCirc;
+      document.getElementById('statsHabitsRatio').textContent = `${doneHabits}/${appState.habits.length}`;
+      document.getElementById('statsTasksRatio').textContent = `${doneTasks}/${todayTasks.length}`;
+      document.getElementById('statsStreakPill').textContent = `🔥 ${appState.streakDays} días`;
+
+      const dayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+      const jsDay = new Date().getDay();
+      const todayMonIdx = jsDay === 0 ? 6 : jsDay - 1;
+      const hist = appState.weeklyHistory || [65, 80, 100, 75, 90, 0, 0];
+
+      document.getElementById('weeklyStreakBars').innerHTML = dayLabels.map((lbl, idx) => {
+        const val = Math.max(8, Math.min(100, hist[idx] || 0));
+        const isToday = idx === todayMonIdx;
+        return `
+          <div class="flex flex-col items-center h-full justify-end gap-1.5">
+            <div class="w-full max-w-[24px] bg-slate-100 dark:bg-slate-800 rounded-full h-20 flex items-end overflow-hidden">
+              <div class="w-full rounded-full transition-all duration-500 ${isToday ? 'bg-indigo-600' : 'bg-blue-400/75 dark:bg-blue-500/60'}" style="height:${val}%"></div>
+            </div>
+            <span class="text-[11px] font-extrabold ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}">${lbl}</span>
+          </div>
+        `;
+      }).join('');
+
+      updateTimerUI();
+    }
+
+    // =========================================================================
+    // 12. ASISTENTE IA: GEMINI 2.5 FLASH + SMART LOCAL NLP ENGINE (100% RELIABLE)
+    // =========================================================================
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+    }
+
+    function renderChat() {
+      const box = document.getElementById('aiChatMessages');
+      if (!box) return;
+
+      const engineLbl = document.getElementById('aiEngineLabel');
+      if (engineLbl) {
+        engineLbl.textContent = (window.claude ? 'Claude + IA local' : (appState.customApiKey ? 'Gemini + IA local' : 'IA local'));
+      }
+
+      box.innerHTML = appState.chat.map((m, mIdx) => {
+        if (m.role === 'user') {
+          return `
+            <div class="flex justify-end">
+              <div class="max-w-[85%] px-4 py-2.5 rounded-3xl rounded-br-md bg-indigo-600 text-white text-xs font-medium leading-relaxed shadow-sm">
+                ${escapeHtml(m.text)}
+              </div>
+            </div>
+          `;
+        }
+
+        const actionsHtml = (m.actions || []).map((act, aIdx) => {
+          if (act.status === 'pending_confirm') {
+            return `
+              <div class="mt-2 p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/70">
+                <div class="text-[11px] font-bold text-amber-900 dark:text-amber-200">Confirmar acción: ${escapeHtml(act.label)}</div>
+                <div class="flex items-center gap-2 mt-2">
+                  <button onclick="confirmAiAction(${mIdx}, ${aIdx})" class="px-3 py-1 rounded-xl bg-emerald-600 text-white text-[11px] font-bold active:scale-95 transition">Sí, confirmar</button>
+                  <button onclick="cancelAiAction(${mIdx}, ${aIdx})" class="px-3 py-1 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold active:scale-95 transition">Cancelar</button>
+                </div>
+              </div>
+            `;
+          }
+          if (act.status === 'cancelled') {
+            return `<div class="mt-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/70 text-[11px] text-slate-400">✕ Cancelado: ${escapeHtml(act.label)}</div>`;
+          }
+          return `<div class="mt-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">✓ ${escapeHtml(act.label)}</div>`;
+        }).join('');
+
+        return `
+          <div class="flex justify-start">
+            <div class="max-w-[92%] px-4 py-3 rounded-3xl rounded-bl-md bg-slate-100 dark:bg-[#0B1120] border border-slate-200/70 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-xs leading-relaxed">
+              <div>${escapeHtml(m.text)}</div>
+              ${actionsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendHomeQuickCommand() {
+      const inp = document.getElementById('homeQuickInput');
+      const txt = inp.value.trim();
+      if (!txt) return;
+      inp.value = '';
+      switchTab('ia');
+      document.getElementById('aiChatInput').value = txt;
+      handleSendChat();
+    }
+
+    function sendSuggestion(txt) {
+      document.getElementById('aiChatInput').value = txt;
+      handleSendChat();
+    }
+
+    function reorganizePendingWithAI() {
+      switchTab('ia');
+      document.getElementById('aiChatInput').value = 'No pude hacer mis tareas pendientes, reorganízalas en bloques horarios ordenados.';
+      handleSendChat();
+    }
+
+    function clearChatHistory() {
+      appState.chat = [
+        { role: 'ai', text: 'Conversación reiniciada. ¿Qué quieres organizar o registrar ahora?', actions: [] }
+      ];
+      saveState();
+    }
+
+    function confirmAiAction(mIdx, aIdx) {
+      const msg = appState.chat[mIdx];
+      if (!msg || !msg.actions || !msg.actions[aIdx]) return;
+      const act = msg.actions[aIdx];
+      executeSingleAiAction(act.raw);
+      act.status = 'executed';
+      saveState();
+      showToast('Acción confirmada');
+    }
+
+    function cancelAiAction(mIdx, aIdx) {
+      const msg = appState.chat[mIdx];
+      if (!msg || !msg.actions || !msg.actions[aIdx]) return;
+      msg.actions[aIdx].status = 'cancelled';
+      saveState();
+    }
+
+    function buildActionLabel(raw) {
+      switch (raw.tipo) {
+        case 'crear_tarea':
+          return `Tarea agendada: ${raw.titulo} (${raw.fecha === getIsoDateOffset(0) ? 'Hoy' : raw.fecha === getIsoDateOffset(1) ? 'Mañana' : raw.fecha}${raw.horaInicio ? ' · ' + raw.horaInicio : ''})`;
+        case 'reorganizar_tareas':
+          return `Tareas pendientes reprogramadas (${raw.cantidad || 1})`;
+        case 'completar_tarea':
+          return `Tarea completada: ${raw.titulo}`;
+        case 'borrar_tarea':
+          return `Eliminar tarea: ${raw.titulo}`;
+        case 'registrar_movimiento':
+          return `${raw.subtipo === 'ingreso' ? 'Ingreso' : 'Gasto'}: ${Number(raw.monto).toFixed(2)} ${raw.moneda === 'VES' ? 'Bs' : '$'} (${raw.categoria})`;
+        case 'registrar_deuda':
+          return `${raw.subtipo === 'me_deben' ? 'Me debe' : 'Le debo'}: ${raw.persona} (${Number(raw.monto).toFixed(2)} ${raw.moneda === 'VES' ? 'Bs' : '$'})`;
+        case 'saldar_deuda':
+          return `Saldar deuda con ${raw.persona}`;
+        case 'abonar_meta':
+          return `Abono a meta "${raw.metaNombre}": +$${Number(raw.monto).toFixed(2)}`;
+        case 'completar_habito':
+          return `Paso de rutina completado: ${raw.habitoNombre}`;
+        case 'plan_estudio':
+          return `Plan de estudio: ${raw.titulo} (examen ${raw.fecha.slice(8)}/${raw.fecha.slice(5, 7)})`;
+        case 'bloquear_dia':
+          return `Día bloqueado para estudiar: ${raw.fecha.slice(8)}/${raw.fecha.slice(5, 7)}`;
+        case 'actualizar_tasa':
+          return `Tasa actualizada: ${Number(raw.tasa).toFixed(2)} Bs por 1 $`;
+        default:
+          return 'Acción ejecutada';
+      }
+    }
+
+    function executeSingleAiAction(raw) {
+      if (!raw || !raw.tipo) return;
+      const today = getIsoDateOffset(0);
+
+      if (raw.tipo === 'crear_tarea') {
+        const start = raw.horaInicio || '09:00';
+        const end = raw.horaFin || addOneHour(start);
+        appState.tasks.push({
+          id: Date.now() + Math.floor(Math.random() * 10000),
+          title: raw.titulo || 'Nueva tarea',
+          date: raw.fecha || today,
+          startTime: start,
+          endTime: end,
+          category: ['Personal', 'Estudio', 'Trabajo', 'Pago'].includes(raw.categoria) ? raw.categoria : 'Personal',
+          done: false
+        });
+      } else if (raw.tipo === 'reorganizar_tareas') {
+        const targetDate = raw.fechaDestino || getIsoDateOffset(1);
+        const pending = appState.tasks.filter(t => !t.done && t.date <= today);
+        const slots = ['09:00', '10:30', '14:00', '16:00', '18:00'];
+        pending.forEach((t, idx) => {
+          t.date = targetDate;
+          t.startTime = slots[idx % slots.length];
+          t.endTime = addOneHour(t.startTime);
+        });
+        selectedDate = targetDate;
+      } else if (raw.tipo === 'completar_tarea') {
+        const target = appState.tasks.find(t => t.id === raw.id) ||
+          appState.tasks.find(t => t.title.toLowerCase().includes((raw.titulo || '').toLowerCase()));
+        if (target) target.done = true;
+      } else if (raw.tipo === 'borrar_tarea') {
+        if (raw.id) {
+          appState.tasks = appState.tasks.filter(t => t.id !== raw.id);
+        } else if (raw.titulo) {
+          const q = raw.titulo.toLowerCase();
+          appState.tasks = appState.tasks.filter(t => !t.title.toLowerCase().includes(q));
+        }
+      } else if (raw.tipo === 'registrar_movimiento') {
+        const monto = parseFloat(raw.monto);
+        if (monto > 0) {
+          appState.transactions.unshift({
+            id: Date.now() + Math.floor(Math.random() * 10000),
+            type: raw.subtipo === 'ingreso' ? 'ingreso' : 'gasto',
+            currency: raw.moneda === 'VES' ? 'VES' : 'USD',
+            amount: monto,
+            category: ['Comida', 'Transporte', 'Estudios', 'Servicios', 'Otros'].includes(raw.categoria) ? raw.categoria : 'Otros',
+            note: raw.nota || raw.categoria || 'Movimiento',
+            date: today
+          });
+        }
+      } else if (raw.tipo === 'registrar_deuda') {
+        const monto = parseFloat(raw.monto);
+        if (monto > 0 && raw.persona) {
+          appState.debts.unshift({
+            id: Date.now() + Math.floor(Math.random() * 10000),
+            type: raw.subtipo === 'debo' ? 'debo' : 'me_deben',
+            person: raw.persona,
+            currency: raw.moneda === 'VES' ? 'VES' : 'USD',
+            amount: monto,
+            note: raw.nota || '',
+            paid: false
+          });
+        }
+      } else if (raw.tipo === 'saldar_deuda') {
+        const target = appState.debts.find(d => d.id === raw.id) ||
+          appState.debts.find(d => !d.paid && d.person.toLowerCase().includes((raw.persona || '').toLowerCase()));
+        if (target) target.paid = true;
+      } else if (raw.tipo === 'abonar_meta') {
+        const monto = parseFloat(raw.monto);
+        const goal = appState.goals.find(g => g.title.toLowerCase().includes((raw.metaNombre || '').toLowerCase())) || appState.goals[0];
+        if (goal && monto > 0) goal.saved += monto;
+      } else if (raw.tipo === 'completar_habito') {
+        const habit = appState.habits.find(h => h.title.toLowerCase().includes((raw.habitoNombre || '').toLowerCase()));
+        if (habit) {
+          habit.done = true;
+          updateTodayWeeklyHistory();
+        }
+      } else if (raw.tipo === 'plan_estudio' && raw.fecha) {
+        const titulo = raw.titulo || 'Examen';
+        if (!appState.tasks.some(t => t.exam && t.date === raw.fecha && t.title === `📝 ${titulo}`)) {
+          appState.tasks.push({ id: Date.now() + Math.floor(Math.random() * 10000), title: `📝 ${titulo}`, date: raw.fecha, startTime: raw.horaInicio || '08:00', endTime: raw.horaFin || addOneHour(raw.horaInicio || '08:00'), category: 'Estudio', done: false, exam: true });
+        }
+        replanStudy();
+      } else if (raw.tipo === 'bloquear_dia' && raw.fecha) {
+        appState.busyDates = appState.busyDates || [];
+        if (!appState.busyDates.includes(raw.fecha)) appState.busyDates.push(raw.fecha);
+        replanStudy();
+      } else if (raw.tipo === 'actualizar_tasa') {
+        const tasa = parseFloat(raw.tasa);
+        if (tasa > 0) appState.exchangeRate = tasa;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // SMART LOCAL NATURAL LANGUAGE ENGINE (WORKS 100% OFFLINE & ZERO LATENCY)
+    // -------------------------------------------------------------------------
+    function shiftIso(iso, n) {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(y, m - 1, d + n);
+      return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+    }
+    function fmtDay(iso) {
+      const [y, m, d] = iso.split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+    function buildStudyPlan(examIso) {
+      const [ty, tm, td] = getIsoDateOffset(0).split('-').map(Number);
+      const [ey, em, ed] = examIso.split('-').map(Number);
+      const daysLeft = Math.round((new Date(ey, em - 1, ed) - new Date(ty, tm - 1, td)) / 86400000);
+      const steps = [[13, 'Primera lectura del temario'], [9, 'Organizar y resumir el temario'], [6, 'Esquemas y puntos clave'], [4, 'Temas difíciles'], [2, 'Practicar con ejercicios'], [1, 'Repaso final suave']];
+      return steps.filter(x => x[0] <= daysLeft).map(x => ({ date: shiftIso(examIso, -x[0]), label: x[1], k: x[0] }));
+    }
+
+    function parseDateFromPhrase(text) {
+      const lower = text.toLowerCase();
+      if (lower.includes('pasado mañana') || lower.includes('pasado manana')) return getIsoDateOffset(2);
+      if (lower.includes('mañana') || lower.includes('manana')) return getIsoDateOffset(1);
+      if (lower.includes('hoy')) return getIsoDateOffset(0);
+
+      const weekdays = [
+        { names: ['domingo'], idx: 0 },
+        { names: ['lunes'], idx: 1 },
+        { names: ['martes'], idx: 2 },
+        { names: ['miércoles', 'miercoles'], idx: 3 },
+        { names: ['jueves'], idx: 4 },
+        { names: ['viernes'], idx: 5 },
+        { names: ['sábado', 'sabado'], idx: 6 }
+      ];
+      for (const wd of weekdays) {
+        if (wd.names.some(n => new RegExp(`\\b${n}\\b`, 'i').test(lower))) {
+          const iso = getNextWeekdayIso(wd.idx);
+          return /otra semana|pr[oó]xima semana|semana que viene|semana siguiente/.test(lower) ? shiftIso(iso, 7) : iso;
+        }
+      }
+      return getIsoDateOffset(0);
+    }
+
+    function parseTimeFromPhrase(text) {
+      const lower = text.toLowerCase();
+      // Match "a las 3:30 pm", "a las 3 pm", "15:00", "3 de la tarde", "8 am"
+      const m = lower.match(/(?:a las\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.|de la tarde|de la noche|de la mañana|de la manana)?/);
+      if (m) {
+        let hour = parseInt(m[1], 10);
+        const min = m[2] ? parseInt(m[2], 10) : 0;
+        const mer = (m[3] || '').toLowerCase();
+        const hasTimeContext = lower.includes('a las') || m[2] !== undefined || mer.length > 0;
+        if (hasTimeContext && hour >= 1 && hour <= 23 && min >= 0 && min <= 59) {
+          if ((mer.includes('pm') || mer.includes('p.m') || mer.includes('tarde') || mer.includes('noche')) && hour < 12) {
+            hour += 12;
+          } else if ((mer.includes('am') || mer.includes('a.m') || mer.includes('mañana') || mer.includes('manana')) && hour === 12) {
+            hour = 0;
+          }
+          return `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+        }
+      }
+      if (lower.includes('en la mañana') || lower.includes('en la manana')) return '09:00';
+      if (lower.includes('en la tarde')) return '15:00';
+      if (lower.includes('en la noche')) return '19:30';
+      return '09:00';
+    }
+
+    function inferExpenseCategory(text) {
+      const l = text.toLowerCase();
+      if (/comida|almuerzo|cena|desayuno|caf[eé]|pan|mercado|hamburguesa|pizza|empanada|pollo|carne|agua|refresco/.test(l)) return 'Comida';
+      if (/pasaje|taxi|uber|bus|metro|gasolina|transporte|carro|moto/.test(l)) return 'Transporte';
+      if (/estudio|universidad|clase|curso|libro|copias|cuaderno|examen/.test(l)) return 'Estudios';
+      if (/internet|luz|agua|saldo|megas|tel[eé]fono|alquiler|servicio|factura/.test(l)) return 'Servicios';
+      return 'Otros';
+    }
+
+    function inferTaskCategory(text) {
+      const l = text.toLowerCase();
+      if (/estudi|leer|repas|clase|examen|universidad|tarea/.test(l)) return 'Estudio';
+      if (/pagar|banco|transferencia|factura|cobrar|servicio/.test(l)) return 'Pago';
+      if (/trabajo|reuni[oó]n|cliente|proyecto|oficina|informe/.test(l)) return 'Trabajo';
+      return 'Personal';
+    }
+
+    function capitalizeWords(str) {
+      return str.replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function smartLocalAiEngine(userText) {
+      const text = userText.trim();
+      const lower = text.toLowerCase();
+      const fin = computeFinanceMetrics();
+      const today = getIsoDateOffset(0);
+      const actions = [];
+      const replyLines = [];
+
+      if (/resumen.*semana|c[oó]mo me fue.*semana/.test(lower)) return { respuesta: weeklySummaryText(), acciones: [] };
+
+      // 0.1 Días en que no puede estudiar
+      const busyM = lower.match(/(?:no puedo|no podr[eé]|no estoy disponible|estoy ocupad[oa]|no tengo tiempo|no estudio)[^.]*?\b(lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|ma[ñn]ana|hoy)\b/);
+      if (busyM) {
+        const fechaB = parseDateFromPhrase(busyM[0]);
+        if (fechaB >= today) {
+          return { respuesta: `Listo, el ${fmtDay(fechaB)} queda bloqueado y no pondré estudio ese día. Rearmé tu plan.`, acciones: [{ tipo: 'bloquear_dia', fecha: fechaB, requiereConfirmacion: false }] };
+        }
+      }
+
+      // 0. Examen / exposición: guardar y armar plan de estudio
+      const examM = lower.match(/\b(examen|exposici[oó]n|discusi[oó]n|debate|parcial|prueba|quiz|evaluaci[oó]n)\b(?:\s+(?:de|del|sobre)\s+([a-záéíóúñ ]+?))?(?=\s+(?:el|para|este|esta|la|ma[ñn]ana|hoy|pasado|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo)\b|[,.;!]|$)/);
+      if (examM && /tengo|hay|me toca|tendr[eé]|tenemos/.test(lower) && !lower.includes('?')) {
+        const kind = examM[1].charAt(0).toUpperCase() + examM[1].slice(1);
+        const titulo = kind + (examM[2] ? ' de ' + examM[2].trim() : '');
+        const hasDate = /ma[ñn]ana|pasado|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|semana/.test(lower);
+        const fecha = parseDateFromPhrase(lower);
+        if (!hasDate || fecha <= today) {
+          return { respuesta: `¿Para qué día es tu ${examM[1]}? Dime la fecha (por ejemplo "el viernes de la otra semana") y te armo el plan de estudio.`, acciones: [] };
+        }
+        const others = getExams();
+        const plan = scheduleStudy([...others, { id: 'new', title: titulo, date: fecha }]).filter(x => x.examId === 'new');
+        const lines = plan.map(x => `• ${fmtDay(x.date)} — ${x.label}${x.double ? ' (día doble: ya tenías otra materia)' : ''}`).join('\n');
+        const tips = STRATEGIES[strategyKey(examM[1])].map(x => `• ${x}`).join('\n');
+        return {
+          respuesta: `Guardé "${titulo}" para el ${fmtDay(fecha)}. Días de estudio:\n${lines}${others.length ? '\n\nRearmé también tus otros exámenes para que no se choquen.' : ''}\n\nCómo estudiar para esto:\n${tips}`,
+          acciones: [{ tipo: 'plan_estudio', titulo, fecha, requiereConfirmacion: false }]
+        };
+      }
+
+      // 0.2 Estrategias de estudio
+      if (/c[oó]mo estudiar|c[oó]mo estudio|estrategias|t[eé]cnicas de estudio|tips|trucos|consejos/.test(lower) && /estudi/.test(lower)) {
+        return { respuesta: `Estas funcionan para casi cualquier materia:\n${STRATEGIES.examen.map(x => `• ${x}`).join('\n')}\n\nSi me dices la materia y el tipo (examen, exposición o discusión), te las adapto.`, acciones: [] };
+      }
+
+      // 1. Check Reorganize / Reschedule pending tasks
+      if (/reorganiza|reprograma|no pude hacer|mueve mis tareas|organiza mis prioridades|ordena mi d[ií]a/.test(lower)) {
+        const pending = appState.tasks.filter(t => !t.done && t.date <= today);
+        if (pending.length === 0) {
+          const allToday = appState.tasks.filter(t => t.date === today);
+          if (allToday.length > 0) {
+            return {
+              respuesta: `¡Ya completaste todas tus tareas de hoy! Si deseas agregar nuevas prioridades para mañana, dime qué tienes pendiente.`,
+              acciones: []
+            };
+          }
+          return {
+            respuesta: 'No tienes tareas pendientes atrasadas ni de hoy por reorganizar. Tu agenda está despejada.',
+            acciones: []
+          };
+        }
+        const targetDate = lower.includes('hoy') && !lower.includes('no pude') ? today : getIsoDateOffset(1);
+        const targetLabel = targetDate === today ? 'hoy' : 'mañana';
+        actions.push({
+          tipo: 'reorganizar_tareas',
+          fechaDestino: targetDate,
+          cantidad: pending.length,
+          requiereConfirmacion: false
+        });
+        const slots = ['09:00', '10:30', '14:00', '16:00', '18:00'];
+        const summary = pending.map((t, i) => `• ${slots[i % slots.length]} — ${t.title}`).join('\n');
+        return {
+          respuesta: `He reorganizado tus ${pending.length} tareas pendientes para ${targetLabel} en bloques horarios ordenados:\n${summary}`,
+          acciones: actions
+        };
+      }
+
+      // 2. Check Analytic Questions ("¿qué tengo hoy?", "¿cuánto dinero me queda?", "¿cuánto me deben?", "¿puedo gastar X$?")
+      if (/qu[eé] tengo|pendiente|mis tareas|agenda de hoy/.test(lower) && !/agrega|crea|anota|recu[eé]rdame/.test(lower)) {
+        const todayTasks = appState.tasks.filter(t => t.date === today).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+        if (todayTasks.length === 0) {
+          return { respuesta: 'Hoy no tienes tareas programadas en tu agenda. Puedes decirme "Agrega estudiar hoy a las 4 pm" para crear una.', acciones: [] };
+        }
+        const lines = todayTasks.map(t => `${t.done ? '✅' : '⏳'} ${t.startTime || '09:00'} — ${t.title} (${t.category})`).join('\n');
+        return {
+          respuesta: `Este es tu plan para hoy (${todayTasks.filter(t => !t.done).length} pendientes):\n${lines}`,
+          acciones: []
+        };
+      }
+
+      if (/puedo gastar|me alcanza/.test(lower)) {
+        const m = lower.match(/(\d+(?:[.,]\d+)?)/);
+        const askUsd = m ? parseFloat(m[1].replace(',', '.')) : 0;
+        const canAfford = fin.totalCombinedUsd >= askUsd;
+        const budgetLeft = (appState.monthlyBudget || 250) - fin.expenseUsdEquiv;
+        return {
+          respuesta: canAfford
+            ? `Sí, puedes gastar $${askUsd.toFixed(2)}. Actualmente tienes $${fin.totalCombinedUsd.toFixed(2)} disponibles (≈ ${fin.totalCombinedVes.toFixed(2)} Bs) y te quedan $${Math.max(0, budgetLeft).toFixed(2)} de tu presupuesto mensual.`
+            : `Te recomiendo precaución: quieres gastar $${askUsd.toFixed(2)}, pero tu balance disponible actual es de $${fin.totalCombinedUsd.toFixed(2)} (≈ ${fin.totalCombinedVes.toFixed(2)} Bs).`,
+          acciones: []
+        };
+      }
+
+      if (/cu[aá]nto dinero|mi dinero|mi balance|mi saldo|presupuesto|c[oó]mo van mis finanzas/.test(lower)) {
+        const budgetLeft = (appState.monthlyBudget || 250) - fin.expenseUsdEquiv;
+        return {
+          respuesta: `Resumen de tus finanzas actuales:\n• Balance disponible: $${fin.totalCombinedUsd.toFixed(2)} (≈ ${fin.totalCombinedVes.toFixed(2)} Bs a tasa ${fin.rate.toFixed(2)})\n• Ingresos del mes: +$${fin.incomeUsdEquiv.toFixed(2)}\n• Gastos del mes: -$${fin.expenseUsdEquiv.toFixed(2)}\n• Presupuesto restante: $${budgetLeft.toFixed(2)} de $${appState.monthlyBudget.toFixed(2)}`,
+          acciones: []
+        };
+      }
+
+      if (/cu[aá]nto me deben|qu[eé] debo|mis deudas|pr[eé]stamos/.test(lower) && !/me debe\s+\d|le debo\s+\d/.test(lower)) {
+        const activeDebts = appState.debts.filter(d => !d.paid);
+        if (activeDebts.length === 0) {
+          return { respuesta: '¡Estás al día! No tienes deudas ni préstamos pendientes.', acciones: [] };
+        }
+        const list = activeDebts.map(d => `• ${d.type === 'me_deben' ? 'Te debe' : 'Le debes a'} ${d.person}: ${d.currency === 'USD' ? '$' : 'Bs '}${Number(d.amount).toFixed(2)}`).join('\n');
+        return {
+          respuesta: `Estado de tus deudas:\n• Total por cobrar: $${fin.owedToMeUsd.toFixed(2)}\n• Total por pagar: $${fin.iOweUsd.toFixed(2)}\n\nDetalle:\n${list}`,
+          acciones: []
+        };
+      }
+
+      // 3. Split multi-clause sentences ("gasté 5$ en pasaje y recibí 20$")
+      const clauses = text.split(/\s+y\s+|,\s*|;\s*/i).map(c => c.trim()).filter(Boolean);
+
+      for (const clause of clauses) {
+        const cl = clause.toLowerCase();
+
+        // A. Update Exchange Rate
+        const rateMatch = cl.match(/(?:tasa|d[oó]lar|bcv|paralelo).*?(?:a|en|=|:)\s*(\d+(?:[.,]\d+)?)/i);
+        if (rateMatch && /tasa|d[oó]lar|bs|bol[ií]var/.test(cl) && !/gast|pag|recib|debe|debo/.test(cl)) {
+          const newRate = parseFloat(rateMatch[1].replace(',', '.'));
+          if (newRate > 0) {
+            actions.push({ tipo: 'actualizar_tasa', tasa: newRate, requiereConfirmacion: false });
+            replyLines.push(`Actualicé la tasa del dólar a ${newRate.toFixed(2)} Bs.`);
+            continue;
+          }
+        }
+
+        // B. Delete Task (Requires Confirmation)
+        if (/borra|elimina|quita/.test(cl) && /tarea|actividad|evento/.test(cl)) {
+          const cleanName = clause.replace(/borra|elimina|quita|la|el|tarea|actividad|evento|de/gi, '').trim();
+          const matchTask = appState.tasks.find(t => cleanName && t.title.toLowerCase().includes(cleanName.toLowerCase())) || appState.tasks[0];
+          if (matchTask) {
+            actions.push({ tipo: 'borrar_tarea', id: matchTask.id, titulo: matchTask.title, requiereConfirmacion: true });
+            replyLines.push(`Confirma si deseas eliminar la tarea "${matchTask.title}".`);
+            continue;
+          }
+        }
+
+        // C. Settle Debt (Requires Confirmation)
+        if (/salda|pag[oó]|liquid/.test(cl) && (/deuda/.test(cl) || appState.debts.some(d => !d.paid && cl.includes(d.person.toLowerCase())))) {
+          const matchDebt = appState.debts.find(d => !d.paid && cl.includes(d.person.toLowerCase())) || appState.debts.find(d => !d.paid);
+          if (matchDebt) {
+            actions.push({ tipo: 'saldar_deuda', id: matchDebt.id, persona: matchDebt.person, requiereConfirmacion: true });
+            replyLines.push(`Confirma si deseas marcar como saldada la deuda con ${matchDebt.person}.`);
+            continue;
+          }
+        }
+
+        // D. Register Debt ("Juan me debe 15$" or "Le debo 10$ a María")
+        const owedToMeMatch = clause.match(/([a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,25}?)\s+me\s+debe\s+(\d+(?:[.,]\d+)?)\s*(\$|d[oó]lares|usd|bs|bol[ií]vares)?/i);
+        const iOweMatch = clause.match(/(?:le\s+)?debo\s+(\d+(?:[.,]\d+)?)\s*(\$|d[oó]lares|usd|bs|bol[ií]vares)?\s+a\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,25})/i);
+        const lentMatch = clause.match(/(?:le\s+)?prest[eé]\s+(\d+(?:[.,]\d+)?)\s*(\$|d[oó]lares|usd|bs|bol[ií]vares)?\s+a\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,25})/i);
+
+        if (owedToMeMatch) {
+          const person = capitalizeWords(owedToMeMatch[1].replace(/^(que|oye|anota)\s+/i, '').trim());
+          const monto = parseFloat(owedToMeMatch[2].replace(',', '.'));
+          const moneda = /bs|bol/i.test(owedToMeMatch[3] || '') ? 'VES' : 'USD';
+          actions.push({ tipo: 'registrar_deuda', subtipo: 'me_deben', persona: person, monto, moneda, nota: '', requiereConfirmacion: false });
+          replyLines.push(`Anoté que ${person} te debe ${moneda === 'USD' ? '$' : 'Bs '}${monto.toFixed(2)}.`);
+          continue;
+        }
+        if (iOweMatch) {
+          const monto = parseFloat(iOweMatch[1].replace(',', '.'));
+          const moneda = /bs|bol/i.test(iOweMatch[2] || '') ? 'VES' : 'USD';
+          const person = capitalizeWords(iOweMatch[3].trim());
+          actions.push({ tipo: 'registrar_deuda', subtipo: 'debo', persona: person, monto, moneda, nota: '', requiereConfirmacion: false });
+          replyLines.push(`Anoté que le debes ${moneda === 'USD' ? '$' : 'Bs '}${monto.toFixed(2)} a ${person}.`);
+          continue;
+        }
+        if (lentMatch) {
+          const monto = parseFloat(lentMatch[1].replace(',', '.'));
+          const moneda = /bs|bol/i.test(lentMatch[2] || '') ? 'VES' : 'USD';
+          const person = capitalizeWords(lentMatch[3].trim());
+          actions.push({ tipo: 'registrar_deuda', subtipo: 'me_deben', persona: person, monto, moneda, nota: 'Préstamo', requiereConfirmacion: false });
+          replyLines.push(`Registré el préstamo de ${moneda === 'USD' ? '$' : 'Bs '}${monto.toFixed(2)} a ${person}.`);
+          continue;
+        }
+
+        // E. Financial Transaction ("gasté 5$ en pasaje", "recibí 20$", "compré pan por 80 bs")
+        const txVerb = /gast[eé]|pagu[eé]|compr[eé]|me cost[oó]|recib[ií]|cobr[eé]|ingres[eé]|gan[eé]/.test(cl);
+        const amountMatch = cl.match(/(\d+(?:[.,]\d+)?)\s*(\$|d[oó]lares|usd|bs|bol[ií]vares)?/);
+        if (txVerb && amountMatch) {
+          const monto = parseFloat(amountMatch[1].replace(',', '.'));
+          const moneda = /bs|bol/i.test(amountMatch[2] || cl) ? 'VES' : 'USD';
+          const subtipo = /recib[ií]|cobr[eé]|ingres[eé]|gan[eé]/.test(cl) ? 'ingreso' : 'gasto';
+          const categoria = subtipo === 'ingreso' ? 'Otros' : inferExpenseCategory(cl);
+
+          // Extract clean note after "en" or "de"
+          const noteMatch = clause.match(/(?:en|de|por)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30})/i);
+          const note = noteMatch ? capitalizeWords(noteMatch[1].trim()) : categoria;
+
+          actions.push({
+            tipo: 'registrar_movimiento',
+            subtipo,
+            monto,
+            moneda,
+            categoria,
+            nota: note,
+            requiereConfirmacion: false
+          });
+          replyLines.push(`Registré un ${subtipo} de ${moneda === 'USD' ? '$' : 'Bs '}${monto.toFixed(2)} (${note}).`);
+          continue;
+        }
+
+        // F. Schedule Task / Event ("mañana a las 3 pm ir al banco", "el viernes estudiar inglés")
+        const hasScheduleCue = /mañana|manana|hoy|pasado|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|a las|agrega|agenda|recu[eé]rdame|ir a|estudiar|reuni[oó]n|pagar/.test(cl);
+        if (hasScheduleCue && !cl.endsWith('?')) {
+          const fecha = parseDateFromPhrase(clause);
+          const horaInicio = parseTimeFromPhrase(clause);
+          let cleanTitle = clause
+            .replace(/\b(agrega|agenda|anota|recu[eé]rdame|que tengo que|tengo que|pasado mañana|pasado manana|mañana|manana|hoy|el lunes|el martes|el mi[eé]rcoles|el miercoles|el jueves|el viernes|el s[aá]bado|el sabado|el domingo)\b/gi, '')
+            .replace(/(?:a las\s+)?\d{1,2}(?::\d{2})?\s*(?:am|pm|a\.m\.|p\.m\.|de la tarde|de la noche|de la mañana|de la manana)?/gi, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+          if (!cleanTitle) cleanTitle = 'Actividad programada';
+          cleanTitle = cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1);
+
+          const categoria = inferTaskCategory(cleanTitle);
+          actions.push({
+            tipo: 'crear_tarea',
+            titulo: cleanTitle,
+            fecha,
+            horaInicio,
+            horaFin: addOneHour(horaInicio),
+            categoria,
+            requiereConfirmacion: false
+          });
+          const fechaLabel = fecha === today ? 'hoy' : fecha === getIsoDateOffset(1) ? 'mañana' : fecha;
+          replyLines.push(`Agendé "${cleanTitle}" para ${fechaLabel} a las ${horaInicio}.`);
+        }
+      }
+
+      if (actions.length > 0) {
+        return {
+          respuesta: replyLines.join('\n'),
+          acciones: actions
+        };
+      }
+
+      if (/^\s*(hola|holi|buenas|buenos d[ií]as|hey|qu[eé] tal|saludos)/.test(lower)) {
+        const pend = appState.tasks.filter(t => t.date === today && !t.done).length;
+        return { respuesta: `¡Hola! 👋 Hoy tienes ${pend} ${pend === 1 ? 'tarea pendiente' : 'tareas pendientes'}. ¿Qué quieres organizar o registrar?`, acciones: [] };
+      }
+      return {
+        respuesta: `No estoy seguro de haber entendido eso, así que no hice ningún cambio. Prueba con frases como:\n• "Tengo examen de química el viernes de la otra semana"\n• "Gasté 5$ en pasaje"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"`,
+        acciones: []
+      };
+    }
+
+    // -------------------------------------------------------------------------
+    // GEMINI 2.5 FLASH CLOUD CALL (WITH INSTANT FALLBACK TO LOCAL ENGINE)
+    // -------------------------------------------------------------------------
+    async function geminiRequest(parts) {
+      const key = appState.customApiKey;
+      let lastErr = 'sin respuesta';
+      for (const m of ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest']) {
+        let resp;
+        try {
+          resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent?key=' + encodeURIComponent(key), {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: 'application/json' } })
+          });
+        } catch (e) { throw new Error('no hay conexión con Gemini, revisa tu internet'); }
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok) {
+          const c = data.candidates && data.candidates[0] && data.candidates[0].content;
+          const t = c && c.parts && c.parts[0] && c.parts[0].text;
+          if (t) return t;
+          lastErr = 'Gemini respondió vacío';
+          continue;
+        }
+        lastErr = (data.error && data.error.message) || ('error ' + resp.status);
+        if ([400, 401, 403].includes(resp.status)) throw new Error('la clave no fue aceptada (' + lastErr + ')');
+        if (resp.status === 429) throw new Error('límite gratuito alcanzado, espera un momento');
+      }
+      throw new Error(lastErr);
+    }
+
+    async function callGeminiCloud(userMessage) {
+      window._aiErr = '';
+      let sample = null;
+      try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
+      if (!sample && !appState.customApiKey) return null;
+      const fin = computeFinanceMetrics();
+      const snapshot = {
+        fecha_hoy: getIsoDateOffset(0), fecha_manana: getIsoDateOffset(1),
+        hora_actual: new Date().toTimeString().slice(0, 5), tasa_dolar_bs: appState.exchangeRate,
+        balance_usd: Number(fin.totalCombinedUsd.toFixed(2)), gastos_mes_usd: Number(fin.expenseUsdEquiv.toFixed(2)),
+        presupuesto_mensual_usd: appState.monthlyBudget, tareas: appState.tasks, deudas: appState.debts,
+        metas_ahorro: appState.goals, estudio_registrado: (appState.studyLog || []).slice(-60), dias_no_disponibles: { semanales: appState.busyWeekdays, fechas: appState.busyDates }, rutina_diaria: appState.habits,
+        conversacion_reciente: appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text }))
+      };
+      const prompt = `Eres "Mi Asistente", asistente personal dentro de una app móvil para un estudiante universitario en Venezuela. Responde en español, corto y natural (saludos y charla normal incluidos). No inventes datos: usa solo el ESTADO.
+Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
+Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); plan_estudio(titulo, fecha YYYY-MM-DD) para exámenes, exposiciones o entregas: la app guarda el evento y crea sola los días de estudio, así que NO los listes en "respuesta"; bloquear_dia(fecha YYYY-MM-DD) cuando diga que un día no puede estudiar; reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) y saldar_deuda(persona) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); abonar_meta(metaNombre, monto); completar_habito(habitoNombre); actualizar_tasa(tasa).
+Las demás acciones llevan requiereConfirmacion false. Con varios exámenes, genera una plan_estudio por cada uno; la app reparte los días sin choques y respetando los días no disponibles. Si menciona un examen, exposición, discusión o trabajo, o pregunta cómo estudiar algo, da en "respuesta" 3 o 4 estrategias concretas adaptadas a la materia, el tema y el tipo de evaluación (recuperación activa, práctica espaciada, explicar en voz alta, ejercicios, ensayo cronometrado). Si el usuario solo pregunta o conversa, acciones = []. Si falta un dato esencial (por ejemplo la fecha), pregúntalo y acciones = [].
+
+ESTADO:
+${JSON.stringify(snapshot)}
+
+MENSAJE DEL USUARIO:
+${userMessage}`;
+      try {
+        let t = '';
+        if (sample) {
+          const r = await sample(prompt, { cache: false, modelTier: 'quick' });
+          t = r.text || '';
+        } else {
+          const img = window._pendingImage;
+          window._pendingImage = null;
+          const parts = [{ text: prompt }];
+          if (img) parts.push({ inline_data: { mime_type: 'image/jpeg', data: img } });
+          t = await geminiRequest(parts);
+        }
+        return JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1));
+      } catch (e) {
+        window._aiErr = (e && e.message && !/JSON/.test(e.message)) ? e.message : 'respuesta no válida';
+        return null;
+      }
+    }
+
+    async function handleSendChat() {
+      const inp = document.getElementById('aiChatInput');
+      const btn = document.getElementById('aiSendBtn');
+      const orb = document.getElementById('aiOrbContainer');
+      const text = inp.value.trim();
+      if (!text) return;
+
+      inp.value = '';
+      btn.disabled = true;
+      orb.classList.add('ai-orb-thinking');
+
+      appState.chat.push({ role: 'user', text });
+      appState.chat.push({ role: 'ai', text: 'Procesando...', actions: [], isTemp: true });
+      renderChat();
+
+      // Try Gemini Cloud if custom API key is set, otherwise execute Smart Local NLP Engine immediately
+      let aiResult = await callGeminiCloud(text);
+      if (!aiResult) {
+        await new Promise(r => setTimeout(r, 220)); // Natural micro-feedback
+        aiResult = smartLocalAiEngine(text);
+        if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
+      }
+
+      appState.chat = appState.chat.filter(m => !m.isTemp);
+
+      const processedActions = (aiResult.acciones || []).map(raw => {
+        const requiresConfirm = Boolean(raw.requiereConfirmacion) || raw.tipo === 'borrar_tarea' || raw.tipo === 'saldar_deuda';
+        if (!requiresConfirm) {
+          executeSingleAiAction(raw);
+        }
+        return {
+          raw,
+          label: buildActionLabel(raw),
+          status: requiresConfirm ? 'pending_confirm' : 'executed'
+        };
+      });
+
+      appState.chat.push({
+        role: 'ai',
+        text: aiResult.respuesta || '¡Listo!',
+        actions: processedActions
+      });
+
+      orb.classList.remove('ai-orb-thinking');
+      btn.disabled = false;
+      if (appState.voiceReplies) speak(aiResult.respuesta || '');
+      saveState();
+    }
+
+    // =========================================================================
+    // 13. GLOBAL RENDER & INITIAL BOOT
+    // =========================================================================
+    function renderAll() {
+      const now = new Date();
+      const hour = now.getHours();
+      const greet = hour < 12 ? 'Buenos días 👋' : hour < 19 ? 'Buenas tardes 👋' : 'Buenas noches 👋';
+      document.getElementById('headerGreeting').textContent = greet;
+      document.getElementById('headerDate').textContent = now.toLocaleDateString('es-ES', {
+        weekday: 'long', day: 'numeric', month: 'long'
+      });
+      document.getElementById('headerRateText').textContent = `Tasa: ${Number(appState.exchangeRate || 45).toFixed(2)} Bs`;
+
+      renderHome();
+      renderAgenda();
+      renderFinances();
+      renderRoutines();
+      renderChat();
+      renderAlerts();
+      renderWord();
+      renderSubjects();
+      renderBusy();
+      populateTimerSubjects();
+    }
+
+    applyTheme();
+    renderAll();
+  </script>
+</body>
+</html>
