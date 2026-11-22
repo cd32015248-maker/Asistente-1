@@ -106,12 +106,6 @@
         </div>
 
         <div class="flex items-center gap-2 flex-shrink-0">
-          <!-- Editable Exchange Rate Pill -->
-          <button onclick="openRateModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm active:scale-95 transition">
-            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-            <span id="headerRateText" class="text-xs font-bold text-slate-700 dark:text-slate-200">Tasa: 45.00 Bs</span>
-          </button>
-
           <button onclick="switchTab('ajustes')" aria-label="Ajustes" class="w-9 h-9 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm flex items-center justify-center text-sm active:scale-95 transition">⚙️</button>
           <button onclick="openBackupModal()" aria-label="Respaldo de datos" class="w-9 h-9 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm flex items-center justify-center text-sm active:scale-95 transition">💾</button>
           <!-- Light / Dark Mode Toggle -->
@@ -455,17 +449,17 @@
       </div>
     </nav>
 
-    <div id="onboarding" class="hidden fixed inset-0 z-[60] bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 overflow-y-auto">
+    <div id="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" class="hidden fixed inset-0 z-[60] bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 overflow-y-auto">
       <div class="min-h-full max-w-md mx-auto px-6 py-10 flex flex-col justify-center">
         <div class="text-center mb-6">
           <div class="ai-orb-wrapper inline-block"><div class="ai-orb-core w-20 h-20"></div></div>
-          <h1 class="text-2xl font-extrabold text-white mt-4">Bienvenido</h1>
-          <p class="text-sm text-indigo-100 mt-1">Cuéntame de ti para empezar. Todo se guarda solo en tu teléfono.</p>
+          <h1 id="onboardingTitle" class="text-2xl font-extrabold text-white mt-4">Conozcámonos</h1>
+          <p class="text-sm text-indigo-100 mt-1">Completa tu nombre y fecha de nacimiento para entrar. Tu perfil se guarda en este teléfono; si conectas Gemini, se envía a Google solo la información necesaria para responderte.</p>
         </div>
         <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-5 space-y-3.5 shadow-2xl">
-          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">¿Cómo te llamas?</label><input id="obName" type="text" placeholder="Tu nombre" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /></div>
-          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Edad</label><input id="obAge" type="number" placeholder="Opcional" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /></div>
-          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">¿Qué estudias o a qué te dedicas?</label><input id="obJob" type="text" placeholder="Ej: Ingeniería, comerciante, docente…" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /></div>
+          <div><label for="obName" class="text-[11px] font-bold text-slate-400 block mb-1">¿Cómo te llamas? <span class="text-rose-500">*</span></label><input id="obName" type="text" autocomplete="given-name" maxlength="60" required placeholder="Tu nombre" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /></div>
+          <div><label for="obBirthDate" class="text-[11px] font-bold text-slate-400 block mb-1">Fecha de nacimiento <span class="text-rose-500">*</span></label><input id="obBirthDate" type="date" required class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /><p class="mt-1 text-[10px] text-slate-400">La app calculará tu edad; no necesitas escribirla.</p></div>
+          <div><label for="obJob" class="text-[11px] font-bold text-slate-400 block mb-1">¿Qué estudias o a qué te dedicas? <span class="font-normal">(opcional)</span></label><input id="obJob" type="text" maxlength="100" placeholder="Ej: Ingeniería, comerciante, docente…" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /></div>
           <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Palabra del día</label>
             <select id="obWord" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500">
               <option value="ambos">Frases y versículos</option>
@@ -473,7 +467,7 @@
               <option value="versiculos">Solo versículos</option>
             </select>
           </div>
-          <button onclick="finishOnboarding()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm active:scale-[0.98] transition">Empezar</button>
+          <button onclick="finishOnboarding()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm active:scale-[0.98] transition">Guardar y entrar</button>
         </div>
       </div>
     </div>
@@ -801,9 +795,9 @@
         routineChecks: {},
         streakDays: 0,
         weeklyHistory: [0, 0, 0, 0, 0, 0, 0],
-        profile: { name: '', age: '', occupation: '', done: false },
+        profile: { name: '', birthDate: '', age: '', occupation: '', done: false },
         chat: [
-          { role: 'ai', text: '¡Hola! Soy tu asistente personal. Puedes decirme cosas como: "Gasté 5$ en pasaje", "Mañana a las 3 pm ir al banco" o "Tengo examen de química el viernes de la otra semana".', actions: [] }
+          { role: 'ai', text: '¡Hola! Soy tu asistente personal. Estoy aquí para ayudarte con tu agenda, tus finanzas, tus rutinas y tus estudios. Puedes pedirme que consulte tus datos o que te ayude a organizarlos.', actions: [] }
         ]
       };
     }
@@ -1619,17 +1613,46 @@
     }
 
     // ---- Inicio de la app y borrado ----
+    function ageFromBirthDate(value) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return null;
+      const [year, month, day] = value.split('-').map(Number);
+      const birth = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (birth.getFullYear() !== year || birth.getMonth() !== month - 1 || birth.getDate() !== day || birth > today) return null;
+      let age = today.getFullYear() - year;
+      if (today.getMonth() < month - 1 || (today.getMonth() === month - 1 && today.getDate() < day)) age--;
+      return age >= 0 ? age : null;
+    }
+    function profileIsComplete(profile = appState.profile) {
+      return !!(profile && profile.done && String(profile.name || '').trim() && ageFromBirthDate(profile.birthDate) !== null);
+    }
     function renderOnboarding() {
       const el = document.getElementById('onboarding');
-      if (el) el.classList.toggle('hidden', !!(appState.profile && appState.profile.done));
+      if (!el) return;
+      const needsSetup = !profileIsComplete();
+      el.classList.toggle('hidden', !needsSetup);
+      document.body.style.overflow = needsSetup ? 'hidden' : '';
+      if (!needsSetup) { el.dataset.profileHydrated = ''; return; }
+      if (el.dataset.profileHydrated === 'true') return;
+      const p = appState.profile || {};
+      document.getElementById('obName').value = p.name || '';
+      document.getElementById('obBirthDate').value = p.birthDate || '';
+      document.getElementById('obJob').value = p.occupation || '';
+      document.getElementById('obWord').value = appState.wordMode || 'ambos';
+      document.getElementById('obBirthDate').max = getIsoDateOffset(0);
+      el.dataset.profileHydrated = 'true';
     }
     function finishOnboarding() {
       const name = document.getElementById('obName').value.trim();
-      if (!name) { showToast('Dime tu nombre para empezar'); return; }
-      appState.profile = { name, age: document.getElementById('obAge').value.trim(), occupation: document.getElementById('obJob').value.trim(), done: true };
+      const birthDate = document.getElementById('obBirthDate').value;
+      const age = ageFromBirthDate(birthDate);
+      if (!name) { showToast('Escribe tu nombre para continuar'); document.getElementById('obName').focus(); return; }
+      if (age === null) { showToast('Selecciona una fecha de nacimiento válida, no futura'); document.getElementById('obBirthDate').focus(); return; }
+      appState.profile = { ...(appState.profile || {}), name, birthDate, age, occupation: document.getElementById('obJob').value.trim(), done: true };
       appState.wordMode = document.getElementById('obWord').value;
       if (appState.chat.length <= 1) {
-        appState.chat = [{ role: 'ai', text: `¡Hola, ${name}! Soy tu asistente personal. Dime tus tareas, exámenes y gastos, y yo me encargo de organizarlos. Por ejemplo: "Gasté 5$ en pasaje" o "Tengo examen el viernes de la otra semana".`, actions: [] }];
+        appState.chat = [{ role: 'ai', text: `¡Hola, ${name}! Soy tu asistente personal y estoy aquí para ayudarte con toda la app: agenda, rutinas, finanzas y estudios. Puedes preguntarme por tus datos o pedirme ayuda para organizarlos.`, actions: [] }];
       }
       saveState();
     }
@@ -2847,7 +2870,7 @@
 
     function clearChatHistory() {
       appState.chat = [
-        { role: 'ai', text: 'Conversación reiniciada. ¿Qué quieres organizar o registrar ahora?', actions: [] }
+        { role: 'ai', text: 'Aquí estoy para ayudarte con la agenda, las rutinas, las finanzas o los estudios. ¿Qué necesitas?', actions: [] }
       ];
       saveState();
     }
@@ -2889,6 +2912,10 @@
           return `Abono a meta "${raw.metaNombre}": +$${Number(raw.monto).toFixed(2)}`;
         case 'completar_habito':
           return `Paso de rutina completado: ${raw.habitoNombre}`;
+        case 'completar_paso_rutina':
+          return `Paso completado: ${raw.pasoNombre} · ${raw.rutinaNombre}`;
+        case 'crear_rutina':
+          return `Crear rutina: ${raw.nombre} · ${raw.hora} · ${(raw.pasos || []).length} pasos`;
         case 'plan_estudio':
           return `Plan de estudio: ${raw.titulo} (examen ${raw.fecha.slice(8)}/${raw.fecha.slice(5, 7)})`;
         case 'bloquear_dia':
@@ -2976,6 +3003,38 @@
         if (habit) {
           habit.done = true;
           updateTodayWeeklyHistory();
+        }
+      } else if (raw.tipo === 'completar_paso_rutina') {
+        const routineQuery = String(raw.rutinaNombre || '').trim().toLowerCase();
+        const stepQuery = String(raw.pasoNombre || '').trim().toLowerCase();
+        const routine = (appState.routines || []).find(r => r.name.toLowerCase() === routineQuery) || (appState.routines || []).find(r => routineQuery && r.name.toLowerCase().includes(routineQuery));
+        const step = routine && (routine.steps || []).find(s => s.title.toLowerCase() === stepQuery) || routine && (routine.steps || []).find(s => stepQuery && s.title.toLowerCase().includes(stepQuery));
+        if (routine && step) {
+          const date = getIsoDateOffset(0);
+          appState.routineChecks = appState.routineChecks || {};
+          appState.routineChecks[date] = appState.routineChecks[date] || {};
+          const done = new Set(appState.routineChecks[date][routine.id] || []);
+          done.add(step.id);
+          appState.routineChecks[date][routine.id] = Array.from(done);
+          const stats = routineDayProgress(date);
+          appState.streakDays = routineCurrentStreak();
+          appState.weeklyHistory = appState.weeklyHistory || [0,0,0,0,0,0,0];
+          const jsDay = new Date().getDay(), monIdx = jsDay === 0 ? 6 : jsDay - 1;
+          appState.weeklyHistory[monIdx] = stats.percent;
+        }
+      } else if (raw.tipo === 'crear_rutina') {
+        const name = String(raw.nombre || '').trim().slice(0, 80);
+        const time = String(raw.hora || '07:00');
+        const days = [...new Set((Array.isArray(raw.dias) ? raw.dias : []).map(Number).filter(d => Number.isInteger(d) && d >= 0 && d <= 6))];
+        const steps = (Array.isArray(raw.pasos) ? raw.pasos : []).map(s => {
+          const title = String(s && s.titulo || '').trim().slice(0, 100);
+          const mins = Number(s && s.minutos);
+          return title ? { id: Date.now() + Math.floor(Math.random() * 100000), title, icon: '✨', duration: Number.isFinite(mins) && mins > 0 ? Math.min(180, Math.round(mins)) : null } : null;
+        }).filter(Boolean).slice(0, 20);
+        const duplicate = (appState.routines || []).some(r => r.name.toLowerCase() === name.toLowerCase());
+        if (name && /^([01]\d|2[0-3]):[0-5]\d$/.test(time) && days.length && steps.length && !duplicate) {
+          appState.routines = appState.routines || [];
+          appState.routines.push({ id: Date.now() + Math.floor(Math.random() * 10000), name, days, time, steps });
         }
       } else if (raw.tipo === 'plan_estudio' && raw.fecha) {
         const titulo = raw.titulo || 'Examen';
@@ -3338,7 +3397,7 @@
         return { respuesta: `¡Hola! 👋 Hoy tienes ${pend} ${pend === 1 ? 'tarea pendiente' : 'tareas pendientes'}. ¿Qué quieres organizar o registrar?`, acciones: [] };
       }
       return {
-        respuesta: `No estoy seguro de haber entendido eso, así que no hice ningún cambio.${appState.customApiKey ? '' : ' Para que converse contigo de verdad, pega tu clave de Gemini en Ajustes ⚙️.'} Prueba con frases como:\n• "Tengo examen de química el viernes de la otra semana"\n• "Gasté 5$ en pasaje"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"`,
+        respuesta: `No estoy segura de haber entendido eso, así que no hice ningún cambio.${appState.customApiKey ? '' : ' Para que converse contigo de verdad, pega tu clave de Gemini en Ajustes ⚙️.'} Prueba con frases como:\n• "Tengo examen de química el viernes de la otra semana"\n• "Gasté 5$ en pasaje"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"`,
         acciones: []
       };
     }
@@ -3394,24 +3453,63 @@
       throw new Error(lastErr);
     }
 
+    function buildAiContextSnapshot(userMessage) {
+      const q = String(userMessage || '').toLowerCase();
+      const broad = /resumen.*(general|todo)|todo lo que|todas mis secciones|organiza.*(mi d[ií]a|mi semana)|mi semana|resumen semanal/.test(q);
+      const wantsFinance = broad || /finanz|dinero|saldo|balance|gast|ingres|presupuesto|deuda|debo|deben|me debe|pr[eé]stamo|meta de ahorro|ahorr|d[oó]lar|bol[ií]var|tasa|movimiento|recib[ií]|pagu[eé]/.test(q);
+      const namesSubject = (appState.subjects || []).some(s => s.name && q.includes(s.name.toLowerCase()));
+      const namesRoutine = (appState.routines || []).some(r => r.name && q.includes(r.name.toLowerCase()));
+      const wantsStudy = broad || namesSubject || /materia|calificaci[oó]n|nota|promedio|examen|estudi|evaluaci[oó]n|temporizador|enfoque/.test(q);
+      const wantsRoutine = broad || namesRoutine || /rutina|h[aá]bito|paso de hoy|racha|constancia/.test(q);
+      const wantsAgenda = broad || /agenda|tarea|pendient|evento|calendario|reprogram|organiza.*d[ií]a|hoy|ma[ñn]ana|esta semana|crea|crear|agrega|anota|recu[eé]rdame|programa|planifica|cita|turno|pagar|a las/.test(q);
+      const today = getIsoDateOffset(0), age = ageFromBirthDate(appState.profile && appState.profile.birthDate);
+      const snapshot = {
+        perfil: { nombre: appState.profile && appState.profile.name || '', edad: age, ocupacion: appState.profile && appState.profile.occupation || '' },
+        fecha_hoy: today,
+        dia_semana: new Date().toLocaleDateString('es-ES', { weekday: 'long' }),
+        hora_actual: new Date().toTimeString().slice(0, 5)
+      };
+      if (wantsAgenda) snapshot.agenda = { tareas: (appState.tasks || []).filter(t => !t.done || t.date >= today).sort((a,b) => (a.date + (a.startTime || '')).localeCompare(b.date + (b.startTime || ''))).slice(0, 80) };
+      if (wantsFinance) {
+        const fin = computeFinanceMetrics();
+        snapshot.finanzas = {
+          tasa_dolar_bs: appState.exchangeRate,
+          balance_usd: Number(fin.totalCombinedUsd.toFixed(2)),
+          balance_bs: Number(fin.totalCombinedVes.toFixed(2)),
+          ingresos_mes_usd: Number(fin.incomeUsdEquiv.toFixed(2)),
+          gastos_mes_usd: Number(fin.expenseUsdEquiv.toFixed(2)),
+          presupuesto_mensual_usd: appState.monthlyBudget,
+          deudas_activas: (appState.debts || []).filter(d => !d.paid),
+          metas_ahorro: appState.goals || [],
+          movimientos_recientes: (appState.transactions || []).slice(0, 20)
+        };
+      }
+      if (wantsStudy) snapshot.estudios = {
+        materias: (appState.subjects || []).map(s => ({ nombre: s.name, evaluaciones: (s.evals || []).map(e => ({ nombre: e.name, porcentaje: e.weight, nota: e.grade })) })),
+        estudio_registrado: (appState.studyLog || []).slice(-40),
+        examenes: (appState.tasks || []).filter(t => t.exam && (!t.done || t.date >= today)).slice(0, 40),
+        escala_notas: { maximo: appState.gradeMax, aprobar: appState.gradePass },
+        dias_no_disponibles: { semanales: appState.busyWeekdays, fechas: appState.busyDates }
+      };
+      if (wantsRoutine) {
+        const progress = routineDayProgress(today);
+        snapshot.rutinas = { hoy: progress.due.map(r => ({ nombre: r.name, hora: r.time, pasos: (r.steps || []).map(s => ({ nombre: s.title, minutos: s.duration, completado: (progress.checks[r.id] || []).includes(s.id) })) })), todas: (appState.routines || []).map(r => ({ nombre: r.name, hora: r.time, dias: r.days, pasos: (r.steps || []).map(s => ({ nombre: s.title, minutos: s.duration })) })), racha: routineCurrentStreak() };
+      }
+      if (!wantsAgenda && !wantsFinance && !wantsStudy && !wantsRoutine) snapshot.consejo = 'No incluyas datos de otras secciones si la pregunta no los requiere.';
+      return snapshot;
+    }
+
     async function callGeminiCloud(userMessage) {
       window._aiErr = '';
       let sample = null;
       try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
       if (!sample && !appState.customApiKey) return null;
-      const fin = computeFinanceMetrics();
-      const snapshot = {
-        perfil: { nombre: appState.profile && appState.profile.name, edad: appState.profile && appState.profile.age, ocupacion: appState.profile && appState.profile.occupation }, fecha_hoy: getIsoDateOffset(0), fecha_manana: getIsoDateOffset(1),
-        hora_actual: new Date().toTimeString().slice(0, 5), tasa_dolar_bs: appState.exchangeRate,
-        balance_usd: Number(fin.totalCombinedUsd.toFixed(2)), gastos_mes_usd: Number(fin.expenseUsdEquiv.toFixed(2)),
-        presupuesto_mensual_usd: appState.monthlyBudget, tareas: appState.tasks, deudas: appState.debts,
-        metas_ahorro: appState.goals, estudio_registrado: (appState.studyLog || []).slice(-60), dias_no_disponibles: { semanales: appState.busyWeekdays, fechas: appState.busyDates }, rutina_diaria: appState.habits,
-        conversacion_reciente: appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text }))
-      };
-      const prompt = `Eres "Mi Asistente", asistente personal dentro de una app móvil . Responde en español, corto y natural (saludos y charla normal incluidos). No inventes datos: usa solo el ESTADO.
+      const snapshot = buildAiContextSnapshot(userMessage);
+      snapshot.conversacion_reciente = appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text }));
+      const prompt = `Eres "Mi Asistente", una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Responde en español, de forma clara y breve. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni digas que hiciste cambios si no hay una acción válida.
 Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
-Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); plan_estudio(titulo, fecha YYYY-MM-DD) para exámenes, exposiciones o entregas: la app guarda el evento y crea sola los días de estudio, así que NO los listes en "respuesta"; bloquear_dia(fecha YYYY-MM-DD) cuando diga que un día no puede estudiar; reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) y saldar_deuda(persona) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); abonar_meta(metaNombre, monto); completar_habito(habitoNombre); actualizar_tasa(tasa).
-Las demás acciones llevan requiereConfirmacion false. Con varios exámenes, genera una plan_estudio por cada uno; la app reparte los días sin choques y respetando los días no disponibles. Si menciona un examen, exposición, discusión o trabajo, o pregunta cómo estudiar algo, da en "respuesta" 3 o 4 estrategias concretas adaptadas a la materia, el tema y el tipo de evaluación (recuperación activa, práctica espaciada, explicar en voz alta, ejercicios, ensayo cronometrado). Si el usuario solo pregunta o conversa, acciones = []. Si falta un dato esencial (por ejemplo la fecha), pregúntalo y acciones = [].
+Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); plan_estudio(titulo, fecha YYYY-MM-DD); bloquear_dia(fecha YYYY-MM-DD); reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); saldar_deuda(persona) con requiereConfirmacion true; abonar_meta(metaNombre, monto); completar_paso_rutina(rutinaNombre, pasoNombre); crear_rutina(nombre, dias como índices 0=domingo a 6=sábado, hora HH:MM, pasos como [{titulo, minutos opcional}]) con requiereConfirmacion true; actualizar_tasa(tasa).
+Las acciones nuevas de tarea, finanzas y pasos completados solo deben proponerse cuando estén claros los datos esenciales. Nunca inventes montos, fechas, pasos ni materias; pregunta si falta algo. Crear una rutina requiere confirmación y al menos nombre, un día, hora y un paso. No borres ni saldes información sin confirmación. Si menciona exámenes o pregunta cómo estudiar, adapta consejos a las materias y notas incluidas. Si la persona solo conversa o pregunta, acciones = [].
 
 ESTADO:
 ${JSON.stringify(snapshot)}
@@ -3469,7 +3567,7 @@ ${userMessage}`;
       appState.chat = appState.chat.filter(m => !m.isTemp);
 
       const processedActions = (aiResult.acciones || []).map(raw => {
-        const requiresConfirm = Boolean(raw.requiereConfirmacion) || raw.tipo === 'borrar_tarea' || raw.tipo === 'saldar_deuda';
+        const requiresConfirm = Boolean(raw.requiereConfirmacion) || raw.tipo === 'borrar_tarea' || raw.tipo === 'saldar_deuda' || raw.tipo === 'crear_rutina';
         if (!requiresConfirm) {
           executeSingleAiAction(raw);
         }
@@ -3505,8 +3603,6 @@ ${userMessage}`;
       document.getElementById('headerDate').textContent = now.toLocaleDateString('es-ES', {
         weekday: 'long', day: 'numeric', month: 'long'
       });
-      document.getElementById('headerRateText').textContent = `Tasa: ${Number(appState.exchangeRate || 45).toFixed(2)} Bs`;
-
       renderHome();
       renderAgenda();
       renderFinances();
