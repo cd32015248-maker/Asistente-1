@@ -357,6 +357,7 @@
             <div class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">Asistente</div>
             <div id="aiEngineBadge" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">● <span id="aiEngineLabel">IA local</span></div>
           </div>
+          <button onclick="openVoiceMode()" aria-label="Conversar" class="px-3 h-10 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 active:scale-95 transition flex-shrink-0">🎧 Hablar</button>
           <button onclick="toggleVoiceReplies()" aria-label="Voz" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🔊</button>
           <button onclick="switchTab('ajustes')" aria-label="Ajustes" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">⚙️</button>
         </div>
@@ -696,6 +697,16 @@
           <button onclick="finishOnboarding()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm active:scale-[0.98] transition">Empezar</button>
         </div>
       </div>
+    </div>
+
+    <div id="voiceMode" class="hidden fixed inset-0 z-[55] flex flex-col items-center justify-between bg-gradient-to-b from-[#0B1120] to-[#1E1B4B] px-6 py-10 text-center">
+      <div class="w-full flex justify-end"><button onclick="closeVoiceMode()" aria-label="Cerrar" class="w-10 h-10 rounded-full bg-white/10 text-white font-bold">✕</button></div>
+      <div class="flex flex-col items-center gap-6 w-full">
+        <div id="vmOrb" onclick="voiceOrbTap()" class="ai-orb-wrapper cursor-pointer"><div class="ai-orb-core w-44 h-44"></div></div>
+        <div id="vmStatus" class="text-xl font-extrabold text-white">Toca el orbe para hablar</div>
+        <div id="vmText" class="text-sm text-indigo-100/90 max-h-40 overflow-y-auto leading-relaxed"></div>
+      </div>
+      <p class="text-[11px] text-indigo-200/70">Habla con naturalidad. Toca el orbe para interrumpir la respuesta.</p>
     </div>
 
     <!-- Toast Notification Banner -->
@@ -1527,13 +1538,91 @@
       } catch (e) {}
     }
     window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
-    async function speak(text) {
-      const clean = String(text || '').replace(/[•\n]+/g, '. ').slice(0, 600);
+    async function speakAsync(text) {
+      const clean = String(text || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').replace(/[•*_#]+/g, ' ').replace(/\n+/g, '. ').slice(0, 700);
+      if (!clean.trim()) return;
       const TTS = nativePlugin('TextToSpeech');
       try {
         if (TTS) { await TTS.speak({ text: clean, lang: 'es-ES', rate: 1.0 }); return; }
-        if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(clean); u.lang = 'es-ES'; speechSynthesis.cancel(); speechSynthesis.speak(u); }
+        if (window.speechSynthesis) {
+          await new Promise(res => { const u = new SpeechSynthesisUtterance(clean); u.lang = 'es-ES'; u.onend = res; u.onerror = res; speechSynthesis.cancel(); speechSynthesis.speak(u); });
+        }
       } catch (e) {}
+    }
+    function speak(text) { speakAsync(text); }
+    function stopSpeaking() {
+      try { const T = nativePlugin('TextToSpeech'); if (T) T.stop(); } catch (e) {}
+      try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+    }
+    function listenOnce() {
+      return new Promise(async (resolve) => {
+        const SR = nativePlugin('SpeechRecognition');
+        try {
+          if (SR) {
+            const p = await SR.requestPermissions();
+            if (p.speechRecognition !== 'granted') { showToast('Necesito permiso del micrófono'); resolve(null); return; }
+            const r = await SR.start({ language: 'es-ES', maxResults: 1, prompt: '', partialResults: false, popup: false });
+            resolve(r && r.matches && r.matches[0] ? r.matches[0] : '');
+            return;
+          }
+          const W = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!W) { showToast('Este dispositivo no permite voz'); resolve(null); return; }
+          const rec = new W();
+          rec.lang = 'es-ES';
+          rec.onresult = e => resolve(e.results[0][0].transcript);
+          rec.onerror = () => resolve('');
+          rec.onend = () => resolve('');
+          rec.start();
+        } catch (e) { resolve(''); }
+      });
+    }
+    let voiceLoopOn = false, voiceRunning = false;
+    function setVoiceStatus(t, sub) {
+      document.getElementById('vmStatus').textContent = t;
+      if (sub !== undefined) document.getElementById('vmText').textContent = sub;
+    }
+    async function runVoiceLoop() {
+      if (voiceRunning) return;
+      voiceRunning = true; voiceLoopOn = true; window._voiceLoop = true;
+      const orb = document.getElementById('vmOrb');
+      let empties = 0;
+      while (voiceLoopOn) {
+        setVoiceStatus('Escuchando…', '');
+        orb.classList.remove('ai-orb-thinking');
+        const heard = await listenOnce();
+        if (!voiceLoopOn || heard === null) break;
+        if (!heard) { if (++empties >= 3) { setVoiceStatus('No te escuché. Toca el orbe para hablar.', ''); break; } continue; }
+        empties = 0;
+        setVoiceStatus('Pensando…', '“' + heard + '”');
+        orb.classList.add('ai-orb-thinking');
+        document.getElementById('aiChatInput').value = heard;
+        await handleSendChat();
+        orb.classList.remove('ai-orb-thinking');
+        if (!voiceLoopOn) break;
+        const last = appState.chat[appState.chat.length - 1];
+        const reply = last && last.role === 'ai' ? last.text : '';
+        setVoiceStatus('Hablando…', reply);
+        await speakAsync(reply);
+      }
+      voiceRunning = false; window._voiceLoop = false;
+    }
+    function openVoiceMode() {
+      if (!NATIVE && !(window.SpeechRecognition || window.webkitSpeechRecognition)) { showToast('La voz solo funciona en la app instalada desde GitHub'); return; }
+      document.getElementById('voiceMode').classList.remove('hidden');
+      runVoiceLoop();
+    }
+    function voiceOrbTap() { if (voiceRunning) stopSpeaking(); else runVoiceLoop(); }
+    function closeVoiceMode() {
+      voiceLoopOn = false; window._voiceLoop = false;
+      stopSpeaking();
+      try { const R = nativePlugin('SpeechRecognition'); if (R) R.stop(); } catch (e) {}
+      document.getElementById('voiceMode').classList.add('hidden');
+    }
+    async function testGemini() {
+      if (!appState.customApiKey) { showToast('Primero pega y guarda tu clave de Gemini'); return; }
+      showToast('Probando conexión…');
+      try { await geminiRequest([{ text: 'Responde solo este JSON: {"ok":true}' }]); showToast('Gemini funciona ✓'); }
+      catch (e) { showToast('Gemini falló: ' + e.message); }
     }
     function toggleVoiceReplies() {
       appState.voiceReplies = !appState.voiceReplies;
@@ -1608,7 +1697,7 @@
       el.innerHTML =
         card('🤖 Asistente IA', `
           <input id="setApiKey" type="password" value="${escapeHtml(appState.customApiKey || '')}" placeholder="Clave de Gemini (AIza...)" class="w-full ${inp} font-mono" />
-          <div class="flex gap-2">${pill('Guardar clave', 'saveApiKeySettings()', true)}${pill('Limpiar chat', 'clearChatHistory()', false)}</div>
+          <div class="flex gap-2">${pill('Guardar clave', 'saveApiKeySettings()', true)}${pill('Probar conexión', 'testGemini()', false)}${pill('Limpiar chat', 'clearChatHistory()', false)}</div>
           ${row('Respuestas en voz alta', pill(appState.voiceReplies ? 'Activadas' : 'Apagadas', 'toggleVoiceReplies()', !!appState.voiceReplies))}`) +
         card('✨ Palabra del día', `
           <div class="flex gap-1.5">${pill('Ambos', "setWordMode('ambos')", mode === 'ambos')}${pill('Frases', "setWordMode('frases')", mode === 'frases')}${pill('Versículos', "setWordMode('versiculos')", mode === 'versiculos')}</div>
@@ -3208,7 +3297,7 @@
         return { respuesta: `¡Hola! 👋 Hoy tienes ${pend} ${pend === 1 ? 'tarea pendiente' : 'tareas pendientes'}. ¿Qué quieres organizar o registrar?`, acciones: [] };
       }
       return {
-        respuesta: `No estoy seguro de haber entendido eso, así que no hice ningún cambio. Prueba con frases como:\n• "Tengo examen de química el viernes de la otra semana"\n• "Gasté 5$ en pasaje"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"`,
+        respuesta: `No estoy seguro de haber entendido eso, así que no hice ningún cambio.${appState.customApiKey ? '' : ' Para que converse contigo de verdad, pega tu clave de Gemini en Ajustes ⚙️.'} Prueba con frases como:\n• "Tengo examen de química el viernes de la otra semana"\n• "Gasté 5$ en pasaje"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"`,
         acciones: []
       };
     }
@@ -3330,7 +3419,7 @@ ${userMessage}`;
 
       orb.classList.remove('ai-orb-thinking');
       btn.disabled = false;
-      if (appState.voiceReplies) speak(aiResult.respuesta || '');
+      if (appState.voiceReplies && !window._voiceLoop) speak(aiResult.respuesta || '');
       saveState();
     }
 
