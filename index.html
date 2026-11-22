@@ -159,6 +159,7 @@
         </div>
 
         </div>
+        <button onclick="openContextVoice('inicio')" class="w-full flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 py-3 text-sm font-extrabold text-white shadow-md active:scale-[0.98] transition">🎙️ Hablar con mi asistente</button>
         <div id="homeAlerts"></div>
         <div id="wordCard"></div>
         
@@ -286,6 +287,7 @@
             <button onclick="selectToday()" class="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold text-white">Ir a hoy</button>
           </div>
         </div>
+        <button onclick="openContextVoice('agenda')" class="w-full flex items-center justify-center gap-2 rounded-2xl bg-sky-600 py-3 text-sm font-extrabold text-white shadow-sm active:scale-[0.98] transition">🎙️ Hablar sobre mi agenda</button>
         <div class="rounded-3xl border border-sky-100 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]">
           <div class="mb-2 flex items-center justify-between px-1">
             <span class="text-xs font-extrabold text-slate-700 dark:text-slate-200">Calendario</span>
@@ -366,6 +368,7 @@
             <div class="mt-4 grid grid-cols-2 gap-2 border-t border-white/15 pt-3"><div class="rounded-2xl bg-white/10 p-2.5"><div class="text-[10px] text-emerald-100">Ingresos</div><div id="finTotalIncome" class="mt-0.5 text-sm font-extrabold text-white">+$0.00</div></div><div class="rounded-2xl bg-white/10 p-2.5"><div class="text-[10px] text-emerald-100">Gastos</div><div id="finTotalExpense" class="mt-0.5 text-sm font-extrabold text-white">-$0.00</div></div></div>
           </div>
         </div>
+        <button onclick="openContextVoice('finanzas')" class="w-full flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 py-3 text-sm font-extrabold text-white shadow-sm active:scale-[0.98] transition">🎙️ Hablar sobre mis finanzas</button>
         <div id="financeEmptyState" class="hidden rounded-3xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30"><div class="flex items-start gap-3"><span class="grid h-10 w-10 flex-shrink-0 place-items-center rounded-2xl bg-white text-xl shadow-sm dark:bg-slate-900">🌱</span><div class="flex-1"><div class="text-sm font-extrabold text-emerald-950 dark:text-emerald-200">Aquí empieza tu registro</div><p class="mt-1 text-xs leading-relaxed text-emerald-800 dark:text-emerald-300">Todavía no hay movimientos, metas ni deudas. Registra uno y tendrás todo a mano.</p><button onclick="openTxModal()" class="mt-3 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-extrabold text-white active:scale-95">Registrar mi primer movimiento</button></div></div></div>
         <div class="grid grid-cols-3 gap-1 rounded-2xl bg-emerald-50 p-1 dark:bg-[#151C2C]"><button id="finTabResumen" onclick="setFinanceSubtab('resumen')" class="rounded-xl bg-white py-2 text-[10px] font-extrabold text-emerald-800 shadow-sm dark:bg-slate-700 dark:text-emerald-200">Resumen</button><button id="finTabPresupuesto" onclick="setFinanceSubtab('presupuesto')" class="rounded-xl py-2 text-[10px] font-bold text-slate-600 dark:text-slate-400">Presupuesto</button><button id="finTabDeudas" onclick="setFinanceSubtab('deudas')" class="rounded-xl py-2 text-[10px] font-bold text-slate-600 dark:text-slate-400">Deudas</button></div>
         <div id="finSub-resumen" class="space-y-3">
@@ -387,6 +390,7 @@
           <div class="relative flex items-start justify-between gap-3"><div><span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-amber-50">A TU MANERA, A TU RITMO</span><h2 class="mt-1 text-2xl font-extrabold tracking-tight">Mis rutinas</h2><p class="mt-1 max-w-[230px] text-xs leading-relaxed text-orange-50">Crea pequeños pasos que hagan más fácil tu día.</p></div><button onclick="openRoutineModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-orange-700 shadow-sm active:scale-95">＋ Crear</button></div>
           <div class="relative mt-4 flex items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-3.5 py-2.5"><div><div class="text-[10px] font-bold text-orange-50">HOY</div><div class="text-sm font-extrabold" id="routineTodaySummary">Tus pasos de hoy</div></div><div id="routineStreakBadge" class="rounded-full bg-white/15 px-3 py-1.5 text-xs font-extrabold">🔥 0 días</div></div>
         </div>
+        <button onclick="openContextVoice('rutinas')" class="w-full flex items-center justify-center gap-2 rounded-2xl bg-orange-600 py-3 text-sm font-extrabold text-white shadow-sm active:scale-[0.98] transition">🎙️ Hablar sobre mis rutinas</button>
         <div id="routineEmptyState" class="hidden rounded-3xl border border-orange-200 bg-orange-50 p-5 dark:border-orange-900 dark:bg-orange-950/25"><div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-white text-2xl shadow-sm dark:bg-slate-900">🌱</div><h3 class="mt-3 text-center text-base font-extrabold text-orange-950 dark:text-orange-200">Todavía no tienes rutinas</h3><p class="mx-auto mt-1 max-w-xs text-center text-xs leading-relaxed text-orange-900 dark:text-orange-300">Crea una rutina con los días, la hora y los pasos que te sirvan. Los ejemplos solo rellenan el formulario; no se guardan solos.</p><button onclick="openRoutineModal()" class="mx-auto mt-4 block rounded-2xl bg-orange-600 px-5 py-3 text-sm font-extrabold text-white shadow-sm active:scale-95">Crear mi primera rutina</button><div class="mt-4 flex flex-wrap justify-center gap-2"><button onclick="fillRoutineExample('morning')" class="rounded-full border border-orange-200 bg-white px-3 py-1.5 text-[11px] font-bold text-orange-800 dark:border-orange-800 dark:bg-slate-900 dark:text-orange-200">Ejemplo: Mañana</button><button onclick="fillRoutineExample('study')" class="rounded-full border border-orange-200 bg-white px-3 py-1.5 text-[11px] font-bold text-orange-800 dark:border-orange-800 dark:bg-slate-900 dark:text-orange-200">Estudio</button><button onclick="fillRoutineExample('night')" class="rounded-full border border-orange-200 bg-white px-3 py-1.5 text-[11px] font-bold text-orange-800 dark:border-orange-800 dark:bg-slate-900 dark:text-orange-200">Noche</button></div></div>
         <div id="routineMainPanel" class="space-y-3"><div class="flex items-end justify-between px-1"><div><h3 class="text-base font-extrabold text-slate-900 dark:text-white">Lo que te toca hoy</h3><p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Marca cada paso al completarlo.</p></div><button onclick="openRoutineModal()" class="rounded-full bg-orange-50 px-3 py-1.5 text-[11px] font-extrabold text-orange-700 dark:bg-orange-950/50 dark:text-orange-300">＋ Rutina</button></div><div id="routineTodayList" class="space-y-3"></div></div>
         <div id="routineStatsPanel" class="rounded-3xl border border-amber-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex items-center justify-between"><div><h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Tu constancia</h3><p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Un paso a la vez también cuenta.</p></div><span id="statsStreakPill" class="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-extrabold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">🔥 0 días</span></div><div class="mt-3 rounded-2xl bg-amber-50/80 p-3 dark:bg-[#0B1120]"><div class="mb-2 flex items-center justify-between"><span class="text-xs font-bold text-slate-700 dark:text-slate-200">Progreso de hoy</span><strong id="statsHabitsRatio" class="text-xs font-extrabold text-orange-700 dark:text-orange-300">0/0</strong></div><div class="h-2.5 overflow-hidden rounded-full bg-white dark:bg-slate-800"><div id="focusScoreBar" class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style="width:0%"></div></div><span id="focusScoreValue" class="sr-only">0%</span><span id="statsTasksRatio" class="hidden">0/0</span></div><div class="mt-4"><div class="mb-2 text-xs font-bold text-slate-700 dark:text-slate-300">Esta semana</div><div id="weeklyStreakBars" class="grid h-24 grid-cols-7 items-end gap-2 pt-2 px-1"></div></div></div>
@@ -394,6 +398,7 @@
 
       <section id="view-materias" class="tab-view hidden space-y-4 pb-3">
         <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-rose-500 via-pink-600 to-violet-700 p-5 text-white shadow-lg shadow-rose-900/15"><div class="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10"></div><div class="relative flex items-start justify-between gap-3"><div><span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-rose-100">AVANZA CON CONFIANZA</span><h2 class="mt-1 text-2xl font-extrabold tracking-tight">Materias</h2><p class="mt-1 max-w-[230px] text-xs text-rose-100">Tus notas, objetivos y tiempo de estudio.</p></div><button onclick="openEvalModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-rose-700 shadow-sm active:scale-95">＋ Evaluación</button></div></div>
+        <button onclick="openContextVoice('materias')" class="w-full flex items-center justify-center gap-2 rounded-2xl bg-rose-600 py-3 text-sm font-extrabold text-white shadow-sm active:scale-[0.98] transition">🎙️ Hablar sobre mis materias</button>
         <div id="studyTimerCard" class="rounded-3xl border border-violet-100 bg-violet-50/80 p-4 dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex items-start justify-between gap-2"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600 dark:text-violet-300">ENFOQUE · INDEPENDIENTE DE TUS RUTINAS</div><h3 class="mt-1 text-sm font-extrabold text-slate-900 dark:text-white">Temporizador de estudio</h3></div><select id="timerPresetSelect" onchange="changeTimerPreset()" class="rounded-xl border border-violet-100 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 outline-none dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-200"><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="25" selected>25 min</option><option value="45">45 min</option></select></div><p id="timerActiveHabitLabel" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Elige una materia; al completar se guardarán los minutos.</p><select id="timerSubjectSelect" class="mt-3 w-full rounded-2xl border border-violet-100 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 outline-none dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-200"></select><div class="mt-3 flex items-center gap-4"><div class="relative h-24 w-24 flex-shrink-0"><svg viewBox="0 0 100 100" class="h-full w-full -rotate-90"><circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" fill="none" class="text-violet-100 dark:text-slate-800"></circle><circle id="timerProgressCircle" cx="50" cy="50" r="42" stroke="#8B5CF6" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="263.89" stroke-dashoffset="0" class="transition-all duration-300"></circle></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span id="timerDisplay" class="text-lg font-extrabold text-slate-900 dark:text-white">25:00</span><span id="timerStateText" class="text-[9px] font-bold text-slate-400">Listo</span></div></div><div class="flex flex-1 flex-col gap-2"><button id="timerToggleBtn" onclick="toggleFocusTimer()" class="w-full rounded-2xl bg-violet-600 py-3 text-xs font-extrabold text-white shadow-sm active:scale-95"><span id="timerToggleIcon">▶</span> <span id="timerToggleLabel">Iniciar enfoque</span></button><button onclick="resetFocusTimer()" class="w-full rounded-2xl bg-white py-2.5 text-xs font-bold text-slate-600 dark:bg-[#0B1120] dark:text-slate-300">Reiniciar</button></div></div></div>
         <div class="rounded-2xl border border-rose-100 bg-rose-50/80 p-3.5 dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-extrabold text-rose-800 dark:text-rose-200"><span>Escala de notas</span><label class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">Máximo<input id="gradeMaxInput" type="number" onchange="setGradeScale()" class="w-14 rounded-xl bg-white px-2 py-1.5 text-center text-xs text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label><label class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">Aprobar<input id="gradePassInput" type="number" step="0.5" onchange="setGradeScale()" class="w-14 rounded-xl bg-white px-2 py-1.5 text-center text-xs text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label></div></div>
         <div id="weeklyCard"></div>
@@ -483,7 +488,7 @@
     </div>
 
     <div id="voiceMode" class="hidden fixed inset-0 z-[55] flex flex-col items-center justify-between bg-gradient-to-b from-[#0B1120] to-[#1E1B4B] px-6 py-10 text-center">
-      <div class="w-full flex justify-end"><button onclick="closeVoiceMode()" aria-label="Cerrar" class="w-10 h-10 rounded-full bg-white/10 text-white font-bold">✕</button></div>
+      <div class="w-full flex items-center justify-between"><div id="vmContext" class="text-xs font-bold text-indigo-200">Conversación por voz</div><button onclick="closeVoiceMode()" aria-label="Cerrar" class="w-10 h-10 rounded-full bg-white/10 text-white font-bold">✕</button></div>
       <div class="flex flex-col items-center gap-6 w-full">
         <div id="vmOrb" onclick="voiceOrbTap()" class="ai-orb-wrapper cursor-pointer"><div class="ai-orb-core w-44 h-44"></div></div>
         <div id="vmStatus" class="text-xl font-extrabold text-white">Toca el orbe para hablar</div>
@@ -1455,6 +1460,7 @@
       document.getElementById('vmStatus').textContent = t;
       if (sub !== undefined) document.getElementById('vmText').textContent = sub;
     }
+    let voiceContextSection = '';
     async function runVoiceLoop() {
       if (voiceRunning) return;
       voiceRunning = true; voiceLoopOn = true; window._voiceLoop = true;
@@ -1470,7 +1476,7 @@
         setVoiceStatus('Pensando…', '“' + heard + '”');
         orb.classList.add('ai-orb-thinking');
         document.getElementById('aiChatInput').value = heard;
-        await handleSendChat();
+        await handleSendChat(voiceContextSection);
         orb.classList.remove('ai-orb-thinking');
         if (!voiceLoopOn) break;
         const last = appState.chat[appState.chat.length - 1];
@@ -1480,8 +1486,12 @@
       }
       voiceRunning = false; window._voiceLoop = false;
     }
-    function openVoiceMode() {
+    function openContextVoice(section) { openVoiceMode(section); }
+    function openVoiceMode(section) {
       if (!NATIVE && !(window.SpeechRecognition || window.webkitSpeechRecognition)) { showToast('La voz solo funciona en la app instalada desde GitHub'); return; }
+      voiceContextSection = section || '';
+      const labels = { inicio: 'Inicio · resumen general', agenda: 'Agenda', finanzas: 'Finanzas', rutinas: 'Rutinas', materias: 'Materias y estudio' };
+      document.getElementById('vmContext').textContent = voiceContextSection ? 'Asistente · ' + (labels[voiceContextSection] || voiceContextSection) : 'Conversación por voz';
       document.getElementById('voiceMode').classList.remove('hidden');
       runVoiceLoop();
     }
@@ -1491,6 +1501,7 @@
       stopSpeaking();
       try { const R = nativePlugin('SpeechRecognition'); if (R) R.stop(); } catch (e) {}
       document.getElementById('voiceMode').classList.add('hidden');
+      voiceContextSection = '';
     }
     async function runDiagnostics() {
       openModal('modalDiag');
@@ -3453,15 +3464,15 @@
       throw new Error(lastErr);
     }
 
-    function buildAiContextSnapshot(userMessage) {
+    function buildAiContextSnapshot(userMessage, sectionHint) {
       const q = String(userMessage || '').toLowerCase();
-      const broad = /resumen.*(general|todo)|todo lo que|todas mis secciones|organiza.*(mi d[ií]a|mi semana)|mi semana|resumen semanal/.test(q);
-      const wantsFinance = broad || /finanz|dinero|saldo|balance|gast|ingres|presupuesto|deuda|debo|deben|me debe|pr[eé]stamo|meta de ahorro|ahorr|d[oó]lar|bol[ií]var|tasa|movimiento|recib[ií]|pagu[eé]/.test(q);
+      const broad = sectionHint === 'inicio' || /resumen.*(general|todo)|todo lo que|todas mis secciones|organiza.*(mi d[ií]a|mi semana)|mi semana|resumen semanal/.test(q);
+      const wantsFinance = broad || sectionHint === 'finanzas' || /finanz|dinero|saldo|balance|gast|ingres|presupuesto|deuda|debo|deben|me debe|pr[eé]stamo|meta de ahorro|ahorr|d[oó]lar|bol[ií]var|tasa|movimiento|recib[ií]|pagu[eé]/.test(q);
       const namesSubject = (appState.subjects || []).some(s => s.name && q.includes(s.name.toLowerCase()));
       const namesRoutine = (appState.routines || []).some(r => r.name && q.includes(r.name.toLowerCase()));
-      const wantsStudy = broad || namesSubject || /materia|calificaci[oó]n|nota|promedio|examen|estudi|evaluaci[oó]n|temporizador|enfoque/.test(q);
-      const wantsRoutine = broad || namesRoutine || /rutina|h[aá]bito|paso de hoy|racha|constancia/.test(q);
-      const wantsAgenda = broad || /agenda|tarea|pendient|evento|calendario|reprogram|organiza.*d[ií]a|hoy|ma[ñn]ana|esta semana|crea|crear|agrega|anota|recu[eé]rdame|programa|planifica|cita|turno|pagar|a las/.test(q);
+      const wantsStudy = broad || sectionHint === 'materias' || namesSubject || /materia|calificaci[oó]n|nota|promedio|examen|estudi|evaluaci[oó]n|temporizador|enfoque/.test(q);
+      const wantsRoutine = broad || sectionHint === 'rutinas' || namesRoutine || /rutina|h[aá]bito|paso de hoy|racha|constancia/.test(q);
+      const wantsAgenda = broad || sectionHint === 'agenda' || /agenda|tarea|pendient|evento|calendario|reprogram|organiza.*d[ií]a|hoy|ma[ñn]ana|esta semana|crea|crear|agrega|anota|recu[eé]rdame|programa|planifica|cita|turno|pagar|a las/.test(q);
       const today = getIsoDateOffset(0), age = ageFromBirthDate(appState.profile && appState.profile.birthDate);
       const snapshot = {
         perfil: { nombre: appState.profile && appState.profile.name || '', edad: age, ocupacion: appState.profile && appState.profile.occupation || '' },
@@ -3499,12 +3510,12 @@
       return snapshot;
     }
 
-    async function callGeminiCloud(userMessage) {
+    async function callGeminiCloud(userMessage, sectionHint) {
       window._aiErr = '';
       let sample = null;
       try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
       if (!sample && !appState.customApiKey) return null;
-      const snapshot = buildAiContextSnapshot(userMessage);
+      const snapshot = buildAiContextSnapshot(userMessage, sectionHint);
       snapshot.conversacion_reciente = appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text }));
       const prompt = `Eres "Mi Asistente", una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Responde en español, de forma clara y breve. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni digas que hiciste cambios si no hay una acción válida.
 Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
@@ -3541,7 +3552,7 @@ ${userMessage}`;
       }
     }
 
-    async function handleSendChat() {
+    async function handleSendChat(contextualSection) {
       const inp = document.getElementById('aiChatInput');
       const btn = document.getElementById('aiSendBtn');
       const orb = document.getElementById('aiOrbContainer');
@@ -3557,7 +3568,7 @@ ${userMessage}`;
       renderChat();
 
       // Try Gemini Cloud if custom API key is set, otherwise execute Smart Local NLP Engine immediately
-      let aiResult = await callGeminiCloud(text);
+      let aiResult = await callGeminiCloud(text, contextualSection);
       if (!aiResult) {
         await new Promise(r => setTimeout(r, 220)); // Natural micro-feedback
         aiResult = smartLocalAiEngine(text);
