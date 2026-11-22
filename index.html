@@ -1516,6 +1516,10 @@
       voiceLastError = `${code}: ${cleanMessage}`;
       return { _almaVoiceError: true, code, message: cleanMessage };
     }
+    function isIgnorableVoiceMiss(error) {
+      const text = String(error && (error.message || error.error) || error || '');
+      return /didn.t understand|no[ _-]?match|no recognition result matched|speech timeout|no speech input|error_no_match|error_speech_timeout/i.test(text);
+    }
     function describeVoiceError(error, phase) {
       const code = String(error && (error.code || error.error || error.name) || phase || 'error');
       const raw = String(error && error.message || error || '').slice(0, 140);
@@ -1559,7 +1563,10 @@
             }
             let r;
             try { r = await SR.start({ language: 'es-ES', maxResults: 1, prompt: '', partialResults: false, popup: false }); }
-            catch (e) { resolve(describeVoiceError(e, 'inicio')); return; }
+            catch (e) {
+              if (isIgnorableVoiceMiss(e)) { voiceLastError = ''; resolve(''); return; }
+              resolve(describeVoiceError(e, 'inicio')); return;
+            }
             voiceLastError = '';
             resolve(r && r.matches && r.matches[0] ? r.matches[0] : '');
             return;
@@ -1569,10 +1576,13 @@
           const rec = new W();
           rec.lang = 'es-ES';
           rec.onresult = e => { voiceLastError = ''; resolve(e.results[0][0].transcript); };
-          rec.onerror = e => resolve(e && e.error === 'no-speech' ? '' : describeVoiceError(e, e && e.error || 'reconocimiento'));
+          rec.onerror = e => resolve(isIgnorableVoiceMiss(e) ? '' : describeVoiceError(e, e && e.error || 'reconocimiento'));
           rec.onend = () => resolve('');
           rec.start();
-        } catch (e) { resolve(describeVoiceError(e, 'reconocimiento')); }
+        } catch (e) {
+          if (isIgnorableVoiceMiss(e)) { voiceLastError = ''; resolve(''); return; }
+          resolve(describeVoiceError(e, 'reconocimiento'));
+        }
       });
     }
     let voiceLoopOn = false, voiceRunning = false;
