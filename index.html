@@ -1337,7 +1337,7 @@
     window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
     let activeGeminiAudio = null, activeGeminiAudioUrl = null, activeGeminiController = null, activeGeminiAudioStop = null;
     const GEMINI_TTS_VOICES = { Sulafat: 'Cálida', Aoede: 'Suave', Achird: 'Amigable', Kore: 'Segura', Zephyr: 'Alegre', Charon: 'Serena' };
-    async function playGeminiTts(text) {
+    async function playGeminiTts(text, modelId = 'gemini-3.8-flash-tts') {
       const key = appState.customApiKey;
       if (!key) throw new Error('Guarda primero tu clave de Gemini en Ajustes.');
       if (!navigator.onLine) throw new Error('No hay conexión a Internet.');
@@ -1347,7 +1347,7 @@
       const timeout = setTimeout(() => controller.abort(), 45000);
       let response;
       try {
-        response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash-tts:generateContent', {
+        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
           signal: controller.signal,
@@ -1372,9 +1372,9 @@
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         const detail = data.error && data.error.message ? data.error.message : `HTTP ${response.status}`;
-        if (response.status === 401 || response.status === 403) throw new Error('Google no aceptó la clave o no autorizó TTS. Revisa la clave y el acceso a Gemini API.');
-        if (response.status === 429) throw new Error('Se alcanzó el límite de uso de voz Gemini; prueba más tarde.');
-        throw new Error('Gemini TTS: ' + detail);
+        const apiError = new Error(response.status === 401 || response.status === 403 ? 'Google no aceptó la clave o no autorizó TTS.' : response.status === 429 ? 'Se alcanzó un límite de uso TTS Gemini.' : 'Gemini TTS: ' + detail);
+        apiError.httpStatus = response.status;
+        throw apiError;
       }
       const parts = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts || [];
       const audioPart = parts.find(p => p.inlineData && p.inlineData.data);
@@ -1404,8 +1404,16 @@
       const clean = String(text || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').replace(/[•*_#]+/g, ' ').replace(/\n+/g, '. ').slice(0, 1200);
       if (!clean.trim()) return;
       if (appState.geminiTtsEnabled && appState.customApiKey) {
-        try { await playGeminiTts(clean); return; }
-        catch (e) { if (e && e.name === 'AbortError') return; showToast((e && e.message ? e.message : 'Voz natural no disponible') + ' Uso la voz del teléfono.'); }
+        let ttsError = null;
+        for (const modelId of ['gemini-3.8-flash-lite-tts', 'gemini-3.8-flash-tts']) {
+          try { await playGeminiTts(clean, modelId); return; }
+          catch (e) {
+            if (e && e.name === 'AbortError') return;
+            ttsError = e;
+            if (e && e.httpStatus === 401) break;
+          }
+        }
+        if (ttsError) showToast('No pude generar voz con Gemini. Uso la voz del teléfono como respaldo.');
       }
       const TTS = nativePlugin('TextToSpeech');
       try {
@@ -3504,15 +3512,20 @@
 
     function buildAiContextSnapshot(userMessage, sectionHint) {
       const q = String(userMessage || '').toLowerCase();
-      const broad = sectionHint === 'inicio' || /resumen.*(general|todo)|todo lo que|todas mis secciones|organiza.*(mi d[ií]a|mi semana)|mi semana|resumen semanal/.test(q);
-      const wantsFinance = broad || sectionHint === 'finanzas' || /finanz|dinero|saldo|balance|gast|ingres|presupuesto|deuda|debo|deben|me debe|pr[eé]stamo|meta de ahorro|ahorr|d[oó]lar|bol[ií]var|tasa|movimiento|recib[ií]|pagu[eé]/.test(q);
+      const currentSection = sectionHint || activeTab || '';
+      const sectionNames = { inicio: 'Inicio', agenda: 'Agenda', ia: 'Chat de ALMA', finanzas: 'Finanzas', rutinas: 'Rutinas', materias: 'Materias y estudio', ajustes: 'Ajustes' };
+      const currentSectionLabel = sectionNames[currentSection] || 'General';
+      const broad = currentSection === 'inicio' || /resumen.*(general|todo)|todo lo que|todas mis secciones|organiza.*(mi d[ií]a|mi semana)|mi semana|resumen semanal/.test(q);
+      const wantsFinance = broad || currentSection === 'finanzas' || /finanz|dinero|saldo|balance|gast|ingres|presupuesto|deuda|debo|deben|me debe|pr[eé]stamo|meta de ahorro|ahorr|d[oó]lar|bol[ií]var|tasa|movimiento|recib[ií]|pagu[eé]/.test(q);
       const namesSubject = (appState.subjects || []).some(s => s.name && q.includes(s.name.toLowerCase()));
       const namesRoutine = (appState.routines || []).some(r => r.name && q.includes(r.name.toLowerCase()));
-      const wantsStudy = broad || sectionHint === 'materias' || namesSubject || /materia|calificaci[oó]n|nota|promedio|examen|estudi|evaluaci[oó]n|temporizador|enfoque/.test(q);
-      const wantsRoutine = broad || sectionHint === 'rutinas' || namesRoutine || /rutina|h[aá]bito|paso de hoy|racha|constancia/.test(q);
-      const wantsAgenda = broad || sectionHint === 'agenda' || /agenda|tarea|pendient|evento|calendario|reprogram|organiza.*d[ií]a|hoy|ma[ñn]ana|esta semana|crea|crear|agrega|anota|recu[eé]rdame|programa|planifica|cita|turno|pagar|a las/.test(q);
+      const wantsStudy = broad || currentSection === 'materias' || namesSubject || /materia|calificaci[oó]n|nota|promedio|examen|estudi|evaluaci[oó]n|temporizador|enfoque/.test(q);
+      const wantsRoutine = broad || currentSection === 'rutinas' || namesRoutine || /rutina|h[aá]bito|paso de hoy|racha|constancia/.test(q);
+      const wantsAgenda = broad || currentSection === 'agenda' || /agenda|tarea|pendient|evento|calendario|reprogram|organiza.*d[ií]a|hoy|ma[ñn]ana|esta semana|crea|crear|agrega|anota|recu[eé]rdame|programa|planifica|cita|turno|pagar|a las/.test(q);
       const today = getIsoDateOffset(0), age = ageFromBirthDate(appState.profile && appState.profile.birthDate);
       const snapshot = {
+        seccion_activa: currentSectionLabel,
+        instruccion_de_contexto: `La persona está usando la pantalla ${currentSectionLabel}. Si pregunta en qué sección está, responde ${currentSectionLabel}. Para preguntas generales, prioriza el contexto de esta sección.`,
         perfil: { nombre: appState.profile && appState.profile.name || '', edad: age, ocupacion: appState.profile && appState.profile.occupation || '' },
         fecha_hoy: today,
         dia_semana: new Date().toLocaleDateString('es-ES', { weekday: 'long' }),
@@ -3555,7 +3568,7 @@
       if (!sample && !appState.customApiKey) return null;
       const snapshot = buildAiContextSnapshot(userMessage, sectionHint);
       snapshot.conversacion_reciente = appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text }));
-      const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Responde en español, de forma clara y breve. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni digas que hiciste cambios si no hay una acción válida.
+      const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Responde en español, de forma clara y breve. El campo ESTADO.seccion_activa es la pantalla actual de la persona, no la pantalla donde se encuentra la conversación técnica. Si pregunta qué apartado está usando, responde con ese campo. Si pregunta algo general, prioriza la sección actual y sus datos. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni digas que hiciste cambios si no hay una acción válida.
 Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
 Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); plan_estudio(titulo, fecha YYYY-MM-DD); bloquear_dia(fecha YYYY-MM-DD); reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); saldar_deuda(persona) con requiereConfirmacion true; abonar_meta(metaNombre, monto); completar_paso_rutina(rutinaNombre, pasoNombre); crear_rutina(nombre, dias como índices 0=domingo a 6=sábado, hora HH:MM, pasos como [{titulo, minutos opcional}]) con requiereConfirmacion true; actualizar_tasa(tasa).
 Las acciones nuevas de tarea, finanzas y pasos completados solo deben proponerse cuando estén claros los datos esenciales. Nunca inventes montos, fechas, pasos ni materias; pregunta si falta algo. Crear una rutina requiere confirmación y al menos nombre, un día, hora y un paso. No borres ni saldes información sin confirmación. Si menciona exámenes o pregunta cómo estudiar, adapta consejos a las materias y notas incluidas. Si la persona solo conversa o pregunta, acciones = [].
@@ -3605,12 +3618,21 @@ ${userMessage}`;
       appState.chat.push({ role: 'ai', text: 'Procesando...', actions: [], isTemp: true });
       renderChat();
 
-      // Try Gemini Cloud if custom API key is set, otherwise execute Smart Local NLP Engine immediately
-      let aiResult = await callGeminiCloud(text, contextualSection);
-      if (!aiResult) {
-        await new Promise(r => setTimeout(r, 220)); // Natural micro-feedback
-        aiResult = smartLocalAiEngine(text);
-        if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
+      // Resolve screen-location questions locally so the answer is exact, even if Gemini is unavailable.
+      const currentSectionKey = contextualSection || activeTab || '';
+      const currentSectionName = ({ inicio: 'Inicio', agenda: 'Agenda', ia: 'Chat de ALMA', finanzas: 'Finanzas', rutinas: 'Rutinas', materias: 'Materias y estudio', ajustes: 'Ajustes' })[currentSectionKey] || 'la pantalla principal';
+      const asksCurrentSection = /\b(d[oó]nde (?:estoy|estamos|est[aá]s)|en qu[eé] (?:secci[oó]n|apartado|pantalla)|qu[eé] apartado|cu[aá]l secci[oó]n|qu[eé] p[aá]gina)\b/i.test(text);
+      let aiResult;
+      if (asksCurrentSection) {
+        aiResult = { respuesta: `Ahora mismo estamos en ${currentSectionName}. Puedes seguir hablándome mientras usas esta pantalla.`, acciones: [] };
+      } else {
+        // Try Gemini Cloud if custom API key is set, otherwise execute Smart Local NLP Engine immediately
+        aiResult = await callGeminiCloud(text, currentSectionKey);
+        if (!aiResult) {
+          await new Promise(r => setTimeout(r, 220)); // Natural micro-feedback
+          aiResult = smartLocalAiEngine(text);
+          if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
+        }
       }
 
       appState.chat = appState.chat.filter(m => !m.isTemp);
