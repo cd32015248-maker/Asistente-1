@@ -8,26 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Plus Jakarta Sans', 'sans-serif'],
-          },
-          boxShadow: {
-            'soft': '0 8px 24px -6px rgba(15, 23, 42, 0.05)',
-            'card': '0 4px 16px -2px rgba(15, 23, 42, 0.04)',
-            'orb': '0 12px 32px -4px rgba(79, 70, 229, 0.45)',
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="tw.css">
   <style>
     * {
       -webkit-tap-highlight-color: transparent;
@@ -131,6 +112,8 @@
             <span id="headerRateText" class="text-xs font-bold text-slate-700 dark:text-slate-200">Tasa: 45.00 Bs</span>
           </button>
 
+          <button onclick="switchTab('ajustes')" aria-label="Ajustes" class="w-9 h-9 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm flex items-center justify-center text-sm active:scale-95 transition">⚙️</button>
+          <button onclick="openBackupModal()" aria-label="Respaldo de datos" class="w-9 h-9 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm flex items-center justify-center text-sm active:scale-95 transition">💾</button>
           <!-- Light / Dark Mode Toggle -->
           <button onclick="toggleTheme()" aria-label="Cambiar tema" class="w-9 h-9 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700/80 shadow-sm flex items-center justify-center text-slate-700 dark:text-amber-300 active:scale-95 transition">
             <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -153,6 +136,7 @@
       <!-- ========================================================= -->
       <section id="view-inicio" class="tab-view space-y-4">
 
+        <div class="hidden">
         <!-- Quick AI Command Input Bar -->
         <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-soft">
           <div class="flex items-center justify-between mb-2">
@@ -180,6 +164,10 @@
           </div>
         </div>
 
+        </div>
+        <div id="homeAlerts"></div>
+        <div id="wordCard"></div>
+        
         <!-- 2x2 Pastel Bento Grid -->
         <div class="grid grid-cols-2 gap-3">
           <!-- Bento 1: Tareas de Hoy -->
@@ -248,6 +236,12 @@
           </div>
         </div>
 
+<div onclick="switchTab('materias')" class="cursor-pointer rounded-3xl p-4 bg-[#FFE4E6] dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-800/50 shadow-card active:scale-[0.99] transition">
+          <div class="flex items-center justify-between"><span class="text-sm font-extrabold text-rose-950 dark:text-rose-100">📚 Materias y estudio</span><span class="text-[11px] font-bold text-rose-800/80 dark:text-rose-300/80">Ver →</span></div>
+          <div id="bentoSubjectsMain" class="text-xs font-semibold text-rose-900/80 dark:text-rose-200/80 mt-1.5">—</div>
+          <div id="bentoSubjectsSub" class="text-[11px] text-rose-800/70 dark:text-rose-300/70 mt-0.5">—</div>
+        </div>
+        <div class="hidden">
         <!-- Tareas de Hoy Interactive Checklist -->
         <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
           <div class="flex items-center justify-between mb-3">
@@ -276,6 +270,7 @@
           <div id="homeRecentTxList" class="space-y-2"></div>
         </div>
 
+        </div>
       </section>
 
       <!-- ========================================================= -->
@@ -326,6 +321,8 @@
           <div id="calendarGrid" class="grid grid-cols-7 gap-y-1.5 text-center"></div>
         </div>
 
+        <div id="busyCard"></div>
+
         <!-- Quick Inline Task Add Form -->
         <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card space-y-2.5">
           <div class="text-xs font-extrabold text-slate-800 dark:text-slate-200">Agregar tarea rápida</div>
@@ -353,72 +350,35 @@
       <!-- ========================================================= -->
       <!-- MODULE 3: ASISTENTE IA (GLOWING ORB & ACTION ENGINE)      -->
       <!-- ========================================================= -->
-      <section id="view-ia" class="tab-view hidden flex flex-col">
-
-        <!-- Header with Discreet AI Settings Gear Button -->
-        <div class="flex items-center justify-between mb-1">
-          <span id="aiEngineBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span id="aiEngineLabel">IA Inteligente Activa</span>
-          </span>
-          <button onclick="openAiSettingsModal()" aria-label="Configurar API Key de Gemini" title="Ajustes de IA (API Key)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm active:scale-95 transition">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-            <span>API Key</span>
-          </button>
-        </div>
-
-        <!-- Glowing Iridescent AI Orb Header -->
-        <div id="aiOrbContainer" class="flex flex-col items-center text-center pt-1 pb-3">
-          <div class="ai-orb-wrapper mb-2.5">
-            <div class="ai-orb-core w-16 h-16"></div>
+      <section id="view-ia" class="tab-view hidden flex flex-col fixed top-0 bottom-[70px] left-0 right-0 max-w-md mx-auto z-20 bg-[#F6F8FC] dark:bg-[#0B1120]">
+        <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-200/70 dark:border-slate-800/80 bg-white/80 dark:bg-[#111827]/90 backdrop-blur">
+          <div id="aiOrbContainer" class="flex-shrink-0"><div class="ai-orb-wrapper"><div class="ai-orb-core w-10 h-10"></div></div></div>
+          <div class="flex-1 min-w-0">
+            <div class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">Asistente</div>
+            <div id="aiEngineBadge" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">● <span id="aiEngineLabel">IA local</span></div>
           </div>
-          <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Asistente Personal IA</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Anota gastos, agenda tareas, calcula deudas o reorganiza tu día</p>
+          <button onclick="openVoiceMode()" aria-label="Conversar" class="px-3 h-10 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 active:scale-95 transition flex-shrink-0">🎧 Hablar</button>
+          <button onclick="toggleVoiceReplies()" aria-label="Voz" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🔊</button>
+          <button onclick="switchTab('ajustes')" aria-label="Ajustes" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">⚙️</button>
         </div>
-
-        <!-- Quick Suggestion Chips -->
-        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2.5">
-          <button onclick="sendSuggestion('¿Qué tengo hoy?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">
-            ¿Qué tengo hoy?
-          </button>
-          <button onclick="sendSuggestion('Resumen de mi dinero')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">
-            Resumen de mi dinero
-          </button>
-          <button onclick="sendSuggestion('Organiza mis prioridades')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">
-            Organiza mis prioridades
-          </button>
-          <button onclick="sendSuggestion('Reorganiza mis tareas pendientes')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">
-            Reorganiza mis tareas pendientes
-          </button>
-        </div>
-
-        <!-- Chat Messages Card -->
-        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-soft flex flex-col">
-          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Chat en tiempo real</span>
-            <button onclick="clearChatHistory()" class="text-[11px] font-semibold text-slate-400 hover:text-rose-500 transition">Limpiar chat</button>
+        <div id="aiChatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
+        <div class="px-3 pt-2 pb-3 border-t border-slate-200/70 dark:border-slate-800/80 bg-white/90 dark:bg-[#111827]/95">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+            <button onclick="sendSuggestion('¿Qué tengo hoy?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">¿Qué tengo hoy?</button>
+            <button onclick="sendSuggestion('Resumen de mi dinero')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">Resumen de mi dinero</button>
+            <button onclick="sendSuggestion('Hazme un resumen de mi semana')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">Mi semana</button>
+            <button onclick="sendSuggestion('¿Cómo estudio mejor?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">¿Cómo estudio?</button>
           </div>
-
-          <div id="aiChatMessages" class="space-y-3 max-h-[38vh] overflow-y-auto pr-1 py-1"></div>
-
-          <!-- Chat Input Bar -->
-          <div class="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-            <input
-              id="aiChatInput"
-              type="text"
-              placeholder="Ej: Gasté 5$ en pasaje y recibí 20$..."
-              onkeydown="if(event.key==='Enter') handleSendChat()"
-              class="w-full bg-slate-100 dark:bg-[#0B1120] text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-2xl px-3.5 py-2.5 outline-none border border-transparent focus:border-indigo-500 transition"
-            />
-            <button id="aiSendBtn" onclick="handleSendChat()" class="w-11 h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-sm active:scale-95 transition flex-shrink-0">
+          <div class="flex items-center gap-2">
+            <button onclick="pickPhoto()" aria-label="Foto" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">📷</button>
+            <input id="photoInput" type="file" accept="image/*" class="hidden" onchange="handlePhoto(this)">
+            <input id="aiChatInput" type="text" placeholder="Escribe o habla…" onkeydown="if(event.key==='Enter') handleSendChat()" class="flex-1 min-w-0 bg-slate-100 dark:bg-[#0B1120] text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-full px-4 py-2.5 outline-none border border-transparent focus:border-indigo-500 transition" />
+            <button onclick="startVoice()" aria-label="Hablar" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🎤</button>
+            <button id="aiSendBtn" onclick="handleSendChat()" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-sm active:scale-95 transition flex-shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
           </div>
         </div>
-
       </section>
 
       <!-- ========================================================= -->
@@ -571,6 +531,7 @@
             </select>
           </div>
 
+          <select id="timerSubjectSelect" class="w-full mb-2 bg-slate-100 dark:bg-[#0B1120] text-xs font-bold text-slate-700 dark:text-slate-200 rounded-xl px-2.5 py-2 outline-none"></select>
           <div class="flex items-center justify-between gap-4 py-1">
             <div class="relative w-28 h-28 flex-shrink-0">
               <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
@@ -648,6 +609,32 @@
 
       </section>
 
+      <section id="view-materias" class="tab-view hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Materias y notas</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Cuánto llevas y cuánto necesitas para aprobar</p>
+          </div>
+          <button onclick="openEvalModal()" class="px-3.5 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-bold shadow-sm active:scale-95 transition">+ Evaluación</button>
+        </div>
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
+          <span>Nota máxima</span>
+          <input id="gradeMaxInput" type="number" onchange="setGradeScale()" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-slate-900 dark:text-white outline-none" />
+          <span>Para aprobar</span>
+          <input id="gradePassInput" type="number" step="0.5" onchange="setGradeScale()" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-slate-900 dark:text-white outline-none" />
+        </div>
+        <div id="weeklyCard"></div>
+        <div id="subjectsList" class="space-y-3"></div>
+      </section>
+
+      <section id="view-ajustes" class="tab-view hidden space-y-4">
+        <div class="flex items-center gap-2">
+          <button onclick="switchTab('inicio')" class="w-9 h-9 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-200">←</button>
+          <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Ajustes</h2>
+        </div>
+        <div id="settingsBody" class="space-y-4"></div>
+      </section>
+
     </main>
 
     <!-- ========================================================= -->
@@ -689,6 +676,49 @@
       </div>
     </nav>
 
+    <div id="onboarding" class="hidden fixed inset-0 z-[60] bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 overflow-y-auto">
+      <div class="min-h-full max-w-md mx-auto px-6 py-10 flex flex-col justify-center">
+        <div class="text-center mb-6">
+          <div class="ai-orb-wrapper inline-block"><div class="ai-orb-core w-20 h-20"></div></div>
+          <h1 class="text-2xl font-extrabold text-white mt-4">Bienvenido</h1>
+          <p class="text-sm text-indigo-100 mt-1">Cuéntame de ti para empezar. Todo se guarda solo en tu teléfono.</p>
+        </div>
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-5 space-y-3.5 shadow-2xl">
+          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">¿Cómo te llamas?</label><input id="obName" type="text" placeholder="Tu nombre" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /></div>
+          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Edad</label><input id="obAge" type="number" placeholder="Opcional" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /></div>
+          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">¿Qué estudias o a qué te dedicas?</label><input id="obJob" type="text" placeholder="Ej: Ingeniería, comerciante, docente…" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" /></div>
+          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Palabra del día</label>
+            <select id="obWord" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500">
+              <option value="ambos">Frases y versículos</option>
+              <option value="frases">Solo frases motivacionales</option>
+              <option value="versiculos">Solo versículos</option>
+            </select>
+          </div>
+          <button onclick="finishOnboarding()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm active:scale-[0.98] transition">Empezar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalDiag" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Diagnóstico</h3>
+          <button onclick="closeModal('modalDiag')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <pre id="diagText" class="whitespace-pre-wrap text-xs font-medium text-slate-700 dark:text-slate-200 leading-relaxed" style="font-family:inherit"></pre>
+      </div>
+    </div>
+
+    <div id="voiceMode" class="hidden fixed inset-0 z-[55] flex flex-col items-center justify-between bg-gradient-to-b from-[#0B1120] to-[#1E1B4B] px-6 py-10 text-center">
+      <div class="w-full flex justify-end"><button onclick="closeVoiceMode()" aria-label="Cerrar" class="w-10 h-10 rounded-full bg-white/10 text-white font-bold">✕</button></div>
+      <div class="flex flex-col items-center gap-6 w-full">
+        <div id="vmOrb" onclick="voiceOrbTap()" class="ai-orb-wrapper cursor-pointer"><div class="ai-orb-core w-44 h-44"></div></div>
+        <div id="vmStatus" class="text-xl font-extrabold text-white">Toca el orbe para hablar</div>
+        <div id="vmText" class="text-sm text-indigo-100/90 max-h-40 overflow-y-auto leading-relaxed"></div>
+      </div>
+      <p class="text-[11px] text-indigo-200/70">Habla con naturalidad. Toca el orbe para interrumpir la respuesta.</p>
+    </div>
+
     <!-- Toast Notification Banner -->
     <div id="toastBanner" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden max-w-[90%] px-4 py-2.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold shadow-xl transition-all"></div>
 
@@ -722,6 +752,7 @@
           <button onclick="closeModal('modalRate')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
         </div>
         <input id="modalRateInput" type="number" step="0.01" placeholder="Ej: 45.50" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-base font-bold text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" />
+        <button onclick="fetchBcvRate(true)" class="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold">Traer tasa del BCV</button>
         <button onclick="saveRateFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm">Actualizar Tasa</button>
       </div>
     </div>
@@ -859,6 +890,37 @@
       </div>
     </div>
 
+    <div id="modalEval" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nueva evaluación</h3>
+          <button onclick="closeModal('modalEval')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <input id="evalSubjectInput" list="subjectNames" type="text" placeholder="Materia (ej: Química General)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <datalist id="subjectNames"></datalist>
+        <input id="evalNameInput" type="text" placeholder="Evaluación (ej: Examen 1)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <div class="grid grid-cols-2 gap-2.5">
+          <input id="evalWeightInput" type="number" placeholder="Valor (%)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+          <input id="evalGradeInput" type="number" step="0.1" placeholder="Nota (si ya la tienes)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
+        </div>
+        <button onclick="saveEvalFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar</button>
+      </div>
+    </div>
+
+    <div id="modalBackup" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Respaldo de datos</h3>
+          <button onclick="closeModal('modalBackup')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Guarda una copia de todo (tareas, finanzas, notas, rutinas). Para restaurar, pega el texto o elige el archivo y toca Restaurar.</p>
+        <button onclick="exportBackup()" class="w-full py-2.5 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar respaldo</button>
+        <textarea id="backupText" rows="4" placeholder="Aquí aparece el respaldo, o pega uno para restaurar" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-[11px] font-mono text-slate-900 dark:text-white outline-none"></textarea>
+        <input type="file" accept=".json,.txt" onchange="loadBackupFile(this)" class="text-xs text-slate-500 w-full" />
+        <button onclick="importBackup()" class="w-full py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold">Restaurar (reemplaza lo actual)</button>
+      </div>
+    </div>
+
     <!-- Modal: Add Routine Habit -->
     <div id="modalHabit" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
       <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
@@ -951,42 +1013,27 @@
       const tomorrow = getIsoDateOffset(1);
       return {
         theme: 'light',
+        subjects: [],
+        gradeMax: 20,
+        gradePass: 10,
+        busyWeekdays: [],
+        busyDates: [],
+        voiceReplies: true,
+        studyLog: [],
+        rateUpdated: '',
         customApiKey: '',
         exchangeRate: 45.00,
         monthlyBudget: 250.00,
-        tasks: [
-          { id: 101, title: 'Revisar prioridades y mensajes del día', date: today, startTime: '08:30', endTime: '09:15', category: 'Personal', done: true },
-          { id: 102, title: 'Bloque de estudio y repaso', date: today, startTime: '10:00', endTime: '11:30', category: 'Estudio', done: false },
-          { id: 103, title: 'Pagar servicio de internet', date: today, startTime: '15:00', endTime: '15:30', category: 'Pago', done: false },
-          { id: 104, title: 'Reunión de trabajo y seguimiento', date: tomorrow, startTime: '09:30', endTime: '10:30', category: 'Trabajo', done: false }
-        ],
-        transactions: [
-          { id: 201, type: 'ingreso', currency: 'USD', amount: 120.00, category: 'Otros', note: 'Saldo inicial disponible', date: today },
-          { id: 202, type: 'gasto', currency: 'USD', amount: 12.50, category: 'Comida', note: 'Almuerzo y café', date: today },
-          { id: 203, type: 'gasto', currency: 'VES', amount: 180.00, category: 'Transporte', note: 'Pasaje del día', date: today }
-        ],
-        goals: [
-          { id: 301, title: 'Fondo de Emergencia', saved: 65, target: 200 },
-          { id: 302, title: 'Teléfono / Equipo Nuevo', saved: 90, target: 300 }
-        ],
-        debts: [
-          { id: 401, type: 'me_deben', person: 'Carlos', currency: 'USD', amount: 15.00, note: 'Préstamo almuerzo', paid: false },
-          { id: 402, type: 'debo', person: 'María', currency: 'USD', amount: 8.00, note: 'Copias y materiales', paid: false }
-        ],
-        habits: [
-          { id: 501, title: 'Planificar metas del día', icon: '✨', duration: 5, done: true },
-          { id: 502, title: 'Estudio o lectura enfocada', icon: '📚', duration: 25, done: false },
-          { id: 503, title: 'Caminata o estiramiento', icon: '🏃', duration: 15, done: false },
-          { id: 504, title: 'Registrar gastos del día', icon: '💰', duration: 5, done: false }
-        ],
-        streakDays: 4,
-        weeklyHistory: [65, 80, 100, 75, 90, 0, 0],
+        tasks: [],
+        transactions: [],
+        goals: [],
+        debts: [],
+        habits: [],
+        streakDays: 0,
+        weeklyHistory: [0, 0, 0, 0, 0, 0, 0],
+        profile: { name: '', age: '', occupation: '', done: false },
         chat: [
-          {
-            role: 'ai',
-            text: '¡Hola! Soy tu Asistente Personal. Conozco tu agenda, tu dinero en dólares y bolívares, tus deudas y tus rutinas. Prueba escribirme: "Gasté 5$ en pasaje y recibí 20$", "Mañana a las 3 pm ir al banco" o "¿Cuánto dinero me queda?".',
-            actions: []
-          }
+          { role: 'ai', text: '¡Hola! Soy tu asistente personal. Puedes decirme cosas como: "Gasté 5$ en pasaje", "Mañana a las 3 pm ir al banco" o "Tengo examen de química el viernes de la otra semana".', actions: [] }
         ]
       };
     }
@@ -1004,6 +1051,7 @@
     function saveState() {
       safeSetItem(STORAGE_KEY, JSON.stringify(appState));
       renderAll();
+      scheduleNotifSoon();
     }
 
     // Transient UI State
@@ -1039,7 +1087,9 @@
 
     function switchTab(tabName) {
       activeTab = tabName;
-      ['inicio', 'agenda', 'ia', 'finanzas', 'rutinas'].forEach(t => {
+      const hdr = document.querySelector('header');
+      if (hdr) hdr.classList.toggle('hidden', tabName === 'ia');
+      ['inicio', 'agenda', 'ia', 'finanzas', 'rutinas', 'materias', 'ajustes'].forEach(t => {
         const viewEl = document.getElementById(`view-${t}`);
         if (viewEl) viewEl.classList.toggle('hidden', t !== tabName);
 
@@ -1461,6 +1511,653 @@
     // =========================================================================
     // 8. RENDERING: INICIO
     // =========================================================================
+    // ---- Modo app: notificaciones y voz ----
+    const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    function nativePlugin(name) { try { return NATIVE ? window.Capacitor.registerPlugin(name) : null; } catch (e) { return null; } }
+    function wordForSlot(dayN, slot) {
+      const n = dayN * 3 + slot, mode = appState.wordMode || 'ambos', step = mode === 'ambos' ? 2 : 1;
+      if (mode === 'versiculos' || (mode === 'ambos' && n % 2 === 0)) { const v = WORD_VERSOS[Math.floor(n / step) % WORD_VERSOS.length]; return v.r + ' — ' + v.t; }
+      return WORD_FRASES[Math.floor(n / step) % WORD_FRASES.length];
+    }
+    let notifTimer = null;
+    function scheduleNotifSoon() { clearTimeout(notifTimer); notifTimer = setTimeout(scheduleAllNotifications, 1500); }
+    async function scheduleAllNotifications() {
+      const LN = nativePlugin('LocalNotifications');
+      if (!LN) return;
+      try {
+        const perm = await LN.requestPermissions();
+        if (perm.display !== 'granted') return;
+        const pend = await LN.getPending();
+        if (pend.notifications.length) await LN.cancel({ notifications: pend.notifications });
+        const now = new Date(), list = [];
+        let id = 1;
+        const add = (at, title, body) => { if (at > now && list.length < 60) list.push({ id: id++, title, body, schedule: { at, allowWhileIdle: true } }); };
+        appState.tasks.filter(t => !t.done).forEach(t => {
+          const nm = (t.title || '').replace('📝 ', '');
+          add(new Date(t.date + 'T' + (t.startTime || '09:00') + ':00'), '📌 ' + nm, 'Empieza a las ' + (t.startTime || '09:00'));
+          if (t.exam || (t.title || '').startsWith('📝')) add(new Date(shiftIso(t.date, -1) + 'T08:00:00'), '⏰ Mañana: ' + nm, 'Haz un repaso suave y descansa bien.');
+        });
+        const wh = appState.wordHours || ['07:00', '13:00', '20:00'];
+        const slots = wh.map((hh, i) => [hh, i, ['Palabra de la mañana', 'Palabra de la tarde', 'Palabra de la noche'][i]]);
+        for (let i = 0; i < 7; i++) {
+          const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+          const dayN = Math.floor((day - new Date(day.getFullYear(), 0, 0)) / 86400000);
+          slots.forEach(([h, sl, title]) => add(new Date(day.getFullYear(), day.getMonth(), day.getDate(), +h.split(':')[0], +h.split(':')[1] || 0, 0), title, wordForSlot(dayN, sl)));
+        }
+        if (list.length) await LN.schedule({ notifications: list });
+      } catch (e) {}
+    }
+    window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
+    async function speakAsync(text) {
+      const clean = String(text || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').replace(/[•*_#]+/g, ' ').replace(/\n+/g, '. ').slice(0, 700);
+      if (!clean.trim()) return;
+      const TTS = nativePlugin('TextToSpeech');
+      try {
+        if (TTS) { await TTS.speak({ text: clean, lang: 'es-ES', rate: 1.0 }); return; }
+        if (window.speechSynthesis) {
+          await new Promise(res => { const u = new SpeechSynthesisUtterance(clean); u.lang = 'es-ES'; u.onend = res; u.onerror = res; speechSynthesis.cancel(); speechSynthesis.speak(u); });
+        }
+      } catch (e) {}
+    }
+    function speak(text) { speakAsync(text); }
+    function stopSpeaking() {
+      try { const T = nativePlugin('TextToSpeech'); if (T) T.stop(); } catch (e) {}
+      try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+    }
+    function listenOnce() {
+      return new Promise(async (resolve) => {
+        const SR = nativePlugin('SpeechRecognition');
+        try {
+          if (SR) {
+            const p = await SR.requestPermissions();
+            if (p.speechRecognition !== 'granted') { showToast('Necesito permiso del micrófono'); resolve(null); return; }
+            const r = await SR.start({ language: 'es-ES', maxResults: 1, prompt: '', partialResults: false, popup: false });
+            resolve(r && r.matches && r.matches[0] ? r.matches[0] : '');
+            return;
+          }
+          const W = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!W) { showToast('Este dispositivo no permite voz'); resolve(null); return; }
+          const rec = new W();
+          rec.lang = 'es-ES';
+          rec.onresult = e => resolve(e.results[0][0].transcript);
+          rec.onerror = () => resolve('');
+          rec.onend = () => resolve('');
+          rec.start();
+        } catch (e) { resolve(''); }
+      });
+    }
+    let voiceLoopOn = false, voiceRunning = false;
+    function setVoiceStatus(t, sub) {
+      document.getElementById('vmStatus').textContent = t;
+      if (sub !== undefined) document.getElementById('vmText').textContent = sub;
+    }
+    async function runVoiceLoop() {
+      if (voiceRunning) return;
+      voiceRunning = true; voiceLoopOn = true; window._voiceLoop = true;
+      const orb = document.getElementById('vmOrb');
+      let empties = 0;
+      while (voiceLoopOn) {
+        setVoiceStatus('Escuchando…', '');
+        orb.classList.remove('ai-orb-thinking');
+        const heard = await listenOnce();
+        if (!voiceLoopOn || heard === null) break;
+        if (!heard) { if (++empties >= 3) { setVoiceStatus('No te escuché. Toca el orbe para hablar.', ''); break; } continue; }
+        empties = 0;
+        setVoiceStatus('Pensando…', '“' + heard + '”');
+        orb.classList.add('ai-orb-thinking');
+        document.getElementById('aiChatInput').value = heard;
+        await handleSendChat();
+        orb.classList.remove('ai-orb-thinking');
+        if (!voiceLoopOn) break;
+        const last = appState.chat[appState.chat.length - 1];
+        const reply = last && last.role === 'ai' ? last.text : '';
+        setVoiceStatus('Hablando…', reply);
+        await speakAsync(reply);
+      }
+      voiceRunning = false; window._voiceLoop = false;
+    }
+    function openVoiceMode() {
+      if (!NATIVE && !(window.SpeechRecognition || window.webkitSpeechRecognition)) { showToast('La voz solo funciona en la app instalada desde GitHub'); return; }
+      document.getElementById('voiceMode').classList.remove('hidden');
+      runVoiceLoop();
+    }
+    function voiceOrbTap() { if (voiceRunning) stopSpeaking(); else runVoiceLoop(); }
+    function closeVoiceMode() {
+      voiceLoopOn = false; window._voiceLoop = false;
+      stopSpeaking();
+      try { const R = nativePlugin('SpeechRecognition'); if (R) R.stop(); } catch (e) {}
+      document.getElementById('voiceMode').classList.add('hidden');
+    }
+    async function runDiagnostics() {
+      openModal('modalDiag');
+      const out = document.getElementById('diagText'), lines = [];
+      const add = t => { lines.push(t); out.textContent = lines.join('\n'); };
+      add('Versión: ' + (NATIVE ? 'App Android real ✓' : 'Página / navegador interno ✗ (aquí NO hay voz ni notificaciones nativas)'));
+      add('Clave Gemini: ' + (appState.customApiKey ? 'guardada (' + appState.customApiKey.length + ' caracteres)' : 'NO guardada ✗'));
+      add('Internet: ' + (navigator.onLine ? 'sí ✓' : 'no ✗'));
+      const checks = [['Notificaciones', 'LocalNotifications', P => P.checkPermissions()], ['Micrófono', 'SpeechRecognition', P => P.available()], ['Voz de respuesta', 'TextToSpeech', P => P.getSupportedLanguages()]];
+      for (const [label, name, fn] of checks) {
+        const P = nativePlugin(name);
+        if (!P) { add(label + ': plugin no disponible ✗'); continue; }
+        try { await fn(P); add(label + ': listo ✓'); } catch (e) { add(label + ': error ✗ ' + (e && e.message ? e.message : e)); }
+      }
+      add('Voz del navegador: ' + (window.speechSynthesis ? 'sí' : 'no') + ' · Dictado del navegador: ' + ((window.SpeechRecognition || window.webkitSpeechRecognition) ? 'sí' : 'no'));
+      if (appState.customApiKey) {
+        add('Probando Gemini…');
+        try { await geminiRequest([{ text: 'Responde solo este JSON: {"ok":true}' }]); add('Gemini: funciona ✓'); } catch (e) { add('Gemini: ✗ ' + e.message); }
+      }
+      add('— Fin. Toma una captura de esta pantalla y mándala.');
+    }
+    async function testGemini() {
+      if (!appState.customApiKey) { showToast('Primero pega y guarda tu clave de Gemini'); return; }
+      showToast('Probando conexión…');
+      try { await geminiRequest([{ text: 'Responde solo este JSON: {"ok":true}' }]); showToast('Gemini funciona ✓'); }
+      catch (e) { showToast('Gemini falló: ' + e.message); }
+    }
+    function toggleVoiceReplies() {
+      appState.voiceReplies = !appState.voiceReplies;
+      if (!appState.voiceReplies && window.speechSynthesis) speechSynthesis.cancel();
+      saveState();
+      showToast(appState.voiceReplies ? 'Te responderé en voz alta' : 'Respuestas por voz apagadas');
+    }
+    async function startVoice() {
+      const SR = nativePlugin('SpeechRecognition');
+      const inp = document.getElementById('aiChatInput');
+      try {
+        if (SR) {
+          const p = await SR.requestPermissions();
+          if (p.speechRecognition !== 'granted') { showToast('Necesito permiso del micrófono'); return; }
+          const r = await SR.start({ language: 'es-ES', maxResults: 1, prompt: 'Habla ahora', partialResults: false, popup: true });
+          if (r && r.matches && r.matches[0]) { inp.value = r.matches[0]; handleSendChat(); }
+          return;
+        }
+        const W = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!W) { showToast('Este navegador no permite dictado por voz'); return; }
+        const rec = new W();
+        rec.lang = 'es-ES';
+        rec.onresult = e => { inp.value = e.results[0][0].transcript; handleSendChat(); };
+        rec.onerror = () => showToast('No pude escucharte, intenta otra vez');
+        rec.start();
+        showToast('Escuchando…');
+      } catch (e) { showToast('No pude usar el micrófono'); }
+    }
+
+    // ---- Inicio de la app y borrado ----
+    function renderOnboarding() {
+      const el = document.getElementById('onboarding');
+      if (el) el.classList.toggle('hidden', !!(appState.profile && appState.profile.done));
+    }
+    function finishOnboarding() {
+      const name = document.getElementById('obName').value.trim();
+      if (!name) { showToast('Dime tu nombre para empezar'); return; }
+      appState.profile = { name, age: document.getElementById('obAge').value.trim(), occupation: document.getElementById('obJob').value.trim(), done: true };
+      appState.wordMode = document.getElementById('obWord').value;
+      if (appState.chat.length <= 1) {
+        appState.chat = [{ role: 'ai', text: `¡Hola, ${name}! Soy tu asistente personal. Dime tus tareas, exámenes y gastos, y yo me encargo de organizarlos. Por ejemplo: "Gasté 5$ en pasaje" o "Tengo examen el viernes de la otra semana".`, actions: [] }];
+      }
+      saveState();
+    }
+    let resetArmed = false;
+    function resetAllData() {
+      if (!resetArmed) { resetArmed = true; showToast('Toca otra vez para borrar todo'); setTimeout(() => { resetArmed = false; }, 4000); return; }
+      resetArmed = false;
+      appState = { ...createDefaultState(), theme: appState.theme, customApiKey: appState.customApiKey };
+      saveState();
+      switchTab('inicio');
+    }
+
+    // ---- Ajustes ----
+    function saveApiKeySettings() {
+      appState.customApiKey = document.getElementById('setApiKey').value.trim();
+      saveState();
+      showToast(appState.customApiKey ? 'Clave de Gemini guardada' : 'Clave eliminada');
+    }
+    function setWordHour(i, v) {
+      const a = (appState.wordHours || ['07:00', '13:00', '20:00']).slice();
+      if (v) { a[i] = v; appState.wordHours = a; saveState(); showToast('Horario actualizado'); }
+    }
+    function renderSettings() {
+      const el = document.getElementById('settingsBody');
+      if (!el) return;
+      const mode = appState.wordMode || 'ambos', wh = appState.wordHours || ['07:00', '13:00', '20:00'];
+      const card = (t, inner) => `<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft space-y-3"><h3 class="text-sm font-extrabold text-slate-900 dark:text-white">${t}</h3>${inner}</div>`;
+      const row = (label, btn) => `<div class="flex items-center justify-between gap-3"><span class="text-xs font-semibold text-slate-600 dark:text-slate-300">${label}</span>${btn}</div>`;
+      const pill = (txt, fn, on) => `<button onclick="${fn}" class="px-3 py-1.5 rounded-full text-[11px] font-bold ${on ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}">${txt}</button>`;
+      const inp = 'bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2.5 py-2 text-xs font-bold text-slate-900 dark:text-white outline-none';
+      el.innerHTML =
+        card('🤖 Asistente IA', `
+          <input id="setApiKey" type="password" value="${escapeHtml(appState.customApiKey || '')}" placeholder="Clave de Gemini (AIza...)" class="w-full ${inp} font-mono" />
+          <div class="flex flex-wrap gap-2">${pill('Guardar clave', 'saveApiKeySettings()', true)}${pill('Probar conexión', 'testGemini()', false)}${pill('🩺 Diagnóstico', 'runDiagnostics()', false)}${pill('Limpiar chat', 'clearChatHistory()', false)}</div>
+          ${row('Respuestas en voz alta', pill(appState.voiceReplies ? 'Activadas' : 'Apagadas', 'toggleVoiceReplies()', !!appState.voiceReplies))}`) +
+        card('✨ Palabra del día', `
+          <div class="flex gap-1.5">${pill('Ambos', "setWordMode('ambos')", mode === 'ambos')}${pill('Frases', "setWordMode('frases')", mode === 'frases')}${pill('Versículos', "setWordMode('versiculos')", mode === 'versiculos')}</div>
+          ${['Mañana', 'Tarde', 'Noche'].map((n, i) => row(n, `<input type="time" value="${wh[i]}" onchange="setWordHour(${i}, this.value)" class="${inp}" />`)).join('')}
+          ${NATIVE ? pill('🔔 Probar notificación', 'testNotification()', false) : ''}`) +
+        card('🎨 Apariencia', row('Tema', pill(appState.theme === 'dark' ? 'Oscuro · cambiar a claro' : 'Claro · cambiar a oscuro', 'toggleTheme()', false))) +
+        card('💾 Datos y dinero', `
+          ${row('Respaldo de datos', pill('Abrir', 'openBackupModal()', false))}
+          ${row('Tasa: ' + Number(appState.exchangeRate).toFixed(2) + ' Bs', pill('Traer del BCV', 'fetchBcvRate(true)', false))}
+          ${row('Presupuesto mensual: $' + appState.monthlyBudget, pill('Cambiar', 'openBudgetModal()', false))}
+          ${row('Borrar todos los datos', pill('Borrar todo', 'resetAllData()', false))}`);
+    }
+
+    // ---- Tasa BCV, foto, modo examen, resumen semanal ----
+    async function fetchBcvRate(manual) {
+      try {
+        const r = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
+        const d = await r.json();
+        const v = Number(d.promedio || d.venta || d.compra || d.price);
+        if (!(v > 0)) throw new Error('dato inválido');
+        appState.exchangeRate = Math.round(v * 100) / 100;
+        appState.rateUpdated = getIsoDateOffset(0);
+        closeModal('modalRate');
+        saveState();
+        if (manual) showToast('Tasa BCV: ' + appState.exchangeRate.toFixed(2) + ' Bs');
+      } catch (e) { if (manual) showToast('No pude traer la tasa del BCV, usa la manual'); }
+    }
+    window.addEventListener('load', () => setTimeout(() => { if (appState.rateUpdated !== getIsoDateOffset(0)) fetchBcvRate(false); }, 3000));
+    function pickPhoto() { document.getElementById('photoInput').click(); }
+    async function handlePhoto(inp) {
+      const f = inp.files && inp.files[0];
+      inp.value = '';
+      if (!f) return;
+      if (!appState.customApiKey) { showToast('Para leer fotos necesito la clave de Gemini (botón API Key)'); return; }
+      showToast('Leyendo la imagen…');
+      try {
+        window._pendingImage = await new Promise((res, rej) => {
+          const img = new Image(), url = URL.createObjectURL(f);
+          img.onload = () => {
+            const sc = Math.min(1, 1024 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+            c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            URL.revokeObjectURL(url);
+            res(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
+          };
+          img.onerror = rej;
+          img.src = url;
+        });
+        document.getElementById('aiChatInput').value = 'Analiza la foto adjunta: si es un horario, calendario o lista de tareas crea las tareas con crear_tarea usando fechas reales a partir de fecha_hoy; si es un recibo o factura registra el gasto con registrar_movimiento. Si no se entiende, dilo.';
+        handleSendChat();
+      } catch (e) { showToast('No pude leer esa imagen'); }
+    }
+    function populateTimerSubjects() {
+      const sel = document.getElementById('timerSubjectSelect');
+      if (!sel) return;
+      const cur = sel.value;
+      const names = [...new Set([...(appState.subjects || []).map(x => x.name), ...getExams().map(e => e.title)])];
+      sel.innerHTML = '<option value="">Sin materia (no registrar)</option>' + names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('') + '<option value="Otra">Otra</option>';
+      sel.value = (names.includes(cur) || cur === 'Otra') ? cur : '';
+    }
+    function logStudy(min) {
+      const sel = document.getElementById('timerSubjectSelect');
+      if (!sel || !sel.value) return;
+      appState.studyLog = appState.studyLog || [];
+      appState.studyLog.push({ date: getIsoDateOffset(0), subject: sel.value, minutes: min });
+      saveState();
+    }
+    function fmtMin(m) { return m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : '') : m + ' min'; }
+    function weeklySummary() {
+      const today = getIsoDateOffset(0), from = shiftIso(today, -6), inWeek = d => d >= from && d <= today;
+      const by = {};
+      let total = 0, spent = 0;
+      (appState.studyLog || []).filter(x => inWeek(x.date)).forEach(x => { by[x.subject] = (by[x.subject] || 0) + x.minutes; total += x.minutes; });
+      const wt = appState.tasks.filter(t => inWeek(t.date)), rate = appState.exchangeRate || 45;
+      appState.transactions.filter(t => t.type === 'gasto' && inWeek(t.date)).forEach(t => { spent += t.currency === 'USD' ? t.amount : t.amount / rate; });
+      return { by, total, done: wt.filter(t => t.done).length, tasks: wt.length, spent };
+    }
+    function weeklySummaryText() {
+      const w = weeklySummary();
+      const subj = Object.entries(w.by).sort((a, b) => b[1] - a[1]).map(([k, v]) => `• ${k}: ${fmtMin(v)}`).join('\n');
+      return `Tu semana (últimos 7 días):\n⏱ Estudio registrado: ${w.total ? fmtMin(w.total) : 'nada todavía (usa el temporizador de Rutinas y elige una materia)'}${subj ? '\n' + subj : ''}\n✅ Tareas cumplidas: ${w.done} de ${w.tasks}\n💸 Gastos: $${w.spent.toFixed(2)} (presupuesto mensual $${appState.monthlyBudget})`;
+    }
+    function renderWeekly() {
+      const el = document.getElementById('weeklyCard');
+      if (!el) return;
+      el.innerHTML = `<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft"><div class="flex items-center justify-between mb-2"><h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Resumen semanal</h3><button onclick="askWeeklyAi()" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-300">Análisis con IA →</button></div><pre class="whitespace-pre-wrap text-xs font-medium text-slate-700 dark:text-slate-200" style="font-family:inherit">${escapeHtml(weeklySummaryText())}</pre></div>`;
+    }
+    function askWeeklyAi() { switchTab('ia'); sendSuggestion('Hazme un resumen de mi semana con consejos'); }
+    async function testNotification() {
+      const LN = nativePlugin('LocalNotifications');
+      if (!LN) { showToast('Esto solo funciona en la app instalada'); return; }
+      try {
+        const p = await LN.requestPermissions();
+        if (p.display !== 'granted') { showToast('Activa el permiso de notificaciones'); return; }
+        await LN.schedule({ notifications: [{ id: 999, title: 'Palabra del día', body: currentWord().text, schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true } }] });
+        showToast('Cierra la app: llegará en 5 segundos');
+      } catch (e) { showToast('No pude programarla'); }
+    }
+
+    // ---- Planificador de estudio (varios exámenes, sin choques, con disponibilidad) ----
+    const STUDY_LABELS = ['Repaso final suave', 'Practicar con ejercicios', 'Temas difíciles', 'Esquemas y puntos clave', 'Organizar y resumir el temario', 'Primera lectura del temario', 'Estudiar y practicar el temario', 'Estudiar los temas principales', 'Practicar y repaso final'];
+    const STRATEGIES = {
+      examen: ['Hazte preguntas de cada tema y respóndelas sin mirar los apuntes.', 'Practica con ejercicios o exámenes anteriores, con el tiempo cronometrado.', 'Explica cada tema en voz alta con tus palabras, como si se lo enseñaras a alguien.', 'Anota lo que falles y repásalo de nuevo al día siguiente.'],
+      exposicion: ['Reduce el tema a 3 ideas principales y arma todo alrededor de ellas.', 'Ensáyala en voz alta, de pie y con cronómetro, al menos 3 veces.', 'Usa láminas con poco texto y habla desde tus ideas, sin leer.', 'Prepara 3 preguntas que podrían hacerte y sus respuestas.'],
+      discusion: ['Resume tu postura en una frase y respáldala con 3 argumentos y ejemplos.', 'Anticipa los argumentos contrarios y prepara cómo responderlos.', 'Ten a mano datos o citas concretas del tema.', 'Practica explicar tu postura en un minuto.']
+    };
+    function strategyKey(word) { return /exposici/.test(word) ? 'exposicion' : /discusi|debate/.test(word) ? 'discusion' : 'examen'; }
+    function dayDiff(a, b) {
+      const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number);
+      return Math.round((new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1)) / 86400000);
+    }
+    function getExams() {
+      const today = getIsoDateOffset(0);
+      return appState.tasks.filter(t => !t.done && t.date > today && (t.exam || (t.title || '').startsWith('📝')))
+        .map(t => ({ id: t.id, title: t.title.replace('📝 ', ''), date: t.date }));
+    }
+    function scheduleStudy(exams) {
+      const today = getIsoDateOffset(0);
+      const busyW = appState.busyWeekdays || [], busyD = new Set(appState.busyDates || []);
+      const examDates = new Set(exams.map(e => e.date));
+      const dow = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
+      const isBusy = iso => busyD.has(iso) || busyW.includes(dow(iso));
+      const occ = {};
+      appState.tasks.filter(t => t.session && t.done).forEach(t => { occ[t.date] = (occ[t.date] || 0) + 1; });
+      const steps = [[1, STUDY_LABELS[0]], [2, STUDY_LABELS[1]], [4, STUDY_LABELS[2]], [6, STUDY_LABELS[3]], [9, STUDY_LABELS[4]], [13, STUDY_LABELS[5]]];
+      const out = [];
+      const sorted = exams.slice().sort((a, b) => a.date.localeCompare(b.date));
+      let free = 0;
+      for (let i = 0; sorted.length && i < dayDiff(today, sorted[sorted.length - 1].date); i++) {
+        const d = shiftIso(today, i);
+        if (!isBusy(d) && !examDates.has(d) && !occ[d]) free++;
+      }
+      const cap = {}, alloc = {};
+      sorted.forEach(e => { cap[e.id] = Math.min(5, steps.filter(x => x[0] <= dayDiff(today, e.date)).length); alloc[e.id] = 0; });
+      const goal = Math.max(free, sorted.length);
+      let total = 0, moved = true;
+      while (total < goal && moved) {
+        moved = false;
+        for (const e of sorted) {
+          if (total < goal && alloc[e.id] < cap[e.id]) { alloc[e.id]++; total++; moved = true; }
+        }
+      }
+      sorted.forEach(e => {
+        const left = dayDiff(today, e.date);
+        if (left < 1) return;
+        const mine = new Set();
+        const days = [];
+        for (let i = 0; i < left; i++) days.push(shiftIso(today, i));
+        steps.filter(x => x[0] <= left).slice(0, alloc[e.id]).forEach(([k, label]) => {
+          const want = shiftIso(e.date, -k);
+          const order = days.filter(x => !mine.has(x) && !isBusy(x)).sort((a, b) => Math.abs(dayDiff(a, want)) - Math.abs(dayDiff(b, want)) || a.localeCompare(b));
+          let d = order.find(x => !occ[x] && !examDates.has(x));
+          if (!d) d = order.find(x => !examDates.has(x) && (occ[x] || 0) < 2);
+          if (!d) d = order.find(x => (occ[x] || 0) < 2);
+          if (!d) return;
+          mine.add(d); occ[d] = (occ[d] || 0) + 1;
+          out.push({ examId: e.id, date: d, label, double: occ[d] > 1 });
+        });
+      });
+      const SETS = {
+        1: ['Estudiar y practicar el temario'],
+        2: ['Estudiar los temas principales', 'Practicar y repaso final'],
+        3: ['Organizar y resumir el temario', 'Temas difíciles y práctica', 'Repaso final suave'],
+        4: ['Organizar y resumir el temario', 'Esquemas y puntos clave', 'Practicar con ejercicios', 'Repaso final suave'],
+        5: ['Primera lectura del temario', 'Organizar y resumir el temario', 'Temas difíciles', 'Practicar con ejercicios', 'Repaso final suave']
+      };
+      const by = {};
+      out.forEach(x => { (by[x.examId] = by[x.examId] || []).push(x); });
+      Object.values(by).forEach(g => {
+        g.sort((a, b) => a.date.localeCompare(b.date));
+        const set = SETS[Math.min(g.length, 5)];
+        g.forEach((x, i) => { x.label = set[i]; });
+      });
+      return out.sort((a, b) => a.date.localeCompare(b.date));
+    }
+    function replanStudy() {
+      const exams = getExams();
+      appState.tasks = appState.tasks.filter(t => !(!t.done && (t.session || (!t.exam && t.category === 'Estudio' && STUDY_LABELS.some(l => (t.title || '').startsWith(l + ' — '))))));
+      const plan = scheduleStudy(exams);
+      plan.forEach((x, i) => {
+        const ex = exams.find(e => e.id === x.examId);
+        appState.tasks.push({ id: Date.now() + 500 + i + Math.floor(Math.random() * 10000), title: `${x.label} — ${ex.title}`, date: x.date, startTime: x.double ? '20:00' : '18:00', endTime: x.double ? '21:00' : (x.label === STUDY_LABELS[0] ? '19:00' : '19:30'), category: 'Estudio', done: false, session: true, examId: x.examId });
+      });
+      return plan;
+    }
+    function replanAndSave() { const n = replanStudy().length; saveState(); showToast(`Plan rearmado (${n} sesiones)`); }
+    function setBusyWeekday(i) {
+      const a = appState.busyWeekdays || [];
+      appState.busyWeekdays = a.includes(i) ? a.filter(x => x !== i) : a.concat(i);
+      replanStudy(); saveState();
+    }
+    function toggleBusySelected() {
+      const a = appState.busyDates || [];
+      appState.busyDates = a.includes(selectedDate) ? a.filter(x => x !== selectedDate) : a.concat(selectedDate);
+      replanStudy(); saveState();
+    }
+    function removeBusyDate(iso) { appState.busyDates = (appState.busyDates || []).filter(x => x !== iso); replanStudy(); saveState(); }
+    function renderBusy() {
+      const el = document.getElementById('busyCard');
+      if (!el) return;
+      const today = getIsoDateOffset(0);
+      const bw = appState.busyWeekdays || [];
+      const bd = (appState.busyDates || []).filter(x => x >= today).sort();
+      const names = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      const isBlocked = (appState.busyDates || []).includes(selectedDate);
+      el.innerHTML = `
+        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card space-y-2.5">
+          <div class="text-xs font-extrabold text-slate-800 dark:text-slate-200">Días en que no puedo estudiar</div>
+          <div class="flex gap-1.5">${names.map((n, i) => `<button onclick="setBusyWeekday(${i})" class="flex-1 py-1.5 rounded-xl text-[11px] font-bold ${bw.includes(i) ? 'bg-rose-500 text-white' : 'bg-slate-100 dark:bg-[#0B1120] text-slate-600 dark:text-slate-300'}">${n}</button>`).join('')}</div>
+          <div class="flex gap-2">
+            <button onclick="toggleBusySelected()" class="flex-1 py-2 rounded-2xl bg-slate-100 dark:bg-[#0B1120] text-[11px] font-bold text-slate-700 dark:text-slate-200">${isBlocked ? 'Liberar' : 'Bloquear'} el día seleccionado</button>
+            <button onclick="replanAndSave()" class="px-3 py-2 rounded-2xl bg-indigo-600 text-white text-[11px] font-bold">↻ Rearmar plan</button>
+          </div>
+          ${bd.length ? `<div class="flex flex-wrap gap-1.5">${bd.map(x => `<button onclick="removeBusyDate('${x}')" class="px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-[11px] font-bold">${x.slice(8)}/${x.slice(5, 7)} ✕</button>`).join('')}</div>` : ''}
+        </div>`;
+    }
+
+    // ---- Avisos, Palabra del día y calendario ----
+    const WORD_FRASES = [
+      'Un paso pequeño hoy vale más que un plan perfecto mañana.',
+      'No tienes que hacerlo todo hoy, solo lo siguiente.',
+      'La constancia le gana al talento cuando el talento no se esfuerza.',
+      'Descansar también es parte de avanzar.',
+      'Lo que estudias hoy es la tranquilidad de tu examen.',
+      'Empieza aunque sea con diez minutos; lo difícil es arrancar.',
+      'Cada tarea terminada es una preocupación menos.',
+      'Tu esfuerzo de hoy está construyendo a la persona que quieres ser.'
+    ];
+    const WORD_VERSOS = [
+      { t: 'Todo lo puedo en Cristo que me fortalece.', r: 'Filipenses 4:13' },
+      { t: 'Fíate de Jehová de todo tu corazón, y no estribes en tu prudencia.', r: 'Proverbios 3:5' },
+      { t: 'Encomienda a Jehová tu camino, y espera en él; y él hará.', r: 'Salmo 37:5' },
+      { t: 'Jehová es mi pastor; nada me faltará.', r: 'Salmo 23:1' },
+      { t: 'Encomienda a Jehová tus obras, y tus pensamientos serán afirmados.', r: 'Proverbios 16:3' },
+      { t: 'Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.', r: 'Mateo 6:33' },
+      { t: 'No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo.', r: 'Isaías 41:10' },
+      { t: 'Esfuérzate y sé valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo.', r: 'Josué 1:9' }
+    ];
+    const WORD_ESTUDIO = [
+      'Hoy toca estudiar: un bloque a la vez y sin distracciones.',
+      'Quien estudia con constancia no necesita suerte.',
+      'Silencia el teléfono 25 minutos y empieza.',
+      'Lo que repasas hoy lo recuerdas el día del examen.',
+      'Estudia lo difícil primero, mientras tienes la mente fresca.',
+      'Termina esta sesión y te habrás ganado un descanso.'
+    ];
+    function todayStudy() { const t = getIsoDateOffset(0); return appState.tasks.find(x => x.session && !x.done && x.date === t) || null; }
+    let wordOffset = 0;
+    function currentWord() {
+      const now = new Date();
+      const slot = now.getHours() < 12 ? 0 : now.getHours() < 19 ? 1 : 2;
+      const dayN = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+      const n = dayN * 3 + slot + wordOffset;
+      const mode = appState.wordMode || 'ambos';
+      const verse = mode === 'versiculos' || (mode === 'ambos' && n % 2 === 0);
+      const step = mode === 'ambos' ? 2 : 1;
+      const label = ['Palabra de la mañana', 'Palabra de la tarde', 'Palabra de la noche'][slot];
+      if (verse) { const v = WORD_VERSOS[Math.floor(n / step) % WORD_VERSOS.length]; return { label, text: '“' + v.t + '”', ref: v.r }; }
+      const pool = todayStudy() ? WORD_ESTUDIO : WORD_FRASES;
+      return { label, text: pool[Math.floor(n / step) % pool.length], ref: '' };
+    }
+    function nextWord() { wordOffset++; renderWord(); }
+    function setWordMode(m) { appState.wordMode = m; wordOffset = 0; saveState(); }
+    function renderWord() {
+      const el = document.getElementById('wordCard');
+      if (!el) return;
+      const w = currentWord();
+      const study = todayStudy();
+      const mode = appState.wordMode || 'ambos';
+      const chip = (k, l) => `<button onclick="setWordMode('${k}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold ${mode === k ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}">${l}</button>`;
+      el.innerHTML = `
+        <div class="rounded-3xl p-4 bg-gradient-to-br from-indigo-50 to-sky-50 dark:from-indigo-950/50 dark:to-sky-950/30 border border-indigo-100 dark:border-indigo-900/60 shadow-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">${w.label}</span>
+            <button onclick="nextWord()" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-300">Otra ↻</button>
+          </div>
+          ${study ? `<p class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">📚 Hoy toca: ${escapeHtml(study.title)}</p>` : ''}
+          <p class="text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-100">${w.text}</p>
+          ${w.ref ? `<p class="text-xs font-bold text-indigo-600 dark:text-indigo-300 mt-1.5">${w.ref}</p>` : ''}
+        </div>`;
+    }
+    function renderAlerts() {
+      const el = document.getElementById('homeAlerts');
+      if (!el) return;
+      const today = getIsoDateOffset(0), tom = getIsoDateOffset(1);
+      const isExam = t => (t.title || '').startsWith('📝');
+      const rows = [];
+      const overdue = appState.tasks.filter(t => !t.done && t.date < today).length;
+      if (overdue) rows.push({ hot: true, text: `⚠️ Tienes ${overdue} ${overdue === 1 ? 'tarea atrasada' : 'tareas atrasadas'}` });
+      appState.tasks.filter(t => !t.done && t.date === tom).forEach(t => rows.push({ hot: isExam(t), text: `${isExam(t) ? '' : '📅 '}Mañana: ${t.title}` }));
+      appState.tasks.filter(t => isExam(t) && !t.done && t.date > tom).forEach(t => {
+        const days = Math.round((new Date(t.date) - new Date(today)) / 86400000);
+        if (days <= 3) rows.push({ hot: true, text: `Faltan ${days} días: ${t.title}` });
+      });
+      const hoy = appState.tasks.filter(t => !t.done && t.date === today);
+      if (hoy.length) rows.push({ hot: false, text: `⏳ Hoy te faltan ${hoy.length} ${hoy.length === 1 ? 'tarea' : 'tareas'}: ${hoy[0].title}${hoy.length > 1 ? '…' : ''}` });
+      el.innerHTML = rows.length ? `
+        <div class="rounded-3xl p-4 bg-white dark:bg-[#151C2C] border border-amber-200 dark:border-amber-800/60 shadow-card">
+          <div class="text-xs font-extrabold text-amber-700 dark:text-amber-300 mb-2">🔔 Avisos</div>
+          <div class="space-y-1.5">${rows.slice(0, 6).map(r => `<div class="text-xs font-semibold ${r.hot ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-200'}">${escapeHtml(r.text)}</div>`).join('')}</div>
+        </div>` : '';
+    }
+    function gcalUrl(title, date, start, end) {
+      const f = (d, t) => d.replace(/-/g, '') + 'T' + (t || '09:00').replace(':', '') + '00';
+      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + f(date, start) + '/' + f(date, end || addOneHour(start)) + '&details=' + encodeURIComponent('Desde Mi Asistente');
+    }
+
+    // ---- Materias y notas ----
+    function subjectStats(sub) {
+      const max = appState.gradeMax || 20, pass = appState.gradePass || 10;
+      let acc = 0, wg = 0, wt = 0;
+      sub.evals.forEach(e => {
+        wt += e.weight;
+        if (e.grade !== null && e.grade !== undefined && e.grade !== '') { acc += e.grade * e.weight / 100; wg += e.weight; }
+      });
+      const left = 100 - wg;
+      return { acc, wg, wt, left, max, pass, need: left > 0 ? (pass - acc) / (left / 100) : null };
+    }
+    function setGradeScale() {
+      const mx = parseFloat(document.getElementById('gradeMaxInput').value);
+      const ps = parseFloat(document.getElementById('gradePassInput').value);
+      if (mx > 0 && ps > 0 && ps <= mx) { appState.gradeMax = mx; appState.gradePass = ps; saveState(); }
+      else showToast('Revisa la escala de notas');
+    }
+    function openEvalModal() {
+      ['evalSubjectInput', 'evalNameInput', 'evalWeightInput', 'evalGradeInput'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('subjectNames').innerHTML = appState.subjects.map(x => `<option value="${escapeHtml(x.name)}">`).join('');
+      openModal('modalEval');
+    }
+    function saveEvalFromModal() {
+      const sname = document.getElementById('evalSubjectInput').value.trim();
+      const ename = document.getElementById('evalNameInput').value.trim() || 'Evaluación';
+      const weight = parseFloat(document.getElementById('evalWeightInput').value);
+      const gv = document.getElementById('evalGradeInput').value;
+      const grade = gv === '' ? null : parseFloat(gv);
+      if (!sname || !(weight > 0) || weight > 100) { showToast('Pon la materia y el valor (1 a 100%)'); return; }
+      let sub = appState.subjects.find(x => x.name.toLowerCase() === sname.toLowerCase());
+      if (!sub) { sub = { id: Date.now(), name: sname, evals: [] }; appState.subjects.push(sub); }
+      sub.evals.push({ id: Date.now() + 1, name: ename, weight, grade });
+      closeModal('modalEval');
+      saveState();
+      showToast('Evaluación guardada');
+    }
+    function setEvalGrade(sid, eid, v) {
+      const sub = appState.subjects.find(x => x.id === sid);
+      const ev = sub && sub.evals.find(x => x.id === eid);
+      if (ev) { ev.grade = v === '' ? null : parseFloat(v); saveState(); }
+    }
+    function deleteEval(sid, eid) {
+      const sub = appState.subjects.find(x => x.id === sid);
+      if (sub) { sub.evals = sub.evals.filter(x => x.id !== eid); saveState(); }
+    }
+    function deleteSubject(sid) {
+      appState.subjects = appState.subjects.filter(x => x.id !== sid);
+      saveState();
+      showToast('Materia eliminada');
+    }
+    function renderSubjects() {
+      renderWeekly();
+      const el = document.getElementById('subjectsList');
+      if (!el) return;
+      document.getElementById('gradeMaxInput').value = appState.gradeMax;
+      document.getElementById('gradePassInput').value = appState.gradePass;
+      if (!appState.subjects.length) {
+        el.innerHTML = '<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 text-center text-xs font-semibold text-slate-400">Aún no tienes materias. Toca <b>+ Evaluación</b> y escribe la materia, el nombre del examen y su valor en %.</div>';
+        return;
+      }
+      el.innerHTML = appState.subjects.map(sub => {
+        const st = subjectStats(sub);
+        let msg, color;
+        if (st.acc >= st.pass) { msg = '✅ Ya llegaste a la nota para aprobar'; color = 'text-emerald-600 dark:text-emerald-400'; }
+        else if (st.left <= 0) { msg = '❌ Con las notas cargadas no alcanza para aprobar'; color = 'text-rose-600 dark:text-rose-400'; }
+        else if (st.need > st.max) { msg = `Ya no alcanza ni sacando ${st.max} en el ${st.left}% restante`; color = 'text-rose-600 dark:text-rose-400'; }
+        else { msg = `Necesitas promediar ${st.need.toFixed(1)} en el ${st.left}% que falta`; color = 'text-indigo-600 dark:text-indigo-300'; }
+        const pct = Math.min(100, Math.round(st.acc / st.pass * 100));
+        const warn = st.wt !== 100 ? `<div class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1">Los valores suman ${st.wt}%, no 100%</div>` : '';
+        const evals = sub.evals.map(e => `
+          <div class="flex items-center gap-2 py-1.5">
+            <div class="flex-1 min-w-0"><div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(e.name)}</div><div class="text-[11px] text-slate-400">${e.weight}%</div></div>
+            <input type="number" step="0.1" value="${e.grade ?? ''}" placeholder="—" onchange="setEvalGrade(${sub.id}, ${e.id}, this.value)" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-xs font-bold text-slate-900 dark:text-white outline-none" />
+            <button onclick="deleteEval(${sub.id}, ${e.id})" aria-label="Eliminar" class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-500 text-xs font-bold">✕</button>
+          </div>`).join('');
+        return `
+          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(sub.name)}</h3>
+              <button onclick="deleteSubject(${sub.id})" class="text-[11px] font-semibold text-slate-400 hover:text-rose-500">Quitar</button>
+            </div>
+            <div class="flex items-baseline justify-between mt-2">
+              <span class="text-2xl font-extrabold font-display text-slate-900 dark:text-white">${st.acc.toFixed(1)}<span class="text-xs font-bold text-slate-400"> / ${st.max}</span></span>
+              <span class="text-[11px] font-semibold text-slate-400">aprobar: ${st.pass}</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden my-2"><div class="h-full rounded-full bg-indigo-600" style="width:${pct}%"></div></div>
+            <div class="text-xs font-bold ${color}">${msg}</div>${warn}
+            <div class="mt-2 divide-y divide-slate-100 dark:divide-slate-800">${evals}</div>
+          </div>`;
+      }).join('');
+    }
+
+    // ---- Respaldo ----
+    function openBackupModal() { document.getElementById('backupText').value = ''; openModal('modalBackup'); }
+    async function exportBackup() {
+      const data = JSON.stringify(appState, null, 1);
+      let d = null;
+      try { d = window.claude ? await window.claude.use('downloads') : null; } catch (e) { d = null; }
+      if (d) {
+        try { await d.save({ filename: 'mi-asistente-respaldo.json', data }); showToast('Respaldo guardado'); return; }
+        catch (e) { if (e && e.code === 'declined') return; }
+      }
+      document.getElementById('backupText').value = data;
+      showToast('Copia ese texto y guárdalo en tus notas');
+    }
+    function loadBackupFile(inp) {
+      const f = inp.files && inp.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => { document.getElementById('backupText').value = String(r.result || ''); };
+      r.readAsText(f);
+    }
+    function importBackup() {
+      try {
+        const o = JSON.parse(document.getElementById('backupText').value.trim());
+        if (!o || !Array.isArray(o.tasks) || !Array.isArray(o.transactions)) throw new Error('bad');
+        appState = { ...createDefaultState(), ...o };
+        closeModal('modalBackup');
+        saveState();
+        showToast('Datos restaurados');
+      } catch (e) { showToast('Ese texto no es un respaldo válido'); }
+    }
+
     function renderHome() {
       const today = getIsoDateOffset(0);
       const fin = computeFinanceMetrics();
@@ -1487,6 +2184,10 @@
       document.getElementById('bentoRoutinePct').textContent = `${habitPct}%`;
       document.getElementById('bentoRoutineSub').textContent = `${doneHabits} de ${totalHabits} pasos`;
       document.getElementById('bentoStreakBadge').textContent = `🔥 ${appState.streakDays}d`;
+      const nextEx = getExams().sort((a, b) => a.date.localeCompare(b.date))[0];
+      const wk = weeklySummary();
+      document.getElementById('bentoSubjectsMain').textContent = nextEx ? `Próximo: ${nextEx.title} (${dayDiff(today, nextEx.date) === 1 ? 'mañana' : 'en ' + dayDiff(today, nextEx.date) + ' días'})` : 'Sin exámenes próximos';
+      document.getElementById('bentoSubjectsSub').textContent = wk.total ? `Estudio de la semana: ${fmtMin(wk.total)}` : 'Aún sin horas de estudio registradas';
 
       // Today's Tasks
       const listEl = document.getElementById('homeTodayList');
@@ -1582,6 +2283,7 @@
     function selectCalendarDay(iso) {
       selectedDate = iso;
       renderAgenda();
+      renderBusy();
     }
 
     function renderAgenda() {
@@ -1683,6 +2385,8 @@
                 </div>
               </div>
               <span class="text-xs font-extrabold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-[#0B1120] px-2.5 py-1 rounded-xl">${dur}</span>
+              <a href="${gcalUrl(t.title, t.date, t.startTime, t.endTime)}" target="_blank" rel="noopener" aria-label="Añadir al calendario" title="Añadir al calendario del teléfono" class="w-7 h-7 rounded-full flex items-center justify-center text-sm">🔔</a>
+              ${(t.title || '').startsWith('📝') ? `<a href="${gcalUrl('⏰ Mañana: ' + t.title.replace('📝 ', ''), shiftIso(t.date, -1), '08:00', '08:30')}" target="_blank" rel="noopener" aria-label="Aviso un día antes" title="Aviso un día antes" class="w-7 h-7 rounded-full flex items-center justify-center text-sm">⏰</a>` : ''}
               <button onclick="deleteTask(${t.id})" aria-label="Eliminar" class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center text-xs font-bold transition">✕</button>
             </div>
           `;
@@ -1962,9 +2666,10 @@
               saveState();
             }
           }
+          logStudy(Math.round(timerTotalSeconds / 60));
           timerRemainingSeconds = timerTotalSeconds;
           updateTimerUI();
-          showToast('🎉 ¡Paso completado!');
+          showToast('🎉 ¡Sesión completada!');
         }
       }, 1000);
       updateTimerUI();
@@ -2063,14 +2768,14 @@
 
       const engineLbl = document.getElementById('aiEngineLabel');
       if (engineLbl) {
-        engineLbl.textContent = appState.customApiKey ? 'Gemini 2.5 Flash + IA Local' : 'IA Inteligente Activa';
+        engineLbl.textContent = (window.claude ? 'Claude + IA local' : (appState.customApiKey ? 'Gemini + IA local' : 'IA local'));
       }
 
       box.innerHTML = appState.chat.map((m, mIdx) => {
         if (m.role === 'user') {
           return `
             <div class="flex justify-end">
-              <div class="max-w-[85%] px-4 py-2.5 rounded-3xl rounded-br-md bg-indigo-600 text-white text-xs font-medium leading-relaxed shadow-sm">
+              <div class="max-w-[85%] px-4 py-2.5 rounded-3xl rounded-br-md bg-indigo-600 text-white text-sm font-medium leading-relaxed shadow-sm">
                 ${escapeHtml(m.text)}
               </div>
             </div>
@@ -2173,6 +2878,10 @@
           return `Abono a meta "${raw.metaNombre}": +$${Number(raw.monto).toFixed(2)}`;
         case 'completar_habito':
           return `Paso de rutina completado: ${raw.habitoNombre}`;
+        case 'plan_estudio':
+          return `Plan de estudio: ${raw.titulo} (examen ${raw.fecha.slice(8)}/${raw.fecha.slice(5, 7)})`;
+        case 'bloquear_dia':
+          return `Día bloqueado para estudiar: ${raw.fecha.slice(8)}/${raw.fecha.slice(5, 7)}`;
         case 'actualizar_tasa':
           return `Tasa actualizada: ${Number(raw.tasa).toFixed(2)} Bs por 1 $`;
         default:
@@ -2257,6 +2966,16 @@
           habit.done = true;
           updateTodayWeeklyHistory();
         }
+      } else if (raw.tipo === 'plan_estudio' && raw.fecha) {
+        const titulo = raw.titulo || 'Examen';
+        if (!appState.tasks.some(t => t.exam && t.date === raw.fecha && t.title === `📝 ${titulo}`)) {
+          appState.tasks.push({ id: Date.now() + Math.floor(Math.random() * 10000), title: `📝 ${titulo}`, date: raw.fecha, startTime: raw.horaInicio || '08:00', endTime: raw.horaFin || addOneHour(raw.horaInicio || '08:00'), category: 'Estudio', done: false, exam: true });
+        }
+        replanStudy();
+      } else if (raw.tipo === 'bloquear_dia' && raw.fecha) {
+        appState.busyDates = appState.busyDates || [];
+        if (!appState.busyDates.includes(raw.fecha)) appState.busyDates.push(raw.fecha);
+        replanStudy();
       } else if (raw.tipo === 'actualizar_tasa') {
         const tasa = parseFloat(raw.tasa);
         if (tasa > 0) appState.exchangeRate = tasa;
@@ -2266,6 +2985,23 @@
     // -------------------------------------------------------------------------
     // SMART LOCAL NATURAL LANGUAGE ENGINE (WORKS 100% OFFLINE & ZERO LATENCY)
     // -------------------------------------------------------------------------
+    function shiftIso(iso, n) {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(y, m - 1, d + n);
+      return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+    }
+    function fmtDay(iso) {
+      const [y, m, d] = iso.split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+    function buildStudyPlan(examIso) {
+      const [ty, tm, td] = getIsoDateOffset(0).split('-').map(Number);
+      const [ey, em, ed] = examIso.split('-').map(Number);
+      const daysLeft = Math.round((new Date(ey, em - 1, ed) - new Date(ty, tm - 1, td)) / 86400000);
+      const steps = [[13, 'Primera lectura del temario'], [9, 'Organizar y resumir el temario'], [6, 'Esquemas y puntos clave'], [4, 'Temas difíciles'], [2, 'Practicar con ejercicios'], [1, 'Repaso final suave']];
+      return steps.filter(x => x[0] <= daysLeft).map(x => ({ date: shiftIso(examIso, -x[0]), label: x[1], k: x[0] }));
+    }
+
     function parseDateFromPhrase(text) {
       const lower = text.toLowerCase();
       if (lower.includes('pasado mañana') || lower.includes('pasado manana')) return getIsoDateOffset(2);
@@ -2283,7 +3019,8 @@
       ];
       for (const wd of weekdays) {
         if (wd.names.some(n => new RegExp(`\\b${n}\\b`, 'i').test(lower))) {
-          return getNextWeekdayIso(wd.idx);
+          const iso = getNextWeekdayIso(wd.idx);
+          return /otra semana|pr[oó]xima semana|semana que viene|semana siguiente/.test(lower) ? shiftIso(iso, 7) : iso;
         }
       }
       return getIsoDateOffset(0);
@@ -2341,6 +3078,42 @@
       const today = getIsoDateOffset(0);
       const actions = [];
       const replyLines = [];
+
+      if (/resumen.*semana|c[oó]mo me fue.*semana/.test(lower)) return { respuesta: weeklySummaryText(), acciones: [] };
+
+      // 0.1 Días en que no puede estudiar
+      const busyM = lower.match(/(?:no puedo|no podr[eé]|no estoy disponible|estoy ocupad[oa]|no tengo tiempo|no estudio)[^.]*?\b(lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|ma[ñn]ana|hoy)\b/);
+      if (busyM) {
+        const fechaB = parseDateFromPhrase(busyM[0]);
+        if (fechaB >= today) {
+          return { respuesta: `Listo, el ${fmtDay(fechaB)} queda bloqueado y no pondré estudio ese día. Rearmé tu plan.`, acciones: [{ tipo: 'bloquear_dia', fecha: fechaB, requiereConfirmacion: false }] };
+        }
+      }
+
+      // 0. Examen / exposición: guardar y armar plan de estudio
+      const examM = lower.match(/\b(examen|exposici[oó]n|discusi[oó]n|debate|parcial|prueba|quiz|evaluaci[oó]n)\b(?:\s+(?:de|del|sobre)\s+([a-záéíóúñ ]+?))?(?=\s+(?:el|para|este|esta|la|ma[ñn]ana|hoy|pasado|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo)\b|[,.;!]|$)/);
+      if (examM && /tengo|hay|me toca|tendr[eé]|tenemos/.test(lower) && !lower.includes('?')) {
+        const kind = examM[1].charAt(0).toUpperCase() + examM[1].slice(1);
+        const titulo = kind + (examM[2] ? ' de ' + examM[2].trim() : '');
+        const hasDate = /ma[ñn]ana|pasado|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|semana/.test(lower);
+        const fecha = parseDateFromPhrase(lower);
+        if (!hasDate || fecha <= today) {
+          return { respuesta: `¿Para qué día es tu ${examM[1]}? Dime la fecha (por ejemplo "el viernes de la otra semana") y te armo el plan de estudio.`, acciones: [] };
+        }
+        const others = getExams();
+        const plan = scheduleStudy([...others, { id: 'new', title: titulo, date: fecha }]).filter(x => x.examId === 'new');
+        const lines = plan.map(x => `• ${fmtDay(x.date)} — ${x.label}${x.double ? ' (día doble: ya tenías otra materia)' : ''}`).join('\n');
+        const tips = STRATEGIES[strategyKey(examM[1])].map(x => `• ${x}`).join('\n');
+        return {
+          respuesta: `Guardé "${titulo}" para el ${fmtDay(fecha)}. Días de estudio:\n${lines}${others.length ? '\n\nRearmé también tus otros exámenes para que no se choquen.' : ''}\n\nCómo estudiar para esto:\n${tips}`,
+          acciones: [{ tipo: 'plan_estudio', titulo, fecha, requiereConfirmacion: false }]
+        };
+      }
+
+      // 0.2 Estrategias de estudio
+      if (/c[oó]mo estudiar|c[oó]mo estudio|estrategias|t[eé]cnicas de estudio|tips|trucos|consejos/.test(lower) && /estudi/.test(lower)) {
+        return { respuesta: `Estas funcionan para casi cualquier materia:\n${STRATEGIES.examen.map(x => `• ${x}`).join('\n')}\n\nSi me dices la materia y el tipo (examen, exposición o discusión), te las adapto.`, acciones: [] };
+      }
 
       // 1. Check Reorganize / Reschedule pending tasks
       if (/reorganiza|reprograma|no pude hacer|mueve mis tareas|organiza mis prioridades|ordena mi d[ií]a/.test(lower)) {
@@ -2549,9 +3322,12 @@
         };
       }
 
-      // Default conversational helpful response with live context
+      if (/^\s*(hola|holi|buenas|buenos d[ií]as|hey|qu[eé] tal|saludos)/.test(lower)) {
+        const pend = appState.tasks.filter(t => t.date === today && !t.done).length;
+        return { respuesta: `¡Hola! 👋 Hoy tienes ${pend} ${pend === 1 ? 'tarea pendiente' : 'tareas pendientes'}. ¿Qué quieres organizar o registrar?`, acciones: [] };
+      }
       return {
-        respuesta: `Entendido. Ahora mismo tienes $${fin.totalCombinedUsd.toFixed(2)} disponibles (≈ ${fin.totalCombinedVes.toFixed(2)} Bs) y ${appState.tasks.filter(t => t.date === today && !t.done).length} tareas pendientes hoy.\n\nPuedes darme órdenes directas como:\n• "Gasté 5$ en pasaje y recibí 20$"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"\n• "El dólar está a 48 Bs"`,
+        respuesta: `No estoy seguro de haber entendido eso, así que no hice ningún cambio.${appState.customApiKey ? '' : ' Para que converse contigo de verdad, pega tu clave de Gemini en Ajustes ⚙️.'} Prueba con frases como:\n• "Tengo examen de química el viernes de la otra semana"\n• "Gasté 5$ en pasaje"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"`,
         acciones: []
       };
     }
@@ -2559,110 +3335,91 @@
     // -------------------------------------------------------------------------
     // GEMINI 2.5 FLASH CLOUD CALL (WITH INSTANT FALLBACK TO LOCAL ENGINE)
     // -------------------------------------------------------------------------
-    async function callGeminiCloud(userMessage) {
-      const apiKey = (appState.customApiKey || '').trim();
-      if (!apiKey) {
-        // No custom key provided: use instant local engine without network error delay
-        return null;
-      }
-
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
-      const fin = computeFinanceMetrics();
-
-      const snapshot = {
-        fecha_hoy: getIsoDateOffset(0),
-        fecha_manana: getIsoDateOffset(1),
-        hora_actual: new Date().toTimeString().slice(0, 5),
-        tasa_dolar_bs: appState.exchangeRate,
-        balance_disponible_usd: Number(fin.totalCombinedUsd.toFixed(2)),
-        balance_disponible_bs: Number(fin.totalCombinedVes.toFixed(2)),
-        gastos_mes_usd: Number(fin.expenseUsdEquiv.toFixed(2)),
-        presupuesto_mensual_usd: appState.monthlyBudget,
-        tareas: appState.tasks,
-        deudas: appState.debts,
-        metas_ahorro: appState.goals,
-        rutina_diaria: appState.habits
-      };
-
-      const systemInstruction = `Eres "Mi Asistente", un asistente personal inteligente integrado en una app móvil en español.
-Analiza el estado real del usuario y ejecuta todas las acciones solicitadas en formato JSON estricto.
-- Si el usuario pide crear tareas, registrar gastos/ingresos, anotar deudas, abonar a metas, reorganizar pendientes o actualizar la tasa: "requiereConfirmacion": false.
-- Si el usuario pide BORRAR una tarea o SALDAR una deuda: "requiereConfirmacion": true.`;
-
-      const prompt = `ESTADO ACTUAL:\n${JSON.stringify(snapshot)}\n\nMENSAJE:\n${userMessage}`;
-
-      const payload = {
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        systemInstruction: { parts: [{ text: systemInstruction }] },
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              respuesta: { type: "STRING" },
-              acciones: {
-                type: "ARRAY",
-                items: {
-                  type: "OBJECT",
-                  properties: {
-                    tipo: {
-                      type: "STRING",
-                      enum: [
-                        "crear_tarea",
-                        "reorganizar_tareas",
-                        "completar_tarea",
-                        "borrar_tarea",
-                        "registrar_movimiento",
-                        "registrar_deuda",
-                        "saldar_deuda",
-                        "abonar_meta",
-                        "completar_habito",
-                        "actualizar_tasa"
-                      ]
-                    },
-                    requiereConfirmacion: { type: "BOOLEAN" },
-                    id: { type: "NUMBER" },
-                    titulo: { type: "STRING" },
-                    fecha: { type: "STRING" },
-                    fechaDestino: { type: "STRING" },
-                    horaInicio: { type: "STRING" },
-                    horaFin: { type: "STRING" },
-                    categoria: { type: "STRING" },
-                    subtipo: { type: "STRING" },
-                    monto: { type: "NUMBER" },
-                    moneda: { type: "STRING" },
-                    nota: { type: "STRING" },
-                    persona: { type: "STRING" },
-                    metaNombre: { type: "STRING" },
-                    habitoNombre: { type: "STRING" },
-                    tasa: { type: "NUMBER" }
-                  },
-                  required: ["tipo", "requiereConfirmacion"]
-                }
-              }
-            },
-            required: ["respuesta", "acciones"]
+    async function geminiRequest(parts) {
+      const key = appState.customApiKey;
+      let lastErr = 'sin respuesta', busy = false, quota = false;
+      const t0 = Date.now();
+      for (const m of ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-flash-latest']) {
+        if (Date.now() - t0 > 45000) break;
+        for (let attempt = 0; attempt < (m === 'gemini-2.5-flash' ? 2 : 1); attempt++) {
+          let resp;
+          const ctrl = new AbortController();
+          const to = setTimeout(() => ctrl.abort(), 15000);
+          try {
+            resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent?key=' + encodeURIComponent(key), {
+              method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
+              body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: 'application/json' } })
+            });
+          } catch (e) { clearTimeout(to); if (e && e.name === 'AbortError') { lastErr = 'Gemini tardó demasiado en responder'; break; } throw new Error('no hay conexión con Gemini, revisa tu internet'); }
+          clearTimeout(to);
+          const data = await resp.json().catch(() => ({}));
+          if (resp.ok) {
+            const c = data.candidates && data.candidates[0] && data.candidates[0].content;
+            const t = c && c.parts && c.parts[0] && c.parts[0].text;
+            if (t) return t;
+            lastErr = 'Gemini respondió vacío';
+            break;
           }
+          lastErr = (data.error && data.error.message) || ('error ' + resp.status);
+          if ([400, 401, 403].includes(resp.status)) throw new Error('la clave no fue aceptada (' + lastErr + ')');
+          if (resp.status === 429) { quota = true; break; }
+          if (resp.status === 500 || resp.status === 503) {
+            busy = true;
+            if (attempt === 0) { await new Promise(r => setTimeout(r, 1500)); continue; }
+          }
+          break;
         }
-      };
+      }
+      if (busy) throw new Error('Gemini está saturado en este momento (es de Google, no de tu app). Intenta de nuevo en unos minutos');
+      if (quota) throw new Error('límite gratuito alcanzado, espera un momento');
+      throw new Error(lastErr);
+    }
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+    async function callGeminiCloud(userMessage) {
+      window._aiErr = '';
+      let sample = null;
+      try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
+      if (!sample && !appState.customApiKey) return null;
+      const fin = computeFinanceMetrics();
+      const snapshot = {
+        perfil: { nombre: appState.profile && appState.profile.name, edad: appState.profile && appState.profile.age, ocupacion: appState.profile && appState.profile.occupation }, fecha_hoy: getIsoDateOffset(0), fecha_manana: getIsoDateOffset(1),
+        hora_actual: new Date().toTimeString().slice(0, 5), tasa_dolar_bs: appState.exchangeRate,
+        balance_usd: Number(fin.totalCombinedUsd.toFixed(2)), gastos_mes_usd: Number(fin.expenseUsdEquiv.toFixed(2)),
+        presupuesto_mensual_usd: appState.monthlyBudget, tareas: appState.tasks, deudas: appState.debts,
+        metas_ahorro: appState.goals, estudio_registrado: (appState.studyLog || []).slice(-60), dias_no_disponibles: { semanales: appState.busyWeekdays, fechas: appState.busyDates }, rutina_diaria: appState.habits,
+        conversacion_reciente: appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text }))
+      };
+      const prompt = `Eres "Mi Asistente", asistente personal dentro de una app móvil . Responde en español, corto y natural (saludos y charla normal incluidos). No inventes datos: usa solo el ESTADO.
+Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
+Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); plan_estudio(titulo, fecha YYYY-MM-DD) para exámenes, exposiciones o entregas: la app guarda el evento y crea sola los días de estudio, así que NO los listes en "respuesta"; bloquear_dia(fecha YYYY-MM-DD) cuando diga que un día no puede estudiar; reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) y saldar_deuda(persona) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); abonar_meta(metaNombre, monto); completar_habito(habitoNombre); actualizar_tasa(tasa).
+Las demás acciones llevan requiereConfirmacion false. Con varios exámenes, genera una plan_estudio por cada uno; la app reparte los días sin choques y respetando los días no disponibles. Si menciona un examen, exposición, discusión o trabajo, o pregunta cómo estudiar algo, da en "respuesta" 3 o 4 estrategias concretas adaptadas a la materia, el tema y el tipo de evaluación (recuperación activa, práctica espaciada, explicar en voz alta, ejercicios, ensayo cronometrado). Si el usuario solo pregunta o conversa, acciones = []. Si falta un dato esencial (por ejemplo la fecha), pregúntalo y acciones = [].
+
+ESTADO:
+${JSON.stringify(snapshot)}
+
+MENSAJE DEL USUARIO:
+${userMessage}`;
       try {
-        const res = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        if (!res.ok) return null;
-        const data = await res.json();
-        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!rawText) return null;
-        return JSON.parse(rawText);
+        let t = '';
+        if (sample) {
+          const r = await sample(prompt, { cache: false, modelTier: 'quick' });
+          t = r.text || '';
+        } else {
+          const img = window._pendingImage;
+          window._pendingImage = null;
+          const parts = [{ text: prompt }];
+          if (img) parts.push({ inline_data: { mime_type: 'image/jpeg', data: img } });
+          t = await geminiRequest(parts);
+        }
+        let o;
+        try { o = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); }
+        catch (pe) { if (t.trim()) return { respuesta: t.trim(), acciones: [] }; throw pe; }
+        const r = Array.isArray(o) ? o[0] : o;
+        if (!r || typeof r.respuesta !== 'string') throw new Error('respuesta no válida');
+        if (!Array.isArray(r.acciones)) r.acciones = [];
+        return r;
       } catch (e) {
-        clearTimeout(timeoutId);
+        window._aiErr = (e && e.message && !/JSON/.test(e.message)) ? e.message : 'respuesta no válida';
         return null;
       }
     }
@@ -2687,6 +3444,7 @@ Analiza el estado real del usuario y ejecuta todas las acciones solicitadas en f
       if (!aiResult) {
         await new Promise(r => setTimeout(r, 220)); // Natural micro-feedback
         aiResult = smartLocalAiEngine(text);
+        if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
       }
 
       appState.chat = appState.chat.filter(m => !m.isTemp);
@@ -2711,6 +3469,7 @@ Analiza el estado real del usuario y ejecuta todas las acciones solicitadas en f
 
       orb.classList.remove('ai-orb-thinking');
       btn.disabled = false;
+      if (appState.voiceReplies && !window._voiceLoop) speak(aiResult.respuesta || '');
       saveState();
     }
 
@@ -2721,7 +3480,9 @@ Analiza el estado real del usuario y ejecuta todas las acciones solicitadas en f
       const now = new Date();
       const hour = now.getHours();
       const greet = hour < 12 ? 'Buenos días 👋' : hour < 19 ? 'Buenas tardes 👋' : 'Buenas noches 👋';
-      document.getElementById('headerGreeting').textContent = greet;
+      const nm = appState.profile && appState.profile.name ? ', ' + appState.profile.name : '';
+      document.getElementById('headerGreeting').textContent = greet.replace(' 👋', nm + ' 👋');
+      renderOnboarding();
       document.getElementById('headerDate').textContent = now.toLocaleDateString('es-ES', {
         weekday: 'long', day: 'numeric', month: 'long'
       });
@@ -2732,6 +3493,12 @@ Analiza el estado real del usuario y ejecuta todas las acciones solicitadas en f
       renderFinances();
       renderRoutines();
       renderChat();
+      renderAlerts();
+      renderWord();
+      renderSubjects();
+      renderBusy();
+      populateTimerSubjects();
+      if (activeTab === 'ajustes') renderSettings();
     }
 
     applyTheme();
