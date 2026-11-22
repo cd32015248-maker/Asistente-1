@@ -317,16 +317,14 @@
       </section>
 
       <!-- ========================================================= -->
-      <!-- MODULE 3: ASISTENTE IA (GLOWING ORB & ACTION ENGINE)      -->
+      <!-- ========================================================= -->
+      <!-- MODULE 3: ASISTENTE IA (CHAT DE TEXTO + MODO DE VOZ)      -->
       <!-- ========================================================= -->
       <section id="view-ia" class="tab-view hidden flex flex-col fixed top-0 bottom-[70px] left-0 right-0 max-w-md mx-auto z-20 bg-[#F6F8FC] dark:bg-[#0B1120]">
         <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-200/70 dark:border-slate-800/80 bg-white/80 dark:bg-[#111827]/90 backdrop-blur">
           <div id="aiOrbContainer" class="flex-shrink-0"><div class="ai-orb-wrapper"><div class="ai-orb-core w-10 h-10"></div></div></div>
-          <div class="flex-1 min-w-0">
-            <div class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">ALMA</div>
-            <div id="aiEngineBadge" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">● <span id="aiEngineLabel">IA local</span></div>
-          </div>
-          <button onclick="toggleAlmaVoice()" aria-label="Activar voz de ALMA" class="px-3 h-10 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 active:scale-95 transition flex-shrink-0">🎙️ ALMA</button>
+          <div class="flex-1 min-w-0"><div class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">ALMA</div><div id="aiEngineBadge" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">● <span id="aiEngineLabel">IA local</span></div></div>
+          <button onclick="enterAlmaVoiceMode()" aria-label="Hablar con ALMA por voz" class="px-3 h-10 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 active:scale-95 transition flex-shrink-0">🎙️ Hablar</button>
           <button onclick="toggleVoiceReplies()" aria-label="Voz" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🔊</button>
           <button onclick="switchTab('ajustes')" aria-label="Ajustes" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">⚙️</button>
         </div>
@@ -341,12 +339,18 @@
           <div class="flex items-center gap-2">
             <button onclick="pickPhoto()" aria-label="Foto" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">📷</button>
             <input id="photoInput" type="file" accept="image/*" class="hidden" onchange="handlePhoto(this)">
-            <input id="aiChatInput" type="text" placeholder="Escribe o habla…" onkeydown="if(event.key==='Enter') handleSendChat()" class="flex-1 min-w-0 bg-slate-100 dark:bg-[#0B1120] text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-full px-4 py-2.5 outline-none border border-transparent focus:border-indigo-500 transition" />
-            <button onclick="startVoice()" aria-label="Hablar" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🎤</button>
-            <button id="aiSendBtn" onclick="handleSendChat()" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-sm active:scale-95 transition flex-shrink-0">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-            </button>
+            <input id="aiChatInput" type="text" placeholder="Escribe aquí con ALMA…" onkeydown="if(event.key==='Enter') handleSendChat()" class="flex-1 min-w-0 bg-slate-100 dark:bg-[#0B1120] text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-full px-4 py-2.5 outline-none border border-transparent focus:border-indigo-500 transition" />
+            <button onclick="startVoice()" aria-label="Dictar un mensaje" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🎤</button>
+            <button id="aiSendBtn" onclick="handleSendChat()" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-sm active:scale-95 transition flex-shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
           </div>
+        </div>
+        <div id="almaVoiceRoom" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 via-[#F6F8FC] to-cyan-50 px-6 text-center dark:from-[#10182b] dark:via-[#0B1120] dark:to-[#0d1924]">
+          <div class="absolute left-4 right-4 top-4 flex items-center justify-between"><span class="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo-500 dark:text-indigo-300">ALMA · MODO DE VOZ</span><button onclick="closeAlmaVoiceRoom()" class="rounded-full bg-white/80 px-3 py-2 text-xs font-bold text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-200">Volver al chat</button></div>
+          <div class="mb-4 rounded-full bg-white/70 p-3 shadow-lg shadow-indigo-200/40 dark:bg-slate-900/50 dark:shadow-black/20"><div id="almaVoiceOrbContainer" class="ai-orb-wrapper"><div class="ai-orb-core h-32 w-32"></div></div></div>
+          <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">ALMA</h2><p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Hablemos por voz</p>
+          <div class="mt-7 min-h-[52px]"><div id="almaChatVoiceStatus" class="text-sm font-extrabold text-indigo-700 dark:text-indigo-300">Lista para escucharte</div><div id="almaChatVoiceHint" class="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">Toca el micrófono y conversemos.</div></div>
+          <button id="almaChatVoiceToggle" onclick="toggleAlmaVoice()" aria-label="Pausar o reanudar el micrófono" class="mt-5 inline-flex min-w-[190px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 px-6 py-4 text-sm font-extrabold text-white shadow-xl shadow-indigo-500/25 ring-4 ring-white/70 transition active:scale-95 dark:ring-slate-900/60"><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"></path></svg><span id="almaChatVoiceToggleLabel">Pausar micrófono</span></button>
+          <p class="mt-5 max-w-xs rounded-2xl border border-white/80 bg-white/70 px-3.5 py-2.5 text-left text-[10px] leading-relaxed text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">El chat escrito sigue guardado. Mientras el micrófono está activo puedes cambiar de sección y ALMA seguirá contigo.</p>
         </div>
       </section>
 
@@ -358,11 +362,11 @@
           <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full border-[22px] border-white/10"></div>
           <div class="relative flex items-start justify-between gap-3">
             <div><span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-100">CLARIDAD PARA TU DINERO</span><h2 class="mt-1 text-2xl font-extrabold tracking-tight">Finanzas</h2><p class="mt-1 text-xs text-emerald-100">Tus movimientos y metas, organizados.</p></div>
-            <button onclick="openTxModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-emerald-800 shadow-sm active:scale-95 transition">＋ Movimiento</button>
+            <div class="flex flex-shrink-0 flex-col gap-2"><button onclick="openCapitalModal()" class="rounded-2xl bg-white/15 px-3 py-2 text-[11px] font-extrabold text-white ring-1 ring-white/30 active:scale-95 transition">💰 Capital actual</button><button onclick="openTxModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-emerald-800 shadow-sm active:scale-95 transition">＋ Movimiento</button></div>
           </div>
           <div class="relative mt-4 rounded-3xl border border-white/15 bg-white/10 p-4">
             <div class="flex items-center justify-between gap-2"><span class="text-[11px] font-bold text-emerald-100">BALANCE COMBINADO</span><button onclick="openRateModal()" class="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold">Tasa <span id="finCardRate">45.00</span> Bs ✎</button></div>
-            <div id="finTotalUsd" class="mt-1 text-3xl font-extrabold tracking-tight">$0.00</div><div id="finTotalVes" class="mt-0.5 text-xs text-emerald-100">En Bolívares: 0.00 Bs</div>
+            <div id="finTotalUsd" class="mt-1 text-3xl font-extrabold tracking-tight">$0.00</div><div id="finTotalVes" class="mt-0.5 text-[10px] leading-relaxed text-emerald-100">Dólares: $0.00 · Bolívares: 0.00 Bs</div><div id="capitalStatusLine" class="mt-1 text-[10px] leading-relaxed text-emerald-100/90">Define el capital disponible para calcular tu saldo actual.</div>
             <div class="mt-4 grid grid-cols-2 gap-2 border-t border-white/15 pt-3"><div class="rounded-2xl bg-white/10 p-2.5"><div class="text-[10px] text-emerald-100">Ingresos</div><div id="finTotalIncome" class="mt-0.5 text-sm font-extrabold text-white">+$0.00</div></div><div class="rounded-2xl bg-white/10 p-2.5"><div class="text-[10px] text-emerald-100">Gastos</div><div id="finTotalExpense" class="mt-0.5 text-sm font-extrabold text-white">-$0.00</div></div></div>
           </div>
         </div>
@@ -601,6 +605,17 @@
       </div>
     </div>
 
+    <!-- Modal: Capital actual -->
+    <div id="modalCapital" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between"><h3 class="text-base font-extrabold text-slate-900 dark:text-white">¿Cuánto dinero tienes ahora?</h3><button onclick="closeModal('modalCapital')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button></div>
+        <p class="text-xs leading-relaxed text-slate-500 dark:text-slate-400">Este será tu capital disponible desde hoy. Después, cada gasto lo restará y cada ingreso lo sumará. Si usas ambas monedas, completa las dos; si no, deja una en 0.</p>
+        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300">Dólares disponibles ($)<input id="capitalUsdInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej: 120.00" class="mt-1 w-full rounded-2xl bg-slate-100 px-4 py-3 text-base font-bold text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label>
+        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300">Bolívares disponibles (Bs)<input id="capitalVesInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej: 1500.00" class="mt-1 w-full rounded-2xl bg-slate-100 px-4 py-3 text-base font-bold text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label>
+        <button onclick="saveCurrentCapital()" class="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-extrabold text-white shadow-sm">Guardar mi capital actual</button>
+      </div>
+    </div>
+
     <!-- Modal: Budget -->
     <div id="modalBudget" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
       <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
@@ -790,6 +805,7 @@
         monthlyBudget: 250.00,
         tasks: [],
         transactions: [],
+        capitalBase: null,
         goals: [],
         debts: [],
         habits: [],
@@ -896,7 +912,7 @@
         if (box) box.scrollTop = box.scrollHeight;
       }
       renderAll();
-      if (voiceLoopOn) paintAlmaVoiceDock();
+      paintAlmaVoiceDock();
     }
 
     function openFinanceSubtab(sub) {
@@ -1027,6 +1043,25 @@
       document.getElementById('txNoteInput').value = '';
       openModal('modalTx');
     }
+    function openCapitalModal() {
+      const fin = computeFinanceMetrics();
+      document.getElementById('capitalUsdInput').value = Math.max(0, fin.currentUsdWallet).toFixed(2);
+      document.getElementById('capitalVesInput').value = Math.max(0, fin.currentVesWallet).toFixed(2);
+      openModal('modalCapital');
+    }
+    function saveCurrentCapital() {
+      const usdRaw = document.getElementById('capitalUsdInput').value.trim();
+      const vesRaw = document.getElementById('capitalVesInput').value.trim();
+      const usd = usdRaw === '' ? 0 : Number(usdRaw);
+      const ves = vesRaw === '' ? 0 : Number(vesRaw);
+      if (!Number.isFinite(usd) || !Number.isFinite(ves) || usd < 0 || ves < 0 || (usdRaw === '' && vesRaw === '')) {
+        showToast('Ingresa un capital válido en dólares o bolívares'); return;
+      }
+      appState.capitalBase = { usd, ves, setAt: Date.now() };
+      closeModal('modalCapital');
+      saveState();
+      showToast('Capital actual guardado; ahora se ajustará con tus movimientos');
+    }
     function saveTxFromModal() {
       const type = document.getElementById('txTypeInput').value;
       const currency = document.getElementById('txCurrencyInput').value;
@@ -1039,6 +1074,7 @@
       }
       appState.transactions.unshift({
         id: Date.now() + Math.floor(Math.random() * 1000),
+        createdAt: Date.now(),
         type, currency, amount, category, note, date: getIsoDateOffset(0)
       });
       closeModal('modalTx');
@@ -1263,7 +1299,21 @@
         }
       });
 
-      const totalCombinedUsd = netUsdWallet + (netVesWallet / rate);
+      let currentUsdWallet = netUsdWallet;
+      let currentVesWallet = netVesWallet;
+      const base = appState.capitalBase;
+      if (base && Number.isFinite(Number(base.setAt))) {
+        currentUsdWallet = Number(base.usd) || 0;
+        currentVesWallet = Number(base.ves) || 0;
+        (appState.transactions || []).forEach(tx => {
+          if (!(Number(tx.createdAt) >= Number(base.setAt))) return;
+          const amount = Number(tx.amount) || 0;
+          const direction = tx.type === 'ingreso' ? 1 : -1;
+          if (tx.currency === 'VES') currentVesWallet += direction * amount;
+          else currentUsdWallet += direction * amount;
+        });
+      }
+      const totalCombinedUsd = currentUsdWallet + (currentVesWallet / rate);
       const totalCombinedVes = totalCombinedUsd * rate;
 
       let owedToMeUsd = 0;
@@ -1278,6 +1328,9 @@
         rate,
         netUsdWallet,
         netVesWallet,
+        currentUsdWallet,
+        currentVesWallet,
+        capitalConfigured: !!(base && Number.isFinite(Number(base.setAt))),
         totalCombinedUsd,
         totalCombinedVes,
         incomeUsdEquiv,
@@ -1462,7 +1515,7 @@
       });
     }
     let voiceLoopOn = false, voiceRunning = false;
-    let voiceContextSection = '', voiceUiStatus = 'Pausada', voiceUiDetail = '';
+    let voiceContextSection = '', voiceUiStatus = 'Pausada', voiceUiDetail = '', voiceRoomOpen = false;
     function activeVoiceSection() {
       return ['inicio', 'agenda', 'finanzas', 'rutinas', 'materias'].includes(activeTab) ? activeTab : '';
     }
@@ -1476,9 +1529,23 @@
       const button = document.getElementById('almaVoiceToggle');
       if (!panel || !line || !detail || !button) return;
       const section = activeVoiceSection();
-      panel.classList.toggle('hidden', !voiceLoopOn);
+      const dock = document.getElementById('almaVoiceDock');
+      if (dock) dock.classList.toggle('hidden', activeTab === 'ia' && voiceRoomOpen);
+      panel.classList.toggle('hidden', !voiceLoopOn || (activeTab === 'ia' && voiceRoomOpen));
       line.textContent = 'ALMA · ' + voiceUiStatus + (section ? ' · ' + sectionLabel(section) : '');
       detail.textContent = voiceUiDetail;
+      const room = document.getElementById('almaVoiceRoom');
+      if (room) room.classList.toggle('hidden', !(activeTab === 'ia' && voiceRoomOpen));
+      const roomStatus = document.getElementById('almaChatVoiceStatus');
+      const roomHint = document.getElementById('almaChatVoiceHint');
+      const roomButton = document.getElementById('almaChatVoiceToggle');
+      const roomLabel = document.getElementById('almaChatVoiceToggleLabel');
+      const roomOrb = document.getElementById('almaVoiceOrbContainer');
+      if (roomStatus) roomStatus.textContent = voiceLoopOn ? voiceUiStatus : 'Micrófono en pausa';
+      if (roomHint) roomHint.textContent = voiceLoopOn ? (voiceUiDetail || 'Estoy aquí; puedes hablar.') : 'Reanuda el micrófono cuando quieras seguir hablando.';
+      if (roomButton) roomButton.setAttribute('aria-label', voiceLoopOn ? 'Pausar el micrófono' : 'Reanudar el micrófono');
+      if (roomLabel) roomLabel.textContent = voiceLoopOn ? 'Pausar micrófono' : 'Reanudar escucha';
+      if (roomOrb) roomOrb.classList.toggle('ai-orb-thinking', voiceLoopOn && voiceUiStatus !== 'Escuchando…');
       button.setAttribute('aria-label', voiceLoopOn ? 'Pausar a ALMA' : 'Activar a ALMA');
       button.setAttribute('title', voiceLoopOn ? 'Pausar escucha de ALMA' : 'Hablar con ALMA');
       button.classList.toggle('ring-emerald-300', voiceLoopOn);
@@ -1487,6 +1554,16 @@
     function setVoiceStatus(status, detail) {
       voiceUiStatus = status;
       if (detail !== undefined) voiceUiDetail = detail;
+      paintAlmaVoiceDock();
+    }
+    function enterAlmaVoiceMode() {
+      voiceRoomOpen = true;
+      paintAlmaVoiceDock();
+      if (!voiceLoopOn) toggleAlmaVoice();
+    }
+    function closeAlmaVoiceRoom() {
+      voiceRoomOpen = false;
+      if (voiceLoopOn) toggleAlmaVoice();
       paintAlmaVoiceDock();
     }
     function toggleAlmaVoice() {
@@ -1530,14 +1607,14 @@
         }
         blankTurns = 0;
         voiceContextSection = activeVoiceSection();
-        setVoiceStatus('Pensando…', '“' + heard + '”');
+        setVoiceStatus('Pensando…', 'Estoy preparando una respuesta para ti.');
         const input = document.getElementById('aiChatInput');
         if (input) input.value = heard;
         await handleSendChat(voiceContextSection);
         if (!voiceLoopOn) break;
         const last = appState.chat[appState.chat.length - 1];
         const reply = last && last.role === 'ai' ? last.text : '';
-        setVoiceStatus('Respondiendo…', reply);
+        setVoiceStatus('Respondiendo…', 'Escucha la respuesta de ALMA.');
         await speakAsync(reply);
       }
       voiceRunning = false;
@@ -2425,8 +2502,12 @@
       if (empty) empty.classList.toggle('hidden', !!((appState.transactions || []).length || (appState.goals || []).length || (appState.debts || []).length));
 
       document.getElementById('finCardRate').textContent = fin.rate.toFixed(2);
-      document.getElementById('finTotalUsd').textContent = `$${fin.totalCombinedUsd.toFixed(2)}`;
-      document.getElementById('finTotalVes').textContent = `Equiv. total: ${fin.totalCombinedVes.toFixed(2)} Bs · Caja Bs: ${fin.netVesWallet.toFixed(2)} Bs`;
+      document.getElementById('finTotalUsd').textContent = fin.capitalConfigured ? `$${fin.totalCombinedUsd.toFixed(2)}` : '—';
+      document.getElementById('finTotalVes').textContent = fin.capitalConfigured
+        ? `Dólares: $${fin.currentUsdWallet.toFixed(2)} · Bolívares: ${fin.currentVesWallet.toFixed(2)} Bs · Total: ${fin.totalCombinedVes.toFixed(2)} Bs`
+        : 'Registra tu capital actual para ver cuánto tienes disponible.';
+      const capitalStatus = document.getElementById('capitalStatusLine');
+      if (capitalStatus) capitalStatus.textContent = fin.capitalConfigured ? 'Tu capital registrado se actualiza con los ingresos y gastos nuevos.' : 'Configura tu capital disponible para que ALMA sepa cuánto te queda.';
       document.getElementById('finTotalIncome').textContent = `+$${fin.incomeUsdEquiv.toFixed(2)}`;
       document.getElementById('finTotalExpense').textContent = `-$${fin.expenseUsdEquiv.toFixed(2)}`;
 
@@ -3026,6 +3107,7 @@
         if (monto > 0) {
           appState.transactions.unshift({
             id: Date.now() + Math.floor(Math.random() * 10000),
+            createdAt: Date.now(),
             type: raw.subtipo === 'ingreso' ? 'ingreso' : 'gasto',
             currency: raw.moneda === 'VES' ? 'VES' : 'USD',
             amount: monto,
@@ -3288,6 +3370,7 @@
       }
 
       if (/puedo gastar|me alcanza/.test(lower)) {
+        if (!appState.capitalBase) return { respuesta: 'Para calcular cuánto te queda de verdad, primero registra tu capital actual en Finanzas → Capital actual. Después iré sumando tus ingresos y restando tus gastos nuevos.', acciones: [] };
         const m = lower.match(/(\d+(?:[.,]\d+)?)/);
         const askUsd = m ? parseFloat(m[1].replace(',', '.')) : 0;
         const canAfford = fin.totalCombinedUsd >= askUsd;
@@ -3300,7 +3383,8 @@
         };
       }
 
-      if (/cu[aá]nto dinero|mi dinero|mi balance|mi saldo|presupuesto|c[oó]mo van mis finanzas/.test(lower)) {
+      if (/cu[aá]nto dinero|cu[aá]nto tengo|mi dinero|mi balance|mi saldo|mi capital|capital actual|cu[aá]nto me queda|presupuesto|c[oó]mo van mis finanzas/.test(lower)) {
+        if (!appState.capitalBase && /cu[aá]nto dinero|cu[aá]nto tengo|mi dinero|mi balance|mi saldo|mi capital|capital actual|cu[aá]nto me queda/.test(lower)) return { respuesta: 'Aún no tengo tu capital disponible de partida. Ve a Finanzas → Capital actual y registra cuánto tienes en dólares o bolívares; luego podré decirte cuánto te queda tras cada movimiento.', acciones: [] };
         const budgetLeft = (appState.monthlyBudget || 250) - fin.expenseUsdEquiv;
         return {
           respuesta: `Resumen de tus finanzas actuales:\n• Balance disponible: $${fin.totalCombinedUsd.toFixed(2)} (≈ ${fin.totalCombinedVes.toFixed(2)} Bs a tasa ${fin.rate.toFixed(2)})\n• Ingresos del mes: +$${fin.incomeUsdEquiv.toFixed(2)}\n• Gastos del mes: -$${fin.expenseUsdEquiv.toFixed(2)}\n• Presupuesto restante: $${budgetLeft.toFixed(2)} de $${appState.monthlyBudget.toFixed(2)}`,
@@ -3536,6 +3620,7 @@
         const fin = computeFinanceMetrics();
         snapshot.finanzas = {
           tasa_dolar_bs: appState.exchangeRate,
+          capital_actual: { definido: fin.capitalConfigured, dolares: Number(fin.currentUsdWallet.toFixed(2)), bolivares: Number(fin.currentVesWallet.toFixed(2)), total_equivalente_usd: Number(fin.totalCombinedUsd.toFixed(2)), total_equivalente_bs: Number(fin.totalCombinedVes.toFixed(2)) },
           balance_usd: Number(fin.totalCombinedUsd.toFixed(2)),
           balance_bs: Number(fin.totalCombinedVes.toFixed(2)),
           ingresos_mes_usd: Number(fin.incomeUsdEquiv.toFixed(2)),
@@ -3568,7 +3653,7 @@
       if (!sample && !appState.customApiKey) return null;
       const snapshot = buildAiContextSnapshot(userMessage, sectionHint);
       snapshot.conversacion_reciente = appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text }));
-      const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Responde en español, de forma clara y breve. El campo ESTADO.seccion_activa es la pantalla actual de la persona, no la pantalla donde se encuentra la conversación técnica. Si pregunta qué apartado está usando, responde con ese campo. Si pregunta algo general, prioriza la sección actual y sus datos. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni digas que hiciste cambios si no hay una acción válida.
+      const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Responde en español, de forma clara y breve. El campo ESTADO.seccion_activa es la pantalla actual de la persona, no la pantalla donde se encuentra la conversación técnica. Si pregunta qué apartado está usando, responde con ese campo. Si pregunta algo general, prioriza la sección actual y sus datos. En finanzas, usa ESTADO.finanzas.capital_actual como saldo en caja; si definido es false, no afirmes que conoces cuánto dinero tiene: dile que configure su capital actual en Finanzas. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni digas que hiciste cambios si no hay una acción válida.
 Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
 Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); plan_estudio(titulo, fecha YYYY-MM-DD); bloquear_dia(fecha YYYY-MM-DD); reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); saldar_deuda(persona) con requiereConfirmacion true; abonar_meta(metaNombre, monto); completar_paso_rutina(rutinaNombre, pasoNombre); crear_rutina(nombre, dias como índices 0=domingo a 6=sábado, hora HH:MM, pasos como [{titulo, minutos opcional}]) con requiereConfirmacion true; actualizar_tasa(tasa).
 Las acciones nuevas de tarea, finanzas y pasos completados solo deben proponerse cuando estén claros los datos esenciales. Nunca inventes montos, fechas, pasos ni materias; pregunta si falta algo. Crear una rutina requiere confirmación y al menos nombre, un día, hora y un paso. No borres ni saldes información sin confirmación. Si menciona exámenes o pregunta cómo estudiar, adapta consejos a las materias y notas incluidas. Si la persona solo conversa o pregunta, acciones = [].
