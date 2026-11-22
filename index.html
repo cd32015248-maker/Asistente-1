@@ -734,7 +734,7 @@
           <button onclick="closeModal('modalAiSettings')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
         </div>
         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-          La app ya incluye un motor inteligente integrado que funciona al instante sin internet ni claves. Si descargas la app y quieres conectarla también a la nube de Google AI Studio, pega aquí tu clave gratuita (<code>AIza...</code>):
+          Sin clave, la app reconoce algunos comandos sencillos sin conexión; no es una IA conversacional completa. Para conversar, analizar fotos y entender instrucciones variadas, conecta una clave de Gemini de Google AI Studio. La clave se guarda solo en este dispositivo (<code>AIza...</code>); no la compartas:
         </p>
         <input id="aiApiKeyInput" type="password" placeholder="Pega tu API Key (AIza...) o déjalo vacío" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm font-mono text-slate-900 dark:text-white outline-none border border-transparent focus:border-indigo-500" />
         <div class="flex gap-2">
@@ -1513,7 +1513,13 @@
     // =========================================================================
     // ---- Modo app: notificaciones y voz ----
     const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-    function nativePlugin(name) { try { return NATIVE ? window.Capacitor.registerPlugin(name) : null; } catch (e) { return null; } }
+    function nativePlugin(name) {
+      if (!NATIVE) return null;
+      // Los plugins de Capacitor deben importarse y registrarse en el bundle JS;
+      // registerPlugin no forma parte de window.Capacitor en una página HTML plana.
+      if (window.__nativePlugins && window.__nativePlugins[name]) return window.__nativePlugins[name];
+      try { return window.Capacitor && window.Capacitor.Plugins ? window.Capacitor.Plugins[name] || null : null; } catch (e) { return null; }
+    }
     function wordForSlot(dayN, slot) {
       const n = dayN * 3 + slot, mode = appState.wordMode || 'ambos', step = mode === 'ambos' ? 2 : 1;
       if (mode === 'versiculos' || (mode === 'ambos' && n % 2 === 0)) { const v = WORD_VERSOS[Math.floor(n / step) % WORD_VERSOS.length]; return v.r + ' — ' + v.t; }
@@ -3504,5 +3510,7 @@ ${userMessage}`;
     applyTheme();
     renderAll();
   </script>
+  <!-- Se genera en el workflow Android; en navegador web este archivo puede no existir. -->
+  <script src="./plugins.js"></script>
 </body>
 </html>
