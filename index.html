@@ -1019,6 +1019,9 @@
         busyWeekdays: [],
         busyDates: [],
         voiceReplies: true,
+        ttsRate: 0.92,
+        ttsPitch: 1.0,
+        ttsVoiceURI: '',
         studyLog: [],
         rateUpdated: '',
         customApiKey: '',
@@ -1555,13 +1558,20 @@
     }
     window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
     async function speakAsync(text) {
-      const clean = String(text || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').replace(/[•*_#]+/g, ' ').replace(/\n+/g, '. ').slice(0, 700);
+      const clean = String(text || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').replace(/[•*_#]+/g, ' ').replace(/\n+/g, '. ').slice(0, 1200);
       if (!clean.trim()) return;
       const TTS = nativePlugin('TextToSpeech');
       try {
-        if (TTS) { await TTS.speak({ text: clean, lang: 'es-ES', rate: 1.0 }); return; }
+        if (TTS) {
+          const opts = { text: clean, lang: 'es-MX', rate: Number(appState.ttsRate) || 0.92, pitch: Number(appState.ttsPitch) || 1.0 };
+          const voices = window._ttsVoices || [];
+          const selected = voices.find(v => (v.voiceURI || v.name) === appState.ttsVoiceURI);
+          if (selected) { opts.voice = selected.index; opts.lang = selected.lang || opts.lang; }
+          await TTS.speak(opts);
+          return;
+        }
         if (window.speechSynthesis) {
-          await new Promise(res => { const u = new SpeechSynthesisUtterance(clean); u.lang = 'es-ES'; u.onend = res; u.onerror = res; speechSynthesis.cancel(); speechSynthesis.speak(u); });
+          await new Promise(res => { const u = new SpeechSynthesisUtterance(clean); u.lang = 'es-MX'; u.rate = Number(appState.ttsRate) || 0.92; u.pitch = Number(appState.ttsPitch) || 1.0; u.onend = res; u.onerror = res; speechSynthesis.cancel(); speechSynthesis.speak(u); });
         }
       } catch (e) {}
     }
@@ -1666,6 +1676,57 @@
       saveState();
       showToast(appState.voiceReplies ? 'Te responderé en voz alta' : 'Respuestas por voz apagadas');
     }
+    let ttsVoiceLoadId = 0;
+    async function loadTtsVoices() {
+      const select = document.getElementById('ttsVoiceSelect');
+      if (!select) return;
+      const loadId = ++ttsVoiceLoadId;
+      select.innerHTML = '<option value="">Buscando voces en español…</option>';
+      const TTS = nativePlugin('TextToSpeech');
+      try {
+        let all = [];
+        if (TTS && TTS.getSupportedVoices) {
+          const result = await TTS.getSupportedVoices();
+          all = result && Array.isArray(result.voices) ? result.voices : [];
+        } else if (window.speechSynthesis) {
+          all = window.speechSynthesis.getVoices().map((v, index) => ({ ...v, index }));
+        }
+        if (loadId !== ttsVoiceLoadId || !document.getElementById('ttsVoiceSelect')) return;
+        window._ttsVoices = all.map((v, index) => ({ ...v, index: Number.isInteger(v.index) ? v.index : index }))
+          .filter(v => /^es([_-]|$)/i.test(v.lang || ''));
+        if (!window._ttsVoices.length) {
+          select.innerHTML = '<option value="">Voz predeterminada del teléfono</option>';
+          select.disabled = true;
+          const note = document.getElementById('ttsVoiceHelp');
+          if (note) note.textContent = 'No encontré voces españolas instaladas. Instala una voz en español desde los ajustes de Texto a voz de Android.';
+          return;
+        }
+        select.disabled = false;
+        const esc = s => escapeHtml(String(s || ''));
+        select.innerHTML = '<option value="">Automática (voz predeterminada)</option>' + window._ttsVoices.map(v => {
+          const key = v.voiceURI || v.name;
+          const label = `${v.name || 'Voz'} · ${v.lang || 'es'}${v.localService === false ? ' · en línea' : ' · instalada'}${v.default ? ' · recomendada' : ''}`;
+          return `<option value="${v.index}" ${key === appState.ttsVoiceURI ? 'selected' : ''}>${esc(label)}</option>`;
+        }).join('');
+        if (!window._ttsVoices.some(v => (v.voiceURI || v.name) === appState.ttsVoiceURI)) select.value = '';
+        const note = document.getElementById('ttsVoiceHelp');
+        if (note) note.textContent = 'Las voces “en línea” pueden sonar más naturales y requieren Internet; las instaladas funcionan sin conexión.';
+      } catch (e) {
+        select.innerHTML = '<option value="">Voz predeterminada del teléfono</option>';
+        select.disabled = true;
+        const note = document.getElementById('ttsVoiceHelp');
+        if (note) note.textContent = 'No pude consultar las voces. La voz predeterminada del teléfono seguirá funcionando.';
+      }
+    }
+    function setTtsVoice(index) {
+      const voice = (window._ttsVoices || []).find(v => String(v.index) === String(index));
+      appState.ttsVoiceURI = voice ? (voice.voiceURI || voice.name || '') : '';
+      saveState();
+      showToast(voice ? `Voz elegida: ${voice.name || voice.lang}` : 'Usando voz predeterminada');
+    }
+    function setTtsRate(v) { appState.ttsRate = Math.max(0.75, Math.min(1.15, Number(v) || 0.92)); saveState(); }
+    function setTtsPitch(v) { appState.ttsPitch = Math.max(0.8, Math.min(1.2, Number(v) || 1)); saveState(); }
+    function testTtsVoice() { speakAsync('Hola, soy tu asistente. Esta es la voz que usaré para hablar contigo.'); }
     async function startVoice() {
       const SR = nativePlugin('SpeechRecognition');
       const inp = document.getElementById('aiChatInput');
@@ -1735,6 +1796,12 @@
           <input id="setApiKey" type="password" value="${escapeHtml(appState.customApiKey || '')}" placeholder="Clave de Gemini (AIza...)" class="w-full ${inp} font-mono" />
           <div class="flex flex-wrap gap-2">${pill('Guardar clave', 'saveApiKeySettings()', true)}${pill('Probar conexión', 'testGemini()', false)}${pill('🩺 Diagnóstico', 'runDiagnostics()', false)}${pill('Limpiar chat', 'clearChatHistory()', false)}</div>
           ${row('Respuestas en voz alta', pill(appState.voiceReplies ? 'Activadas' : 'Apagadas', 'toggleVoiceReplies()', !!appState.voiceReplies))}`) +
+        card('🗣️ Voz del asistente', `
+          <div class="space-y-1"><label for="ttsVoiceSelect" class="text-xs font-semibold text-slate-600 dark:text-slate-300">Voz en español</label><select id="ttsVoiceSelect" onchange="setTtsVoice(this.value)" class="w-full ${inp}"><option value="">Cargando voces…</option></select><p id="ttsVoiceHelp" class="text-[10px] leading-relaxed text-slate-400">Puedes elegir una voz más natural si el motor de voz de Android la tiene disponible.</p></div>
+          <div><label class="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-300"><span>Velocidad</span><span>${Number(appState.ttsRate || 0.92).toFixed(2)}×</span></label><input type="range" min="0.75" max="1.15" step="0.05" value="${Number(appState.ttsRate || 0.92)}" onchange="setTtsRate(this.value)" class="w-full accent-indigo-600" /><p class="text-[10px] text-slate-400">Un poco más lenta suele sonar más conversacional.</p></div>
+          <div><label class="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-300"><span>Tono</span><span>${Number(appState.ttsPitch || 1).toFixed(2)}×</span></label><input type="range" min="0.8" max="1.2" step="0.05" value="${Number(appState.ttsPitch || 1)}" onchange="setTtsPitch(this.value)" class="w-full accent-indigo-600" /></div>
+          <button onclick="testTtsVoice()" class="px-3 py-2 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold">▶ Escuchar prueba</button>
+          <p class="text-[10px] leading-relaxed text-slate-400">La naturalidad depende de las voces instaladas en Android. Para más opciones, revisa Ajustes del teléfono → Texto a voz e instala voces españolas de alta calidad.</p>` ) +
         card('✨ Palabra del día', `
           <div class="flex gap-1.5">${pill('Ambos', "setWordMode('ambos')", mode === 'ambos')}${pill('Frases', "setWordMode('frases')", mode === 'frases')}${pill('Versículos', "setWordMode('versiculos')", mode === 'versiculos')}</div>
           ${['Mañana', 'Tarde', 'Noche'].map((n, i) => row(n, `<input type="time" value="${wh[i]}" onchange="setWordHour(${i}, this.value)" class="${inp}" />`)).join('')}
@@ -1745,6 +1812,7 @@
           ${row('Tasa: ' + Number(appState.exchangeRate).toFixed(2) + ' Bs', pill('Traer del BCV', 'fetchBcvRate(true)', false))}
           ${row('Presupuesto mensual: $' + appState.monthlyBudget, pill('Cambiar', 'openBudgetModal()', false))}
           ${row('Borrar todos los datos', pill('Borrar todo', 'resetAllData()', false))}`);
+      loadTtsVoices();
     }
 
     // ---- Tasa BCV, foto, modo examen, resumen semanal ----
