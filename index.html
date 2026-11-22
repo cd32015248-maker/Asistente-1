@@ -276,75 +276,50 @@
       <!-- ========================================================= -->
       <!-- MODULE 2: AGENDA INTELIGENTE                              -->
       <!-- ========================================================= -->
-      <section id="view-agenda" class="tab-view hidden space-y-4">
-
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Agenda Inteligente</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Organiza tus horarios y compromisos</p>
+      <section id="view-agenda" class="tab-view hidden space-y-4 pb-3">
+        <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-sky-600 via-blue-600 to-indigo-700 p-5 text-white shadow-lg shadow-blue-900/15">
+          <div class="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10"></div>
+          <div class="relative flex items-start justify-between gap-3">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-sky-100">PLANIFICA CON CALMA</span>
+              <h2 class="mt-1 text-2xl font-extrabold tracking-tight">Tu agenda</h2>
+              <p class="mt-1 max-w-[230px] text-xs leading-relaxed text-sky-100">Un vistazo claro a lo que tienes por hacer.</p>
+            </div>
+            <button onclick="openTaskModal()" class="rounded-2xl bg-white px-3.5 py-2.5 text-xs font-extrabold text-blue-700 shadow-sm active:scale-95 transition">＋ Tarea</button>
           </div>
-          <button onclick="selectToday()" class="px-3 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-bold text-indigo-600 dark:text-indigo-400 shadow-sm active:scale-95 transition">
-            Ir a Hoy
-          </button>
+          <div class="relative mt-4 flex items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-3.5 py-2.5">
+            <div><div class="text-[10px] font-bold text-sky-100">SELECCIÓN</div><div id="selectedDateHeading" class="mt-0.5 text-sm font-extrabold">Tareas (Hoy)</div></div>
+            <button onclick="selectToday()" class="rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold text-white">Ir a hoy</button>
+          </div>
         </div>
-
-        <!-- Segmented Control: Hoy | Semana | Mes -->
-        <div class="bg-slate-200/70 dark:bg-[#151C2C] p-1 rounded-2xl grid grid-cols-3 gap-1">
-          <button id="calModeToday" onclick="setCalendarMode('today')" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition">
-            Hoy
-          </button>
-          <button id="calModeWeek" onclick="setCalendarMode('week')" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition">
-            Semana
-          </button>
-          <button id="calModeMonth" onclick="setCalendarMode('month')" class="py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#232E47] text-slate-900 dark:text-white shadow-sm transition">
-            Mes
-          </button>
-        </div>
-
-        <!-- Interactive Calendar Card (hidden when 'today' mode is selected) -->
-        <div id="calendarCardWrapper" class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-          <div class="flex items-center justify-between mb-3">
-            <button onclick="changeCalendarPeriod(-1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 active:scale-90 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            </button>
-            <h3 id="calendarMonthLabel" class="text-sm font-extrabold text-slate-900 dark:text-white capitalize">Noviembre 2026</h3>
-            <button onclick="changeCalendarPeriod(1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 active:scale-90 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </button>
+        <div class="rounded-3xl border border-sky-100 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]">
+          <div class="mb-2 flex items-center justify-between px-1">
+            <span class="text-xs font-extrabold text-slate-700 dark:text-slate-200">Calendario</span>
+            <button onclick="reorganizePendingWithAI()" class="rounded-full bg-indigo-50 px-3 py-1.5 text-[10px] font-extrabold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">✦ Organizar con IA</button>
           </div>
-
-          <div class="grid grid-cols-7 text-center text-[11px] font-bold text-slate-400 dark:text-slate-500 mb-2">
-            <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+          <div class="mb-2 flex items-center justify-between px-1">
+            <button onclick="changeCalendarPeriod(-1)" aria-label="Periodo anterior" class="grid h-8 w-8 place-items-center rounded-full bg-sky-50 text-sky-700 dark:bg-slate-800 dark:text-sky-300">‹</button>
+            <h3 id="calendarMonthLabel" class="text-sm font-extrabold capitalize text-slate-900 dark:text-white">Noviembre 2026</h3>
+            <button onclick="changeCalendarPeriod(1)" aria-label="Periodo siguiente" class="grid h-8 w-8 place-items-center rounded-full bg-sky-50 text-sky-700 dark:bg-slate-800 dark:text-sky-300">›</button>
           </div>
-
+          <div class="mb-2 grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-400"><div>DO</div><div>LU</div><div>MA</div><div>MI</div><div>JU</div><div>VI</div><div>SA</div></div>
           <div id="calendarGrid" class="grid grid-cols-7 gap-y-1.5 text-center"></div>
-        </div>
-
-        <div id="busyCard"></div>
-
-        <!-- Quick Inline Task Add Form -->
-        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card space-y-2.5">
-          <div class="text-xs font-extrabold text-slate-800 dark:text-slate-200">Agregar tarea rápida</div>
-          <div class="flex items-center gap-2">
-            <input id="quickAgendaTitle" type="text" placeholder="Nombre de la tarea..." onkeydown="if(event.key==='Enter') addQuickAgendaTask()" class="flex-1 bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-2.5 text-xs font-medium text-slate-900 dark:text-white outline-none focus:border-indigo-500 border border-transparent" />
-            <input id="quickAgendaTime" type="time" value="10:00" class="w-24 bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-2.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white outline-none" />
-            <button onclick="addQuickAgendaTask()" class="px-3.5 py-2.5 rounded-2xl bg-indigo-600 text-white text-xs font-bold active:scale-95 transition">+</button>
+          <div class="mt-3 grid grid-cols-3 gap-1 rounded-2xl bg-slate-100 p-1 dark:bg-[#0B1120]">
+            <button id="calModeToday" onclick="setCalendarMode('today')" class="rounded-xl py-2 text-[11px] font-bold text-slate-600 dark:text-slate-300">Hoy</button>
+            <button id="calModeWeek" onclick="setCalendarMode('week')" class="rounded-xl py-2 text-[11px] font-bold text-slate-600 dark:text-slate-300">Semana</button>
+            <button id="calModeMonth" onclick="setCalendarMode('month')" class="rounded-xl bg-white py-2 text-[11px] font-extrabold text-blue-700 shadow-sm dark:bg-slate-700 dark:text-white">Mes</button>
           </div>
         </div>
-
-        <!-- Selected Date Heading + Reorganize Pending with AI Button -->
-        <div class="flex items-center justify-between gap-2 pt-1">
-          <h3 id="selectedDateHeading" class="text-sm font-extrabold text-slate-900 dark:text-white truncate">Tareas para Hoy</h3>
-          <button onclick="reorganizePendingWithAI()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white text-xs font-bold shadow-sm active:scale-95 transition flex-shrink-0">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"></path></svg>
-            <span>Reorganizar pendientes con IA</span>
-          </button>
+        <div id="busyCard"></div>
+        <div class="rounded-3xl border border-sky-100 bg-sky-50/70 p-3.5 dark:border-slate-800 dark:bg-[#101a2b]">
+          <div class="mb-2 text-xs font-extrabold text-sky-950 dark:text-sky-200">Añadir rápido</div>
+          <div class="flex items-center gap-2">
+            <input id="quickAgendaTitle" type="text" placeholder="¿Qué tienes que hacer?" onkeydown="if(event.key==='Enter') addQuickAgendaTask()" class="min-w-0 flex-1 rounded-2xl border border-sky-100 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-900 outline-none focus:border-sky-400 dark:border-slate-700 dark:bg-[#0B1120] dark:text-white" />
+            <input id="quickAgendaTime" type="time" value="10:00" class="w-[92px] rounded-2xl border border-sky-100 bg-white px-2 py-2.5 text-xs font-bold text-slate-900 dark:border-slate-700 dark:bg-[#0B1120] dark:text-white" />
+            <button onclick="addQuickAgendaTask()" aria-label="Agregar tarea" class="grid h-10 w-10 flex-shrink-0 place-items-center rounded-2xl bg-sky-600 text-lg font-bold text-white shadow-sm active:scale-95">＋</button>
+          </div>
         </div>
-
-        <!-- Tasks List for Selected Date -->
         <div id="agendaDayTasks" class="space-y-2.5"></div>
-
       </section>
 
       <!-- ========================================================= -->
@@ -384,245 +359,49 @@
       <!-- ========================================================= -->
       <!-- MODULE 4: FINANZAS PERSONALES                             -->
       <!-- ========================================================= -->
-      <section id="view-finanzas" class="tab-view hidden space-y-4">
-
-        <!-- Segmented Control -->
-        <div class="bg-slate-200/70 dark:bg-[#151C2C] p-1 rounded-2xl grid grid-cols-3 gap-1">
-          <button id="finTabResumen" onclick="setFinanceSubtab('resumen')" class="py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#232E47] text-slate-900 dark:text-white shadow-sm transition">
-            Resumen
-          </button>
-          <button id="finTabPresupuesto" onclick="setFinanceSubtab('presupuesto')" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition">
-            Presupuesto y Metas
-          </button>
-          <button id="finTabDeudas" onclick="setFinanceSubtab('deudas')" class="py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition">
-            Deudas
-          </button>
-        </div>
-
-        <!-- SUB-VIEW 4A: RESUMEN -->
-        <div id="finSub-resumen" class="space-y-4">
-          <!-- Dual Currency Balance Card -->
-          <div class="rounded-3xl p-5 bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 text-white shadow-orb">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-semibold text-indigo-100">Balance Total Combinado</span>
-              <button onclick="openRateModal()" class="px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-[11px] font-bold backdrop-blur-sm transition">
-                Tasa: <span id="finCardRate">45.00</span> Bs ✎
-              </button>
-            </div>
-            <div class="text-3xl font-extrabold font-display tracking-tight mt-1" id="finTotalUsd">$0.00</div>
-            <div class="text-xs font-medium text-indigo-100 mt-0.5" id="finTotalVes">En Bolívares: 0.00 Bs</div>
-
-            <div class="grid grid-cols-2 gap-2.5 mt-4 pt-3.5 border-t border-white/15">
-              <div class="bg-white/10 rounded-2xl p-2.5">
-                <div class="text-[11px] text-indigo-100">Ingresos</div>
-                <div class="text-sm font-extrabold text-emerald-300 mt-0.5" id="finTotalIncome">+$0.00</div>
-              </div>
-              <div class="bg-white/10 rounded-2xl p-2.5">
-                <div class="text-[11px] text-indigo-100">Gastos</div>
-                <div class="text-sm font-extrabold text-rose-200 mt-0.5" id="finTotalExpense">-$0.00</div>
-              </div>
-            </div>
+      <section id="view-finanzas" class="tab-view hidden space-y-4 pb-3">
+        <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-5 text-white shadow-lg shadow-emerald-900/15">
+          <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full border-[22px] border-white/10"></div>
+          <div class="relative flex items-start justify-between gap-3">
+            <div><span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-100">CLARIDAD PARA TU DINERO</span><h2 class="mt-1 text-2xl font-extrabold tracking-tight">Finanzas</h2><p class="mt-1 text-xs text-emerald-100">Tus movimientos y metas, organizados.</p></div>
+            <button onclick="openTxModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-emerald-800 shadow-sm active:scale-95 transition">＋ Movimiento</button>
           </div>
-
-          <button onclick="openTxModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>Registrar Ingreso o Gasto</span>
-          </button>
-
-          <!-- Interactive SVG Donut Chart -->
-          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white mb-3">Gastos por Categoría</h3>
-            <div class="flex items-center justify-between gap-4">
-              <div class="relative w-36 h-36 flex-shrink-0 mx-auto">
-                <svg id="expenseDonutSvg" viewBox="0 0 120 120" class="w-full h-full -rotate-90"></svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
-                  <span class="text-[10px] font-semibold text-slate-400">Total Gastos</span>
-                  <span id="donutCenterTotal" class="text-sm font-extrabold text-slate-900 dark:text-white font-display">$0.00</span>
-                </div>
-              </div>
-              <div id="expenseCategoryLegend" class="flex-1 space-y-2"></div>
-            </div>
-          </div>
-
-          <!-- Income vs Expenses Bar Chart -->
-          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white mb-3">Ingresos vs. Gastos</h3>
-            <div id="incomeExpenseBarChart" class="space-y-3"></div>
-          </div>
-
-          <!-- Full Transaction List -->
-          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white mb-3">Historial de Movimientos</h3>
-            <div id="finTransactionList" class="space-y-2.5"></div>
+          <div class="relative mt-4 rounded-3xl border border-white/15 bg-white/10 p-4">
+            <div class="flex items-center justify-between gap-2"><span class="text-[11px] font-bold text-emerald-100">BALANCE COMBINADO</span><button onclick="openRateModal()" class="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold">Tasa <span id="finCardRate">45.00</span> Bs ✎</button></div>
+            <div id="finTotalUsd" class="mt-1 text-3xl font-extrabold tracking-tight">$0.00</div><div id="finTotalVes" class="mt-0.5 text-xs text-emerald-100">En Bolívares: 0.00 Bs</div>
+            <div class="mt-4 grid grid-cols-2 gap-2 border-t border-white/15 pt-3"><div class="rounded-2xl bg-white/10 p-2.5"><div class="text-[10px] text-emerald-100">Ingresos</div><div id="finTotalIncome" class="mt-0.5 text-sm font-extrabold text-white">+$0.00</div></div><div class="rounded-2xl bg-white/10 p-2.5"><div class="text-[10px] text-emerald-100">Gastos</div><div id="finTotalExpense" class="mt-0.5 text-sm font-extrabold text-white">-$0.00</div></div></div>
           </div>
         </div>
-
-        <!-- SUB-VIEW 4B: PRESUPUESTO Y METAS -->
-        <div id="finSub-presupuesto" class="hidden space-y-4">
-          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Presupuesto Mensual</h3>
-              <button onclick="openBudgetModal()" class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 text-xs font-bold active:scale-95 transition">
-                Editar límite
-              </button>
-            </div>
-            <div class="flex items-baseline justify-between mt-2 mb-1">
-              <span class="text-2xl font-extrabold text-slate-900 dark:text-white font-display" id="budgetSpentBig">$0.00</span>
-              <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">de <strong id="budgetLimitBig" class="text-slate-800 dark:text-slate-200">$250.00</strong></span>
-            </div>
-            <div class="w-full h-3.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden my-2.5">
-              <div id="budgetMainBar" class="h-full rounded-full bg-indigo-600 transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <div id="budgetAlertBox" class="text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#0B1120] rounded-2xl p-3"></div>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Metas de Ahorro</h3>
-            <button onclick="openGoalModal()" class="px-3.5 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-bold shadow-sm active:scale-95 transition">
-              + Nueva Meta
-            </button>
-          </div>
-          <div id="savingsGoalsList" class="space-y-3"></div>
+        <div id="financeEmptyState" class="hidden rounded-3xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30"><div class="flex items-start gap-3"><span class="grid h-10 w-10 flex-shrink-0 place-items-center rounded-2xl bg-white text-xl shadow-sm dark:bg-slate-900">🌱</span><div class="flex-1"><div class="text-sm font-extrabold text-emerald-950 dark:text-emerald-200">Aquí empieza tu registro</div><p class="mt-1 text-xs leading-relaxed text-emerald-800 dark:text-emerald-300">Todavía no hay movimientos, metas ni deudas. Registra uno y tendrás todo a mano.</p><button onclick="openTxModal()" class="mt-3 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-extrabold text-white active:scale-95">Registrar mi primer movimiento</button></div></div></div>
+        <div class="grid grid-cols-3 gap-1 rounded-2xl bg-emerald-50 p-1 dark:bg-[#151C2C]"><button id="finTabResumen" onclick="setFinanceSubtab('resumen')" class="rounded-xl bg-white py-2 text-[10px] font-extrabold text-emerald-800 shadow-sm dark:bg-slate-700 dark:text-emerald-200">Resumen</button><button id="finTabPresupuesto" onclick="setFinanceSubtab('presupuesto')" class="rounded-xl py-2 text-[10px] font-bold text-slate-600 dark:text-slate-400">Presupuesto</button><button id="finTabDeudas" onclick="setFinanceSubtab('deudas')" class="rounded-xl py-2 text-[10px] font-bold text-slate-600 dark:text-slate-400">Deudas</button></div>
+        <div id="finSub-resumen" class="space-y-3">
+          <button onclick="openTxModal()" class="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-extrabold text-white shadow-sm active:scale-[0.98]">＋ Registrar ingreso o gasto</button>
+          <div class="rounded-3xl border border-emerald-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><h3 class="mb-3 text-sm font-extrabold text-slate-900 dark:text-white">Gastos por categoría</h3><div class="flex items-center justify-between gap-4"><div class="relative mx-auto h-36 w-36 flex-shrink-0"><svg id="expenseDonutSvg" viewBox="0 0 120 120" class="h-full w-full -rotate-90"></svg><div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-2 text-center"><span class="text-[10px] font-semibold text-slate-400">Total gastos</span><span id="donutCenterTotal" class="text-sm font-extrabold text-slate-900 dark:text-white">$0.00</span></div></div><div id="expenseCategoryLegend" class="flex-1 space-y-2"></div></div></div>
+          <div class="rounded-3xl border border-emerald-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><h3 class="mb-3 text-sm font-extrabold text-slate-900 dark:text-white">Ingresos frente a gastos</h3><div id="incomeExpenseBarChart" class="space-y-3"></div></div>
+          <div class="rounded-3xl border border-emerald-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><h3 class="mb-3 text-sm font-extrabold text-slate-900 dark:text-white">Movimientos recientes</h3><div id="finTransactionList" class="space-y-2.5"></div></div>
         </div>
-
-        <!-- SUB-VIEW 4C: DEUDAS -->
-        <div id="finSub-deudas" class="hidden space-y-4">
-          <div class="grid grid-cols-2 gap-3">
-            <div class="bg-emerald-50 dark:bg-emerald-950/35 border border-emerald-200/80 dark:border-emerald-800/50 rounded-3xl p-4">
-              <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300">Me deben (+)</span>
-              <div id="debtTotalOwedToMe" class="text-xl font-extrabold text-emerald-700 dark:text-emerald-200 font-display mt-1">$0.00</div>
-            </div>
-            <div class="bg-rose-50 dark:bg-rose-950/35 border border-rose-200/80 dark:border-rose-800/50 rounded-3xl p-4">
-              <span class="text-xs font-bold text-rose-800 dark:text-rose-300">Yo debo (-)</span>
-              <div id="debtTotalIOwe" class="text-xl font-extrabold text-rose-700 dark:text-rose-200 font-display mt-1">$0.00</div>
-            </div>
-          </div>
-
-          <button onclick="openDebtModal()" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition">
-            <span>+ Registrar Deuda o Préstamo</span>
-          </button>
-
-          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white mb-3">Cuentas por Cobrar y Pagar</h3>
-            <div id="debtsListContainer" class="space-y-2.5"></div>
-          </div>
-        </div>
-
+        <div id="finSub-presupuesto" class="hidden space-y-3"><div class="rounded-3xl border border-emerald-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex items-center justify-between"><h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Presupuesto mensual</h3><button onclick="openBudgetModal()" class="rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">Editar límite</button></div><div class="mt-3 flex items-baseline justify-between"><span id="budgetSpentBig" class="text-2xl font-extrabold text-slate-900 dark:text-white">$0.00</span><span class="text-xs text-slate-500">de <strong id="budgetLimitBig">$250.00</strong></span></div><div class="my-2.5 h-3 overflow-hidden rounded-full bg-emerald-50 dark:bg-slate-800"><div id="budgetMainBar" class="h-full rounded-full bg-emerald-500 transition-all" style="width:0%"></div></div><div id="budgetAlertBox" class="rounded-2xl bg-emerald-50 p-3 text-xs text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200"></div></div><div class="flex items-center justify-between"><h3 class="text-base font-extrabold text-slate-900 dark:text-white">Metas de ahorro</h3><button onclick="openGoalModal()" class="rounded-full bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white">＋ Nueva meta</button></div><div id="savingsGoalsList" class="space-y-3"></div></div>
+        <div id="finSub-deudas" class="hidden space-y-3"><div class="grid grid-cols-2 gap-3"><div class="rounded-3xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30"><span class="text-xs font-bold text-emerald-800 dark:text-emerald-300">Me deben</span><div id="debtTotalOwedToMe" class="mt-1 text-xl font-extrabold text-emerald-700 dark:text-emerald-200">$0.00</div></div><div class="rounded-3xl border border-rose-100 bg-rose-50 p-4 dark:border-rose-900 dark:bg-rose-950/30"><span class="text-xs font-bold text-rose-800 dark:text-rose-300">Yo debo</span><div id="debtTotalIOwe" class="mt-1 text-xl font-extrabold text-rose-700 dark:text-rose-200">$0.00</div></div></div><button onclick="openDebtModal()" class="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-extrabold text-white">＋ Registrar deuda o préstamo</button><div class="rounded-3xl border border-emerald-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><h3 class="mb-3 text-sm font-extrabold text-slate-900 dark:text-white">Cuentas por cobrar y pagar</h3><div id="debtsListContainer" class="space-y-2.5"></div></div></div>
       </section>
 
       <!-- ========================================================= -->
       <!-- MODULE 5: RUTINAS Y ESTADÍSTICAS                          -->
       <!-- ========================================================= -->
-      <section id="view-rutinas" class="tab-view hidden space-y-4">
-
-        <!-- Interactive Focus / Routine Countdown Timer -->
-        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h2 class="text-sm font-extrabold text-slate-900 dark:text-white">Temporizador de Enfoque</h2>
-              <p id="timerActiveHabitLabel" class="text-xs text-slate-500 dark:text-slate-400">Rutina de la mañana · Selecciona un paso</p>
-            </div>
-            <select id="timerPresetSelect" onchange="changeTimerPreset()" class="bg-slate-100 dark:bg-[#0B1120] text-xs font-bold text-slate-700 dark:text-slate-200 rounded-xl px-2.5 py-1.5 outline-none border border-slate-200 dark:border-slate-700">
-              <option value="5">5 min</option>
-              <option value="10">10 min</option>
-              <option value="15">15 min</option>
-              <option value="25" selected>25 min</option>
-              <option value="45">45 min</option>
-            </select>
-          </div>
-
-          <select id="timerSubjectSelect" class="w-full mb-2 bg-slate-100 dark:bg-[#0B1120] text-xs font-bold text-slate-700 dark:text-slate-200 rounded-xl px-2.5 py-2 outline-none"></select>
-          <div class="flex items-center justify-between gap-4 py-1">
-            <div class="relative w-28 h-28 flex-shrink-0">
-              <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
-                <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" fill="none" class="text-slate-100 dark:text-slate-800"></circle>
-                <circle id="timerProgressCircle" cx="50" cy="50" r="42" stroke="#4F46E5" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="263.89" stroke-dashoffset="0" class="transition-all duration-300"></circle>
-              </svg>
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span id="timerDisplay" class="text-xl font-extrabold text-slate-900 dark:text-white font-display">25:00</span>
-                <span id="timerStateText" class="text-[10px] font-semibold text-slate-400">Listo</span>
-              </div>
-            </div>
-
-            <div class="flex-1 flex flex-col gap-2">
-              <button id="timerToggleBtn" onclick="toggleFocusTimer()" class="w-full py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition">
-                <span id="timerToggleIcon">▶</span>
-                <span id="timerToggleLabel">Iniciar sesión</span>
-              </button>
-              <button onclick="resetFocusTimer()" class="w-full py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold active:scale-95 transition">
-                Reiniciar
-              </button>
-            </div>
-          </div>
+      <section id="view-rutinas" class="tab-view hidden space-y-4 pb-3">
+        <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 p-5 text-white shadow-lg shadow-orange-900/15">
+          <div class="absolute -right-7 -top-8 h-36 w-36 rounded-full border-[18px] border-white/15"></div>
+          <div class="relative flex items-start justify-between gap-3"><div><span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-amber-50">A TU MANERA, A TU RITMO</span><h2 class="mt-1 text-2xl font-extrabold tracking-tight">Mis rutinas</h2><p class="mt-1 max-w-[230px] text-xs leading-relaxed text-orange-50">Crea pequeños pasos que hagan más fácil tu día.</p></div><button onclick="openRoutineModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-orange-700 shadow-sm active:scale-95">＋ Crear</button></div>
+          <div class="relative mt-4 flex items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-3.5 py-2.5"><div><div class="text-[10px] font-bold text-orange-50">HOY</div><div class="text-sm font-extrabold" id="routineTodaySummary">Tus pasos de hoy</div></div><div id="routineStreakBadge" class="rounded-full bg-white/15 px-3 py-1.5 text-xs font-extrabold">🔥 0 días</div></div>
         </div>
-
-        <!-- Rutina Diaria Checklist -->
-        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Rutina de la Mañana y Hábitos</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Toca Play para iniciar el temporizador de ese paso</p>
-            </div>
-            <button onclick="openHabitModal()" class="px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold active:scale-95 transition">
-              + Paso
-            </button>
-          </div>
-          <div id="routineChecklist" class="space-y-2.5"></div>
-        </div>
-
-        <!-- Estadísticas de Productividad -->
-        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Progreso y Racha</h2>
-            <span id="statsStreakPill" class="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold">🔥 4 días</span>
-          </div>
-
-          <div class="flex items-center gap-4 bg-slate-50 dark:bg-[#0B1120] rounded-2xl p-3.5">
-            <div class="relative w-20 h-20 flex-shrink-0">
-              <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
-                <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="9" fill="none" class="text-slate-200 dark:text-slate-800"></circle>
-                <circle id="focusScoreRing" cx="50" cy="50" r="40" stroke="#10B981" stroke-width="9" stroke-linecap="round" fill="none" stroke-dasharray="251.32" stroke-dashoffset="60"></circle>
-              </svg>
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span id="focusScoreValue" class="text-base font-extrabold text-slate-900 dark:text-white font-display">0%</span>
-                <span class="text-[9px] font-bold text-slate-400">Hoy</span>
-              </div>
-            </div>
-            <div class="flex-1 space-y-1.5">
-              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Cumplimiento Diario</div>
-              <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-                <span>Hábitos completados</span>
-                <strong id="statsHabitsRatio" class="text-emerald-600 dark:text-emerald-400">0/0</strong>
-              </div>
-              <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-                <span>Tareas cumplidas</span>
-                <strong id="statsTasksRatio" class="text-indigo-600 dark:text-indigo-400">0/0</strong>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5">Racha Semanal</div>
-            <div id="weeklyStreakBars" class="grid grid-cols-7 gap-2 items-end h-28 pt-2 px-1"></div>
-          </div>
-        </div>
-
+        <div id="routineEmptyState" class="hidden rounded-3xl border border-orange-200 bg-orange-50 p-5 dark:border-orange-900 dark:bg-orange-950/25"><div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-white text-2xl shadow-sm dark:bg-slate-900">🌱</div><h3 class="mt-3 text-center text-base font-extrabold text-orange-950 dark:text-orange-200">Todavía no tienes rutinas</h3><p class="mx-auto mt-1 max-w-xs text-center text-xs leading-relaxed text-orange-900 dark:text-orange-300">Crea una rutina con los días, la hora y los pasos que te sirvan. Los ejemplos solo rellenan el formulario; no se guardan solos.</p><button onclick="openRoutineModal()" class="mx-auto mt-4 block rounded-2xl bg-orange-600 px-5 py-3 text-sm font-extrabold text-white shadow-sm active:scale-95">Crear mi primera rutina</button><div class="mt-4 flex flex-wrap justify-center gap-2"><button onclick="fillRoutineExample('morning')" class="rounded-full border border-orange-200 bg-white px-3 py-1.5 text-[11px] font-bold text-orange-800 dark:border-orange-800 dark:bg-slate-900 dark:text-orange-200">Ejemplo: Mañana</button><button onclick="fillRoutineExample('study')" class="rounded-full border border-orange-200 bg-white px-3 py-1.5 text-[11px] font-bold text-orange-800 dark:border-orange-800 dark:bg-slate-900 dark:text-orange-200">Estudio</button><button onclick="fillRoutineExample('night')" class="rounded-full border border-orange-200 bg-white px-3 py-1.5 text-[11px] font-bold text-orange-800 dark:border-orange-800 dark:bg-slate-900 dark:text-orange-200">Noche</button></div></div>
+        <div id="routineMainPanel" class="space-y-3"><div class="flex items-end justify-between px-1"><div><h3 class="text-base font-extrabold text-slate-900 dark:text-white">Lo que te toca hoy</h3><p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Marca cada paso al completarlo.</p></div><button onclick="openRoutineModal()" class="rounded-full bg-orange-50 px-3 py-1.5 text-[11px] font-extrabold text-orange-700 dark:bg-orange-950/50 dark:text-orange-300">＋ Rutina</button></div><div id="routineTodayList" class="space-y-3"></div></div>
+        <div id="routineStatsPanel" class="rounded-3xl border border-amber-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex items-center justify-between"><div><h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Tu constancia</h3><p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">Un paso a la vez también cuenta.</p></div><span id="statsStreakPill" class="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-extrabold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">🔥 0 días</span></div><div class="mt-3 rounded-2xl bg-amber-50/80 p-3 dark:bg-[#0B1120]"><div class="mb-2 flex items-center justify-between"><span class="text-xs font-bold text-slate-700 dark:text-slate-200">Progreso de hoy</span><strong id="statsHabitsRatio" class="text-xs font-extrabold text-orange-700 dark:text-orange-300">0/0</strong></div><div class="h-2.5 overflow-hidden rounded-full bg-white dark:bg-slate-800"><div id="focusScoreBar" class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style="width:0%"></div></div><span id="focusScoreValue" class="sr-only">0%</span><span id="statsTasksRatio" class="hidden">0/0</span></div><div class="mt-4"><div class="mb-2 text-xs font-bold text-slate-700 dark:text-slate-300">Esta semana</div><div id="weeklyStreakBars" class="grid h-24 grid-cols-7 items-end gap-2 pt-2 px-1"></div></div></div>
       </section>
 
-      <section id="view-materias" class="tab-view hidden space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Materias y notas</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Cuánto llevas y cuánto necesitas para aprobar</p>
-          </div>
-          <button onclick="openEvalModal()" class="px-3.5 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-bold shadow-sm active:scale-95 transition">+ Evaluación</button>
-        </div>
-        <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-3.5 border border-slate-200/80 dark:border-slate-800 shadow-card flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
-          <span>Nota máxima</span>
-          <input id="gradeMaxInput" type="number" onchange="setGradeScale()" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-slate-900 dark:text-white outline-none" />
-          <span>Para aprobar</span>
-          <input id="gradePassInput" type="number" step="0.5" onchange="setGradeScale()" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-slate-900 dark:text-white outline-none" />
-        </div>
+      <section id="view-materias" class="tab-view hidden space-y-4 pb-3">
+        <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-rose-500 via-pink-600 to-violet-700 p-5 text-white shadow-lg shadow-rose-900/15"><div class="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10"></div><div class="relative flex items-start justify-between gap-3"><div><span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-rose-100">AVANZA CON CONFIANZA</span><h2 class="mt-1 text-2xl font-extrabold tracking-tight">Materias</h2><p class="mt-1 max-w-[230px] text-xs text-rose-100">Tus notas, objetivos y tiempo de estudio.</p></div><button onclick="openEvalModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-rose-700 shadow-sm active:scale-95">＋ Evaluación</button></div></div>
+        <div id="studyTimerCard" class="rounded-3xl border border-violet-100 bg-violet-50/80 p-4 dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex items-start justify-between gap-2"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600 dark:text-violet-300">ENFOQUE · INDEPENDIENTE DE TUS RUTINAS</div><h3 class="mt-1 text-sm font-extrabold text-slate-900 dark:text-white">Temporizador de estudio</h3></div><select id="timerPresetSelect" onchange="changeTimerPreset()" class="rounded-xl border border-violet-100 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 outline-none dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-200"><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="25" selected>25 min</option><option value="45">45 min</option></select></div><p id="timerActiveHabitLabel" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Elige una materia; al completar se guardarán los minutos.</p><select id="timerSubjectSelect" class="mt-3 w-full rounded-2xl border border-violet-100 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 outline-none dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-200"></select><div class="mt-3 flex items-center gap-4"><div class="relative h-24 w-24 flex-shrink-0"><svg viewBox="0 0 100 100" class="h-full w-full -rotate-90"><circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" fill="none" class="text-violet-100 dark:text-slate-800"></circle><circle id="timerProgressCircle" cx="50" cy="50" r="42" stroke="#8B5CF6" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="263.89" stroke-dashoffset="0" class="transition-all duration-300"></circle></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span id="timerDisplay" class="text-lg font-extrabold text-slate-900 dark:text-white">25:00</span><span id="timerStateText" class="text-[9px] font-bold text-slate-400">Listo</span></div></div><div class="flex flex-1 flex-col gap-2"><button id="timerToggleBtn" onclick="toggleFocusTimer()" class="w-full rounded-2xl bg-violet-600 py-3 text-xs font-extrabold text-white shadow-sm active:scale-95"><span id="timerToggleIcon">▶</span> <span id="timerToggleLabel">Iniciar enfoque</span></button><button onclick="resetFocusTimer()" class="w-full rounded-2xl bg-white py-2.5 text-xs font-bold text-slate-600 dark:bg-[#0B1120] dark:text-slate-300">Reiniciar</button></div></div></div>
+        <div class="rounded-2xl border border-rose-100 bg-rose-50/80 p-3.5 dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-extrabold text-rose-800 dark:text-rose-200"><span>Escala de notas</span><label class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">Máximo<input id="gradeMaxInput" type="number" onchange="setGradeScale()" class="w-14 rounded-xl bg-white px-2 py-1.5 text-center text-xs text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label><label class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">Aprobar<input id="gradePassInput" type="number" step="0.5" onchange="setGradeScale()" class="w-14 rounded-xl bg-white px-2 py-1.5 text-center text-xs text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label></div></div>
         <div id="weeklyCard"></div>
         <div id="subjectsList" class="space-y-3"></div>
       </section>
@@ -921,32 +700,16 @@
       </div>
     </div>
 
-    <!-- Modal: Add Routine Habit -->
-    <div id="modalHabit" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
-        <div class="flex items-center justify-between">
-          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nuevo Paso de Rutina</h3>
-          <button onclick="closeModal('modalHabit')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+    <!-- Modal: crear o editar rutina personalizada -->
+    <div id="modalRoutine" class="fixed inset-0 z-50 hidden items-end justify-center bg-slate-900/55 p-3 backdrop-blur-sm sm:items-center">
+      <div class="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-[2rem] border border-orange-100 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-[#151C2C]">
+        <div class="mb-4 flex items-center justify-between"><div><span class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600 dark:text-orange-300">DISEÑADA POR TI</span><h3 id="routineModalTitle" class="mt-0.5 text-lg font-extrabold text-slate-900 dark:text-white">Crear rutina</h3></div><button onclick="closeRoutineModal()" aria-label="Cerrar" class="grid h-9 w-9 place-items-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800">✕</button></div>
+        <div class="space-y-3.5"><label class="block text-[11px] font-bold text-slate-500">Nombre<input id="routineNameInput" type="text" maxlength="50" placeholder="Ej.: Antes de empezar el día" class="mt-1 w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-orange-300 dark:bg-[#0B1120] dark:text-white" /></label>
+          <div><div class="mb-1.5 flex items-center justify-between"><span class="text-[11px] font-bold text-slate-500">¿Qué días?</span><span class="text-[10px] text-slate-400">Puedes elegir varios</span></div><div class="grid grid-cols-7 gap-1" id="routineDaysPicker"><label class="cursor-pointer"><input class="peer sr-only" type="checkbox" value="1"><span class="grid h-9 place-items-center rounded-xl bg-slate-100 text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white dark:bg-[#0B1120]">L</span></label><label class="cursor-pointer"><input class="peer sr-only" type="checkbox" value="2"><span class="grid h-9 place-items-center rounded-xl bg-slate-100 text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white dark:bg-[#0B1120]">M</span></label><label class="cursor-pointer"><input class="peer sr-only" type="checkbox" value="3"><span class="grid h-9 place-items-center rounded-xl bg-slate-100 text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white dark:bg-[#0B1120]">X</span></label><label class="cursor-pointer"><input class="peer sr-only" type="checkbox" value="4"><span class="grid h-9 place-items-center rounded-xl bg-slate-100 text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white dark:bg-[#0B1120]">J</span></label><label class="cursor-pointer"><input class="peer sr-only" type="checkbox" value="5"><span class="grid h-9 place-items-center rounded-xl bg-slate-100 text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white dark:bg-[#0B1120]">V</span></label><label class="cursor-pointer"><input class="peer sr-only" type="checkbox" value="6"><span class="grid h-9 place-items-center rounded-xl bg-slate-100 text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white dark:bg-[#0B1120]">S</span></label><label class="cursor-pointer"><input class="peer sr-only" type="checkbox" value="0"><span class="grid h-9 place-items-center rounded-xl bg-slate-100 text-[10px] font-bold text-slate-500 peer-checked:bg-orange-500 peer-checked:text-white dark:bg-[#0B1120]">D</span></label></div></div>
+          <label class="block text-[11px] font-bold text-slate-500">Hora del recordatorio<input id="routineTimeInput" type="time" value="07:00" class="mt-1 w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label>
+          <div><div class="mb-2 flex items-center justify-between"><div><div class="text-[11px] font-bold text-slate-500">Pasos</div><div class="text-[10px] text-slate-400">Los minutos son opcionales.</div></div><button onclick="addRoutineStepRow()" class="rounded-full bg-orange-50 px-3 py-1.5 text-[11px] font-extrabold text-orange-700 dark:bg-orange-950/40 dark:text-orange-300">＋ Añadir paso</button></div><div id="routineStepsEditor" class="space-y-2"></div></div>
+          <button onclick="saveRoutineFromModal()" class="w-full rounded-2xl bg-orange-600 py-3 text-sm font-extrabold text-white shadow-sm active:scale-[0.98]">Guardar rutina</button>
         </div>
-        <input id="habitTitleInput" type="text" placeholder="Ej: Leer 15 páginas, Estiramiento..." class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="text-[11px] font-bold text-slate-400 block mb-1">Ícono</label>
-            <select id="habitIconInput" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-sm font-semibold text-slate-900 dark:text-white outline-none">
-              <option value="✨">✨ General</option>
-              <option value="📚">📚 Estudio / Lectura</option>
-              <option value="🏃">🏃 Ejercicio</option>
-              <option value="💧">💧 Salud / Agua</option>
-              <option value="🧘">🧘 Enfoque / Calma</option>
-              <option value="💰">💰 Finanzas</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-[11px] font-bold text-slate-400 block mb-1">Minutos</label>
-            <input id="habitDurationInput" type="number" value="15" min="1" max="180" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-2.5 text-sm font-bold text-slate-900 dark:text-white outline-none" />
-          </div>
-        </div>
-        <button onclick="saveHabitFromModal()" class="w-full py-3 rounded-2xl bg-emerald-600 text-white text-sm font-bold">Agregar a Rutina</button>
       </div>
     </div>
 
@@ -1034,6 +797,8 @@
         goals: [],
         debts: [],
         habits: [],
+        routines: [],
+        routineChecks: {},
         streakDays: 0,
         weeklyHistory: [0, 0, 0, 0, 0, 0, 0],
         profile: { name: '', age: '', occupation: '', done: false },
@@ -1043,11 +808,24 @@
       };
     }
 
+    function migrateLegacyHabits(state, hadRoutineField) {
+      if (!Array.isArray(state.routines)) state.routines = [];
+      if (!state.routineChecks || typeof state.routineChecks !== 'object') state.routineChecks = {};
+      if (!hadRoutineField && Array.isArray(state.habits) && state.habits.length) {
+        const id = 'legacy-habits-' + Date.now();
+        const steps = state.habits.map((h, i) => ({ id: h.id || ('legacy-step-' + i), title: h.title || 'Paso anterior', icon: h.icon || '✨', duration: Number(h.duration) || null }));
+        state.routines.push({ id, name: 'Rutina que ya tenías', days: [0,1,2,3,4,5,6], time: '07:00', steps, migrated: true });
+        const completed = state.habits.filter(h => h.done).map(h => h.id);
+        if (completed.length) state.routineChecks[getIsoDateOffset(0)] = { ...(state.routineChecks[getIsoDateOffset(0)] || {}), [id]: completed };
+      }
+      return state;
+    }
     let appState = (() => {
       const raw = safeGetItem(STORAGE_KEY);
       if (raw) {
         try {
-          return { ...createDefaultState(), ...JSON.parse(raw) };
+          const saved = JSON.parse(raw);
+          return migrateLegacyHabits({ ...createDefaultState(), ...saved }, Object.prototype.hasOwnProperty.call(saved, 'routines'));
         } catch (e) {}
       }
       return createDefaultState();
@@ -1140,10 +918,10 @@
         const btn = document.getElementById(btnId);
         const panel = document.getElementById(`finSub-${key}`);
         if (key === sub) {
-          btn.className = 'py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#232E47] text-slate-900 dark:text-white shadow-sm transition';
+          btn.className = 'rounded-xl bg-white py-2 text-[10px] font-extrabold text-emerald-800 shadow-sm transition dark:bg-slate-700 dark:text-emerald-200';
           panel.classList.remove('hidden');
         } else {
-          btn.className = 'py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 transition';
+          btn.className = 'rounded-xl py-2 text-[10px] font-bold text-slate-600 transition dark:text-slate-400';
           panel.classList.add('hidden');
         }
       });
@@ -1543,6 +1321,7 @@
         const now = new Date(), list = [];
         let id = 1;
         const add = (at, title, body) => { if (at > now && list.length < 60) list.push({ id: id++, title, body, schedule: { at, allowWhileIdle: true } }); };
+        (appState.routines || []).forEach(r => { for (let i = 0; i < 7; i++) { const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i); if ((r.days || []).map(Number).includes(day.getDay())) add(new Date(day.getFullYear(), day.getMonth(), day.getDate(), Number((r.time || '07:00').slice(0,2)), Number((r.time || '07:00').slice(3,5)), 0), '⏰ ' + (r.name || 'Tu rutina'), 'Es hora de comenzar: ' + (r.name || 'tu rutina')); } });
         appState.tasks.filter(t => !t.done).forEach(t => {
           const nm = (t.title || '').replace('📝 ', '');
           add(new Date(t.date + 'T' + (t.startTime || '09:00') + ':00'), '📌 ' + nm, 'Empieza a las ' + (t.startTime || '09:00'));
@@ -2259,7 +2038,7 @@
       document.getElementById('gradeMaxInput').value = appState.gradeMax;
       document.getElementById('gradePassInput').value = appState.gradePass;
       if (!appState.subjects.length) {
-        el.innerHTML = '<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 text-center text-xs font-semibold text-slate-400">Aún no tienes materias. Toca <b>+ Evaluación</b> y escribe la materia, el nombre del examen y su valor en %.</div>';
+        el.innerHTML = '<div class="rounded-3xl border border-dashed border-rose-200 bg-rose-50/70 p-5 text-center dark:border-slate-700 dark:bg-[#151C2C]"><div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl dark:bg-[#0B1120]">📚</div><h3 class="mt-3 text-sm font-extrabold text-rose-950 dark:text-rose-200">Tu espacio de estudio está listo</h3><p class="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-rose-800 dark:text-rose-300">Agrega una evaluación para crear tu primera materia y ver cuánto necesitas para aprobar.</p><button onclick="openEvalModal()" class="mt-3 rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-extrabold text-white">＋ Añadir primera evaluación</button></div>';
         return;
       }
       el.innerHTML = appState.subjects.map(sub => {
@@ -2318,7 +2097,7 @@
       try {
         const o = JSON.parse(document.getElementById('backupText').value.trim());
         if (!o || !Array.isArray(o.tasks) || !Array.isArray(o.transactions)) throw new Error('bad');
-        appState = { ...createDefaultState(), ...o };
+        appState = migrateLegacyHabits({ ...createDefaultState(), ...o }, Object.prototype.hasOwnProperty.call(o, 'routines'));
         closeModal('modalBackup');
         saveState();
         showToast('Datos restaurados');
@@ -2345,12 +2124,10 @@
       document.getElementById('bentoOwedToMe').textContent = `Me deben: $${fin.owedToMeUsd.toFixed(0)}`;
       document.getElementById('bentoIOwe').textContent = `Debo: $${fin.iOweUsd.toFixed(0)}`;
 
-      const totalHabits = appState.habits.length;
-      const doneHabits = appState.habits.filter(h => h.done).length;
-      const habitPct = totalHabits > 0 ? Math.round((doneHabits / totalHabits) * 100) : 0;
-      document.getElementById('bentoRoutinePct').textContent = `${habitPct}%`;
-      document.getElementById('bentoRoutineSub').textContent = `${doneHabits} de ${totalHabits} pasos`;
-      document.getElementById('bentoStreakBadge').textContent = `🔥 ${appState.streakDays}d`;
+      const routineToday = typeof routineDayProgress === 'function' ? routineDayProgress(today) : { total: appState.habits.length, done: appState.habits.filter(h => h.done).length, percent: 0 };
+      document.getElementById('bentoRoutinePct').textContent = `${routineToday.percent || (routineToday.total ? Math.round(routineToday.done * 100 / routineToday.total) : 0)}%`;
+      document.getElementById('bentoRoutineSub').textContent = `${routineToday.done} de ${routineToday.total} pasos`;
+      document.getElementById('bentoStreakBadge').textContent = `🔥 ${typeof routineCurrentStreak === 'function' ? routineCurrentStreak() : appState.streakDays}d`;
       const nextEx = getExams().sort((a, b) => a.date.localeCompare(b.date))[0];
       const wk = weeklySummary();
       document.getElementById('bentoSubjectsMain').textContent = nextEx ? `Próximo: ${nextEx.title} (${dayDiff(today, nextEx.date) === 1 ? 'mañana' : 'en ' + dayDiff(today, nextEx.date) + ' días'})` : 'Sin exámenes próximos';
@@ -2530,9 +2307,7 @@
       const container = document.getElementById('agendaDayTasks');
       if (dayTasks.length === 0) {
         container.innerHTML = `
-          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 text-center">
-            <p class="text-xs font-semibold text-slate-400">No hay tareas programadas para este día.</p>
-          </div>
+          <div class="rounded-3xl border border-dashed border-sky-200 bg-sky-50/70 p-6 text-center dark:border-slate-700 dark:bg-[#151C2C]"><div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl dark:bg-[#0B1120]">🗓️</div><h3 class="mt-3 text-sm font-extrabold text-slate-900 dark:text-white">Este día está despejado</h3><p class="mx-auto mt-1 max-w-[250px] text-xs leading-relaxed text-slate-500">No tienes tareas programadas aquí. Si quieres, puedes añadir una ahora.</p><button onclick="openTaskModal()" class="mt-3 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-extrabold text-white">＋ Añadir tarea</button></div>
         `;
       } else {
         container.innerHTML = dayTasks.map(t => {
@@ -2566,6 +2341,8 @@
     // =========================================================================
     function renderFinances() {
       const fin = computeFinanceMetrics();
+      const empty = document.getElementById('financeEmptyState');
+      if (empty) empty.classList.toggle('hidden', !!((appState.transactions || []).length || (appState.goals || []).length || (appState.debts || []).length));
 
       document.getElementById('finCardRate').textContent = fin.rate.toFixed(2);
       document.getElementById('finTotalUsd').textContent = `$${fin.totalCombinedUsd.toFixed(2)}`;
@@ -2789,7 +2566,7 @@
         timerInterval = null;
       }
       timerLinkedHabitId = null;
-      document.getElementById('timerActiveHabitLabel').textContent = 'Sesión de enfoque personalizada';
+      document.getElementById('timerActiveHabitLabel').textContent = 'Elige una materia; al completar se guardarán los minutos.';
       const mins = parseInt(document.getElementById('timerPresetSelect').value, 10) || 25;
       timerTotalSeconds = mins * 60;
       timerRemainingSeconds = timerTotalSeconds;
@@ -2825,14 +2602,7 @@
         } else {
           clearInterval(timerInterval);
           timerInterval = null;
-          if (timerLinkedHabitId) {
-            const h = appState.habits.find(x => x.id === timerLinkedHabitId);
-            if (h && !h.done) {
-              h.done = true;
-              updateTodayWeeklyHistory();
-              saveState();
-            }
-          }
+          timerLinkedHabitId = null;
           logStudy(Math.round(timerTotalSeconds / 60));
           timerRemainingSeconds = timerTotalSeconds;
           updateTimerUI();
@@ -2851,71 +2621,145 @@
       updateTimerUI();
     }
 
-    function renderRoutines() {
-      const listEl = document.getElementById('routineChecklist');
-      if (appState.habits.length === 0) {
-        listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Agrega pasos a tu rutina tocando <b>+ Paso</b>.</p>`;
-      } else {
-        listEl.innerHTML = appState.habits.map(h => `
-          <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-100 dark:border-slate-800/80 gap-2.5">
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-              <span class="w-9 h-9 rounded-2xl bg-white dark:bg-[#151C2C] flex items-center justify-center text-base shadow-sm flex-shrink-0">${h.icon || '✨'}</span>
-              <div class="min-w-0">
-                <div class="text-xs font-bold truncate ${h.done ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">${escapeHtml(h.title)}</div>
-                <button onclick="startHabitFocus(${h.id})" class="mt-0.5 inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                  <span>▶ ${h.duration} min · Iniciar</span>
-                </button>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-              <button onclick="toggleHabitDone(${h.id})" aria-label="Completar paso" class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition ${
-                h.done
-                  ? 'bg-emerald-500 border-emerald-500 text-white'
-                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-[#151C2C]'
-              }">
-                ${h.done ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
-              </button>
-              <button onclick="deleteHabit(${h.id})" class="w-6 h-6 rounded-full text-slate-400 hover:text-rose-500 text-xs font-bold">✕</button>
-            </div>
-          </div>
-        `).join('');
+    let routineEditingId = null;
+    function routineDateWeekday(iso) { const [y,m,d] = iso.split('-').map(Number); return new Date(y, m-1, d).getDay(); }
+    function routinesForDate(iso) { const dow = routineDateWeekday(iso); return (appState.routines || []).filter(r => (r.days || []).map(Number).includes(dow)).sort((a,b) => (a.time || '').localeCompare(b.time || '')); }
+    function routineDayProgress(iso) {
+      const due = routinesForDate(iso), checks = (appState.routineChecks || {})[iso] || {};
+      const total = due.reduce((n,r) => n + (r.steps || []).length, 0);
+      const done = due.reduce((n,r) => n + (checks[r.id] || []).length, 0);
+      return { due, checks, total, done, percent: total ? Math.round(done * 100 / total) : 0, complete: total > 0 && done >= total };
+    }
+    function routineCurrentStreak() {
+      if (!(appState.routines || []).length) return 0;
+      let streak = 0;
+      for (let offset = 0; offset < 180; offset++) {
+        const state = routineDayProgress(getIsoDateOffset(-offset));
+        if (!state.due.length) continue;
+        if (!state.complete) break;
+        streak++;
       }
-
-      const today = getIsoDateOffset(0);
-      const todayTasks = appState.tasks.filter(t => t.date === today);
-      const doneTasks = todayTasks.filter(t => t.done).length;
-      const doneHabits = appState.habits.filter(h => h.done).length;
-
-      const totalItems = todayTasks.length + appState.habits.length;
-      const totalDone = doneTasks + doneHabits;
-      const score = totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0;
-
-      document.getElementById('focusScoreValue').textContent = `${score}%`;
-      const ringCirc = 251.32;
-      document.getElementById('focusScoreRing').style.strokeDashoffset = ringCirc - (score / 100) * ringCirc;
-      document.getElementById('statsHabitsRatio').textContent = `${doneHabits}/${appState.habits.length}`;
-      document.getElementById('statsTasksRatio').textContent = `${doneTasks}/${todayTasks.length}`;
-      document.getElementById('statsStreakPill').textContent = `🔥 ${appState.streakDays} días`;
-
-      const dayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-      const jsDay = new Date().getDay();
-      const todayMonIdx = jsDay === 0 ? 6 : jsDay - 1;
-      const hist = appState.weeklyHistory || [65, 80, 100, 75, 90, 0, 0];
-
-      document.getElementById('weeklyStreakBars').innerHTML = dayLabels.map((lbl, idx) => {
-        const val = Math.max(8, Math.min(100, hist[idx] || 0));
-        const isToday = idx === todayMonIdx;
-        return `
-          <div class="flex flex-col items-center h-full justify-end gap-1.5">
-            <div class="w-full max-w-[24px] bg-slate-100 dark:bg-slate-800 rounded-full h-20 flex items-end overflow-hidden">
-              <div class="w-full rounded-full transition-all duration-500 ${isToday ? 'bg-indigo-600' : 'bg-blue-400/75 dark:bg-blue-500/60'}" style="height:${val}%"></div>
-            </div>
-            <span class="text-[11px] font-extrabold ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}">${lbl}</span>
-          </div>
-        `;
+      return streak;
+    }
+    function toggleRoutineStep(routineId, stepId) {
+      const date = getIsoDateOffset(0);
+      appState.routineChecks = appState.routineChecks || {};
+      appState.routineChecks[date] = appState.routineChecks[date] || {};
+      const done = new Set(appState.routineChecks[date][routineId] || []);
+      if (done.has(stepId)) done.delete(stepId); else done.add(stepId);
+      appState.routineChecks[date][routineId] = Array.from(done);
+      const stats = routineDayProgress(date);
+      appState.weeklyHistory = appState.weeklyHistory || [0,0,0,0,0,0,0];
+      const jsDay = new Date().getDay(), monIdx = jsDay === 0 ? 6 : jsDay - 1;
+      appState.weeklyHistory[monIdx] = stats.percent;
+      appState.streakDays = routineCurrentStreak();
+      saveState();
+    }
+    function addRoutineStepRow(title = '', minutes = '', icon = '✨') {
+      const list = document.getElementById('routineStepsEditor');
+      if (!list) return;
+      const row = document.createElement('div');
+      row.className = 'routine-step-row grid grid-cols-[34px_minmax(0,1fr)_66px_30px] items-center gap-1.5 rounded-2xl bg-slate-50 p-2 dark:bg-[#0B1120]';
+      row.innerHTML = `<select aria-label="Icono del paso" class="routine-step-icon h-10 rounded-xl bg-white px-1 text-sm dark:bg-slate-800"><option ${icon==='✨'?'selected':''}>✨</option><option ${icon==='📚'?'selected':''}>📚</option><option ${icon==='🏃'?'selected':''}>🏃</option><option ${icon==='💧'?'selected':''}>💧</option><option ${icon==='🧘'?'selected':''}>🧘</option><option ${icon==='💰'?'selected':''}>💰</option></select><input class="routine-step-title min-w-0 rounded-xl bg-white px-2.5 py-2.5 text-xs text-slate-900 outline-none dark:bg-slate-800 dark:text-white" maxlength="60" placeholder="Nombre del paso"><input class="routine-step-minutes rounded-xl bg-white px-1 py-2.5 text-center text-xs text-slate-900 outline-none dark:bg-slate-800 dark:text-white" type="number" min="1" max="180" placeholder="min"><button type="button" onclick="this.closest('.routine-step-row').remove()" aria-label="Quitar paso" class="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:bg-rose-50 hover:text-rose-600">✕</button>`;
+      row.querySelector('.routine-step-title').value = title;
+      row.querySelector('.routine-step-minutes').value = minutes || '';
+      list.appendChild(row);
+    }
+    function closeRoutineModal() { closeModal('modalRoutine'); routineEditingId = null; }
+    function openRoutineModal(routineId = null) {
+      routineEditingId = routineId;
+      const routine = routineId ? (appState.routines || []).find(r => String(r.id) === String(routineId)) : null;
+      document.getElementById('routineModalTitle').textContent = routine ? 'Editar rutina' : 'Crear rutina';
+      document.getElementById('routineNameInput').value = routine ? routine.name : '';
+      document.getElementById('routineTimeInput').value = routine ? (routine.time || '07:00') : '07:00';
+      document.querySelectorAll('#routineDaysPicker input').forEach(c => { const dow = new Date().getDay(); c.checked = routine ? (routine.days || []).map(Number).includes(Number(c.value)) : Number(c.value) === dow; });
+      document.getElementById('routineStepsEditor').innerHTML = '';
+      if (routine && routine.steps) routine.steps.forEach(st => addRoutineStepRow(st.title, st.duration || '', st.icon || '✨'));
+      else addRoutineStepRow();
+      document.getElementById('modalRoutine').classList.remove('hidden');
+      document.getElementById('modalRoutine').classList.add('flex');
+    }
+    function fillRoutineExample(kind) {
+      openRoutineModal();
+      const samples = {
+        morning: { name: 'Mañana', time: '07:00', days: [0,1,2,3,4,5,6], steps: [['Tomar agua','', '💧'],['Estirarme',5,'🏃'],['Planear mi día',5,'✨']] },
+        study: { name: 'Estudio', time: '16:00', days: [1,2,3,4,5], steps: [['Preparar el espacio',3,'📚'],['Estudiar un tema',25,'🧘'],['Anotar lo aprendido',5,'✨']] },
+        night: { name: 'Noche', time: '21:00', days: [0,1,2,3,4,5,6], steps: [['Dejar listo el día siguiente',5,'✨'],['Leer un poco',10,'📚'],['Respirar y relajarme',5,'🧘']] }
+      };
+      const sample = samples[kind]; if (!sample) return;
+      document.getElementById('routineNameInput').value = sample.name;
+      document.getElementById('routineTimeInput').value = sample.time;
+      document.querySelectorAll('#routineDaysPicker input').forEach(c => c.checked = sample.days.includes(Number(c.value)));
+      document.getElementById('routineStepsEditor').innerHTML = '';
+      sample.steps.forEach(st => addRoutineStepRow(st[0], st[1], st[2]));
+      showToast('Ejemplo cargado en el formulario; aún no está guardado.');
+    }
+    function saveRoutineFromModal() {
+      const name = document.getElementById('routineNameInput').value.trim();
+      const days = Array.from(document.querySelectorAll('#routineDaysPicker input:checked')).map(c => Number(c.value));
+      const time = document.getElementById('routineTimeInput').value || '07:00';
+      const steps = Array.from(document.querySelectorAll('#routineStepsEditor .routine-step-row')).map(row => {
+        const title = row.querySelector('.routine-step-title').value.trim();
+        const rawMin = row.querySelector('.routine-step-minutes').value;
+        return title ? { id: Date.now() + Math.floor(Math.random()*100000), title, icon: row.querySelector('.routine-step-icon').value || '✨', duration: rawMin ? Math.max(1, Math.min(180, Number(rawMin))) : null } : null;
+      }).filter(Boolean);
+      if (!name) { showToast('Escribe el nombre de la rutina.'); return; }
+      if (!days.length) { showToast('Elige al menos un día de la semana.'); return; }
+      if (!steps.length) { showToast('Añade al menos un paso con nombre.'); return; }
+      const existing = routineEditingId && appState.routines.find(r => String(r.id) === String(routineEditingId));
+      if (existing) {
+        const oldSteps = new Map((existing.steps || []).map(st => [st.title, st]));
+        existing.name = name; existing.days = days; existing.time = time;
+        existing.steps = steps.map(st => { const old = oldSteps.get(st.title); return old ? { ...old, ...st, id: old.id } : st; });
+      } else {
+        appState.routines = appState.routines || [];
+        appState.routines.push({ id: Date.now() + Math.floor(Math.random()*10000), name, days, time, steps });
+      }
+      closeRoutineModal();
+      appState.streakDays = routineCurrentStreak();
+      saveState();
+      showToast(existing ? 'Rutina actualizada' : 'Rutina guardada');
+    }
+    function deleteRoutine(id) {
+      appState.routines = (appState.routines || []).filter(r => String(r.id) !== String(id));
+      Object.values(appState.routineChecks || {}).forEach(day => { if (day) delete day[id]; });
+      saveState(); showToast('Rutina eliminada');
+    }
+    function renderRoutines() {
+      const routines = appState.routines || [];
+      const empty = document.getElementById('routineEmptyState');
+      const main = document.getElementById('routineMainPanel');
+      const statsPanel = document.getElementById('routineStatsPanel');
+      if (empty) empty.classList.toggle('hidden', routines.length > 0);
+      if (main) main.classList.toggle('hidden', routines.length === 0);
+      if (statsPanel) statsPanel.classList.toggle('hidden', routines.length === 0);
+      const todayIso = getIsoDateOffset(0), progress = routineDayProgress(todayIso);
+      const streak = routineCurrentStreak();
+      const badge = document.getElementById('routineStreakBadge'); if (badge) badge.textContent = `🔥 ${streak} ${streak === 1 ? 'día' : 'días'}`;
+      const pill = document.getElementById('statsStreakPill'); if (pill) pill.textContent = `🔥 ${streak} ${streak === 1 ? 'día' : 'días'}`;
+      const summary = document.getElementById('routineTodaySummary'); if (summary) summary.textContent = progress.due.length ? `${progress.due.length} ${progress.due.length === 1 ? 'rutina' : 'rutinas'} · ${progress.done}/${progress.total} pasos` : 'Hoy no tienes rutinas programadas';
+      const score = document.getElementById('focusScoreValue'); if (score) score.textContent = `${progress.percent}%`;
+      const bar = document.getElementById('focusScoreBar'); if (bar) bar.style.width = `${progress.percent}%`;
+      const ratio = document.getElementById('statsHabitsRatio'); if (ratio) ratio.textContent = `${progress.done}/${progress.total}`;
+      const week = document.getElementById('weeklyStreakBars');
+      if (week) {
+        const labels = ['L','M','X','J','V','S','D'], jsToday = new Date().getDay(), todayIdx = jsToday === 0 ? 6 : jsToday - 1;
+        week.innerHTML = labels.map((label,idx) => { const date = getIsoDateOffset(idx-todayIdx); const st = routineDayProgress(date); const value = st.total ? st.percent : 0; return `<div class="flex h-full flex-col items-center justify-end gap-1.5"><div class="flex h-16 w-full max-w-[24px] items-end overflow-hidden rounded-full bg-amber-50 dark:bg-slate-800"><div class="w-full rounded-full ${idx===todayIdx?'bg-orange-500':'bg-amber-300 dark:bg-amber-600'} transition-all" style="height:${Math.max(value?8:0,value)}%"></div></div><span class="text-[10px] font-extrabold ${idx===todayIdx?'text-orange-600 dark:text-orange-300':'text-slate-400'}">${label}</span></div>`; }).join('');
+      }
+      const list = document.getElementById('routineTodayList');
+      if (!list) return;
+      if (!routines.length) { list.innerHTML = ''; return; }
+      if (!progress.due.length) {
+        list.innerHTML = `<div class="rounded-3xl border border-dashed border-orange-200 bg-orange-50/60 p-5 text-center dark:border-orange-900 dark:bg-orange-950/20"><div class="text-xl">☀️</div><p class="mt-2 text-sm font-bold text-slate-800 dark:text-slate-200">Hoy tienes el día libre de rutinas.</p><p class="mt-1 text-xs text-slate-500">Puedes ajustar los días o descansar sin culpa.</p><button onclick="openRoutineModal()" class="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-bold text-orange-700 dark:bg-slate-800 dark:text-orange-300">＋ Crear otra rutina</button></div>`;
+        return;
+      }
+      list.innerHTML = progress.due.map(r => {
+        const checked = new Set(progress.checks[r.id] || []), complete = (r.steps || []).filter(st => checked.has(st.id)).length;
+        const pct = r.steps && r.steps.length ? Math.round(complete * 100 / r.steps.length) : 0;
+        const dayNames = ['D','L','M','X','J','V','S'];
+        const steps = (r.steps || []).map(st => `<div class="flex items-center gap-2.5 rounded-2xl bg-white/90 px-3 py-2.5 dark:bg-[#0B1120]"><span class="text-base">${escapeHtml(st.icon || '✨')}</span><button onclick="toggleRoutineStep(${JSON.stringify(r.id)},${JSON.stringify(st.id)})" class="grid h-5 w-5 flex-shrink-0 place-items-center rounded-full border-2 ${checked.has(st.id)?'border-orange-500 bg-orange-500 text-white':'border-slate-300 dark:border-slate-600'}">${checked.has(st.id)?'<span class="text-[10px] font-black">✓</span>':''}</button><span class="min-w-0 flex-1 text-xs font-semibold ${checked.has(st.id)?'text-slate-400 line-through':'text-slate-800 dark:text-slate-100'}">${escapeHtml(st.title)}</span>${st.duration ? `<span class="rounded-full bg-orange-50 px-2 py-1 text-[10px] font-bold text-orange-700 dark:bg-orange-950/50 dark:text-orange-300">${Number(st.duration)} min</span>` : ''}</div>`).join('');
+        return `<article class="overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/80 shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex items-start justify-between gap-2 p-3.5 pb-2.5"><div class="min-w-0"><div class="flex items-center gap-2"><span class="grid h-9 w-9 place-items-center rounded-2xl bg-white text-lg shadow-sm dark:bg-[#0B1120]">🌞</span><div><h3 class="truncate text-sm font-extrabold text-slate-900 dark:text-white">${escapeHtml(r.name)}</h3><p class="mt-0.5 text-[10px] font-semibold text-orange-700 dark:text-orange-300">${escapeHtml(r.time || '07:00')} · ${r.steps.length} ${r.steps.length===1?'paso':'pasos'} · ${escapeHtml((r.days || []).map(Number).sort().map(d=>dayNames[d]).join(' '))}</p></div></div></div><div class="flex gap-1"><button onclick="openRoutineModal(${JSON.stringify(r.id)})" aria-label="Editar rutina" class="grid h-8 w-8 place-items-center rounded-full bg-white text-xs text-slate-500 dark:bg-slate-800">✎</button><button onclick="deleteRoutine(${JSON.stringify(r.id)})" aria-label="Eliminar rutina" class="grid h-8 w-8 place-items-center rounded-full bg-white text-xs text-slate-400 hover:text-rose-500 dark:bg-slate-800">✕</button></div></div><div class="px-3.5 pb-3"><div class="mb-2 flex items-center justify-between text-[10px] font-bold text-slate-500"><span>Progreso de esta rutina</span><span>${complete}/${r.steps.length} · ${pct}%</span></div><div class="mb-3 h-2 overflow-hidden rounded-full bg-white dark:bg-slate-800"><div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all" style="width:${pct}%"></div></div><div class="space-y-1.5">${steps}</div></div></article>`;
       }).join('');
-
-      updateTimerUI();
     }
 
     // =========================================================================
