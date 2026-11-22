@@ -3339,21 +3339,23 @@
     }
 
     // -------------------------------------------------------------------------
-    // GEMINI 2.5 FLASH CLOUD CALL (WITH INSTANT FALLBACK TO LOCAL ENGINE)
+    // GEMINI CLOUD CALL (WITH INSTANT FALLBACK TO LOCAL ENGINE)
     // -------------------------------------------------------------------------
     async function geminiRequest(parts) {
       const key = appState.customApiKey;
-      let lastErr = 'sin respuesta', busy = false, quota = false;
+      let lastErr = 'sin respuesta', lastStatus = 0, busy = false, quota = false;
       const t0 = Date.now();
-      for (const m of ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-flash-latest']) {
+      // Ordenados por estabilidad y costo. Evitar 2.5: el acceso API quedó limitado.
+      const models = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-3-flash-preview'];
+      for (const m of models) {
         if (Date.now() - t0 > 45000) break;
-        for (let attempt = 0; attempt < (m === 'gemini-2.5-flash' ? 2 : 1); attempt++) {
+        for (let attempt = 0; attempt < 2; attempt++) {
           let resp;
           const ctrl = new AbortController();
           const to = setTimeout(() => ctrl.abort(), 15000);
           try {
-            resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent?key=' + encodeURIComponent(key), {
-              method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
+            resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', {
+              method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, signal: ctrl.signal,
               body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: 'application/json' } })
             });
           } catch (e) { clearTimeout(to); if (e && e.name === 'AbortError') { lastErr = 'Gemini tardó demasiado en responder'; break; } throw new Error('no hay conexión con Gemini, revisa tu internet'); }
@@ -3366,8 +3368,13 @@
             lastErr = 'Gemini respondió vacío';
             break;
           }
+          lastStatus = resp.status;
           lastErr = (data.error && data.error.message) || ('error ' + resp.status);
-          if ([400, 401, 403].includes(resp.status)) throw new Error('la clave no fue aceptada (' + lastErr + ')');
+          if (resp.status === 401) throw new Error('Google rechazó la clave (401). Revisa que esté activa y cópiala sin espacios ni comillas.');
+          if (resp.status === 403) throw new Error('Google denegó el acceso (403). En AI Studio revisa que la clave esté restringida a Gemini API y que el proyecto/cuenta tenga acceso.');
+          // Un modelo retirado, sin acceso o con parámetros incompatibles no debe
+          // impedir probar el siguiente modelo compatible.
+          if (resp.status === 400 || resp.status === 404) break;
           if (resp.status === 429) { quota = true; break; }
           if (resp.status === 500 || resp.status === 503) {
             busy = true;
@@ -3378,6 +3385,7 @@
       }
       if (busy) throw new Error('Gemini está saturado en este momento (es de Google, no de tu app). Intenta de nuevo en unos minutos');
       if (quota) throw new Error('límite gratuito alcanzado, espera un momento');
+      if (lastStatus === 400 || lastStatus === 404) throw new Error('No pude usar los modelos Gemini disponibles. Google respondió: ' + lastErr);
       throw new Error(lastErr);
     }
 
