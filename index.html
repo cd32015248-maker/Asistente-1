@@ -1022,6 +1022,8 @@
         ttsRate: 0.92,
         ttsPitch: 1.0,
         ttsVoiceURI: '',
+        geminiTtsEnabled: false,
+        geminiTtsVoice: 'Sulafat',
         studyLog: [],
         rateUpdated: '',
         customApiKey: '',
@@ -1557,9 +1559,78 @@
       } catch (e) {}
     }
     window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
+    let activeGeminiAudio = null, activeGeminiAudioUrl = null, activeGeminiController = null, activeGeminiAudioStop = null;
+    const GEMINI_TTS_VOICES = { Sulafat: 'Cálida', Aoede: 'Suave', Achird: 'Amigable', Kore: 'Segura', Zephyr: 'Alegre', Charon: 'Serena' };
+    async function playGeminiTts(text) {
+      const key = appState.customApiKey;
+      if (!key) throw new Error('Guarda primero tu clave de Gemini en Ajustes.');
+      if (!navigator.onLine) throw new Error('No hay conexión a Internet.');
+      if (window._voiceLoop) setVoiceStatus('Preparando voz natural…', text);
+      const controller = new AbortController();
+      activeGeminiController = controller;
+      const timeout = setTimeout(() => controller.abort(), 45000);
+      let response;
+      try {
+        response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash-tts:generateContent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{
+              text,
+              speechMetadata: { style: 'Habla en español latinoamericano natural, con voz cálida, cercana y conversacional. Usa ritmo moderado, pausas naturales y pronunciación clara. Suena como una persona amable ayudando a alguien, no como locutor ni asistente robótico. Mantén una emoción sutil y auténtica.' }
+            }]}],
+            generationConfig: {
+              responseModalities: ['AUDIO'],
+              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: appState.geminiTtsVoice || 'Sulafat' } } }
+            }
+          })
+        });
+      } catch (e) {
+        if (e && e.name === 'AbortError') {
+          if (controller._userCancelled) throw e;
+          throw new Error('La generación de voz tardó demasiado.');
+        }
+        throw new Error('No pude conectar con el servicio de voz Gemini.');
+      } finally { clearTimeout(timeout); if (activeGeminiController === controller) activeGeminiController = null; }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = data.error && data.error.message ? data.error.message : `HTTP ${response.status}`;
+        if (response.status === 401 || response.status === 403) throw new Error('Google no aceptó la clave o no autorizó TTS. Revisa la clave y el acceso a Gemini API.');
+        if (response.status === 429) throw new Error('Se alcanzó el límite de uso de voz Gemini; prueba más tarde.');
+        throw new Error('Gemini TTS: ' + detail);
+      }
+      const parts = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts || [];
+      const audioPart = parts.find(p => p.inlineData && p.inlineData.data);
+      if (!audioPart) throw new Error('Gemini no devolvió audio.');
+      const bytes = Uint8Array.from(atob(audioPart.inlineData.data), c => c.charCodeAt(0));
+      const blob = new Blob([bytes], { type: audioPart.inlineData.mimeType || 'audio/wav' });
+      if (activeGeminiAudio) { activeGeminiAudio.pause(); activeGeminiAudio = null; }
+      if (activeGeminiAudioUrl) URL.revokeObjectURL(activeGeminiAudioUrl);
+      activeGeminiAudioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(activeGeminiAudioUrl);
+      activeGeminiAudio = audio;
+      const objectUrl = activeGeminiAudioUrl;
+      try {
+        await new Promise((resolve, reject) => {
+          activeGeminiAudioStop = resolve;
+          audio.onended = resolve;
+          audio.onerror = () => reject(new Error('El teléfono no pudo reproducir el audio de Gemini.'));
+          audio.play().catch(reject);
+        });
+      } finally {
+        activeGeminiAudioStop = null;
+        if (activeGeminiAudio === audio) activeGeminiAudio = null;
+        if (activeGeminiAudioUrl === objectUrl) { URL.revokeObjectURL(objectUrl); activeGeminiAudioUrl = null; }
+      }
+    }
     async function speakAsync(text) {
       const clean = String(text || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').replace(/[•*_#]+/g, ' ').replace(/\n+/g, '. ').slice(0, 1200);
       if (!clean.trim()) return;
+      if (appState.geminiTtsEnabled && appState.customApiKey) {
+        try { await playGeminiTts(clean); return; }
+        catch (e) { if (e && e.name === 'AbortError') return; showToast((e && e.message ? e.message : 'Voz natural no disponible') + ' Uso la voz del teléfono.'); }
+      }
       const TTS = nativePlugin('TextToSpeech');
       try {
         if (TTS) {
@@ -1577,6 +1648,10 @@
     }
     function speak(text) { speakAsync(text); }
     function stopSpeaking() {
+      if (activeGeminiController) { try { activeGeminiController._userCancelled = true; activeGeminiController.abort(); } catch (e) {} activeGeminiController = null; }
+      if (activeGeminiAudioStop) { const stop = activeGeminiAudioStop; activeGeminiAudioStop = null; try { stop(); } catch (e) {} }
+      if (activeGeminiAudio) { try { activeGeminiAudio.pause(); activeGeminiAudio.currentTime = 0; } catch (e) {} activeGeminiAudio = null; }
+      if (activeGeminiAudioUrl) { URL.revokeObjectURL(activeGeminiAudioUrl); activeGeminiAudioUrl = null; }
       try { const T = nativePlugin('TextToSpeech'); if (T) T.stop(); } catch (e) {}
       try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
     }
@@ -1727,6 +1802,21 @@
     function setTtsRate(v) { appState.ttsRate = Math.max(0.75, Math.min(1.15, Number(v) || 0.92)); saveState(); }
     function setTtsPitch(v) { appState.ttsPitch = Math.max(0.8, Math.min(1.2, Number(v) || 1)); saveState(); }
     function testTtsVoice() { speakAsync('Hola, soy tu asistente. Esta es la voz que usaré para hablar contigo.'); }
+    function setGeminiTtsEnabled(value) {
+      if (value && !appState.customApiKey) { showToast('Guarda primero tu clave de Gemini en Ajustes.'); return; }
+      appState.geminiTtsEnabled = !!value;
+      saveState();
+      showToast(appState.geminiTtsEnabled ? 'Voz natural de Gemini activada' : 'Voz natural desactivada; usaré la voz del teléfono');
+    }
+    function setGeminiTtsVoice(value) {
+      if (!Object.prototype.hasOwnProperty.call(GEMINI_TTS_VOICES, value)) return;
+      appState.geminiTtsVoice = value;
+      saveState();
+    }
+    function testGeminiTts() {
+      if (!appState.customApiKey) { showToast('Guarda primero tu clave de Gemini en Ajustes.'); return; }
+      speakAsync('Hola, César. Qué gusto hablar contigo. Esta es mi voz natural en español.');
+    }
     async function startVoice() {
       const SR = nativePlugin('SpeechRecognition');
       const inp = document.getElementById('aiChatInput');
@@ -1797,6 +1887,9 @@
           <div class="flex flex-wrap gap-2">${pill('Guardar clave', 'saveApiKeySettings()', true)}${pill('Probar conexión', 'testGemini()', false)}${pill('🩺 Diagnóstico', 'runDiagnostics()', false)}${pill('Limpiar chat', 'clearChatHistory()', false)}</div>
           ${row('Respuestas en voz alta', pill(appState.voiceReplies ? 'Activadas' : 'Apagadas', 'toggleVoiceReplies()', !!appState.voiceReplies))}`) +
         card('🗣️ Voz del asistente', `
+          <div class="rounded-2xl bg-indigo-50 dark:bg-indigo-950/35 p-3 space-y-2"><div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-indigo-800 dark:text-indigo-200">Voz natural de Gemini</span><input aria-label="Activar voz natural Gemini" type="checkbox" ${appState.geminiTtsEnabled ? 'checked' : ''} onchange="setGeminiTtsEnabled(this.checked)" class="w-5 h-5 accent-indigo-600" /></div><p class="text-[10px] leading-relaxed text-indigo-700 dark:text-indigo-300">Cuando está activa y las respuestas en voz alta están encendidas, Gemini genera el audio por Internet. Se envía a Google el texto de la respuesta. El uso depende de los límites y la facturación de tu clave.</p></div>
+          <div><label for="geminiTtsVoice" class="text-xs font-semibold text-slate-600 dark:text-slate-300">Voz Gemini</label><select id="geminiTtsVoice" onchange="setGeminiTtsVoice(this.value)" class="w-full ${inp}">${Object.entries(GEMINI_TTS_VOICES).map(([name, label]) => `<option value="${name}" ${name === (appState.geminiTtsVoice || 'Sulafat') ? 'selected' : ''}>${label} · ${name}</option>`).join('')}</select><p class="text-[10px] text-slate-400">La voz cálida Sulafat viene seleccionada inicialmente.</p></div>
+          <button onclick="testGeminiTts()" class="px-3 py-2 rounded-full bg-indigo-600 text-white text-xs font-bold">▶ Probar voz natural Gemini</button>
           <div class="space-y-1"><label for="ttsVoiceSelect" class="text-xs font-semibold text-slate-600 dark:text-slate-300">Voz en español</label><select id="ttsVoiceSelect" onchange="setTtsVoice(this.value)" class="w-full ${inp}"><option value="">Cargando voces…</option></select><p id="ttsVoiceHelp" class="text-[10px] leading-relaxed text-slate-400">Puedes elegir una voz más natural si el motor de voz de Android la tiene disponible.</p></div>
           <div><label class="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-300"><span>Velocidad</span><span>${Number(appState.ttsRate || 0.92).toFixed(2)}×</span></label><input type="range" min="0.75" max="1.15" step="0.05" value="${Number(appState.ttsRate || 0.92)}" onchange="setTtsRate(this.value)" class="w-full accent-indigo-600" /><p class="text-[10px] text-slate-400">Un poco más lenta suele sonar más conversacional.</p></div>
           <div><label class="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-300"><span>Tono</span><span>${Number(appState.ttsPitch || 1).toFixed(2)}×</span></label><input type="range" min="0.8" max="1.2" step="0.05" value="${Number(appState.ttsPitch || 1)}" onchange="setTtsPitch(this.value)" class="w-full accent-indigo-600" /></div>
