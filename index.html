@@ -1509,6 +1509,22 @@
       } catch (e) {}
     }
     function speak(text) { speakAsync(text); }
+    let voicePreflightChecked = false, voicePreflightError = null;
+    let voiceLastError = '', voiceLastTiming = '';
+    function voiceFailure(code, message) {
+      const cleanMessage = String(message || 'Error sin detalle').slice(0, 220);
+      voiceLastError = `${code}: ${cleanMessage}`;
+      return { _almaVoiceError: true, code, message: cleanMessage };
+    }
+    function describeVoiceError(error, phase) {
+      const code = String(error && (error.code || error.error || error.name) || phase || 'error');
+      const raw = String(error && error.message || error || '').slice(0, 140);
+      const key = code.toLowerCase() + ' ' + raw.toLowerCase();
+      if (/not.allowed|permission|denied/.test(key)) return voiceFailure('permiso', 'Android no autorizó el micrófono. Confirma el permiso para ALMA en Ajustes de la app.');
+      if (/audio.capture|audio record|microphone|micrófono/.test(key)) return voiceFailure('micrófono', 'Android no pudo acceder al micrófono. Revisa si otra app lo está usando.');
+      if (/network|service unavailable|recognizer unavailable/.test(key)) return voiceFailure('servicio', 'El servicio de reconocimiento no respondió. Revisa Internet y el servicio de voz configurado en Android.');
+      return voiceFailure(phase || code, raw ? `El reconocimiento falló (${code}): ${raw}` : `El reconocimiento falló en la etapa ${phase || 'desconocida'}.`);
+    }
     function stopSpeaking() {
       if (activeGeminiController) { try { activeGeminiController._userCancelled = true; activeGeminiController.abort(); } catch (e) {} activeGeminiController = null; }
       if (activeGeminiAudioStop) { const stop = activeGeminiAudioStop; activeGeminiAudioStop = null; try { stop(); } catch (e) {} }
@@ -1522,24 +1538,41 @@
         const SR = nativePlugin('SpeechRecognition');
         try {
           if (SR) {
-            const available = await SR.available();
-            if (!available || !available.available) { showToast('El servicio de reconocimiento de voz no está disponible en este dispositivo.'); resolve(null); return; }
-            let p = SR.checkPermissions ? await SR.checkPermissions() : { speechRecognition: 'prompt' };
-            if (p.speechRecognition !== 'granted') p = await SR.requestPermissions();
-            if (p.speechRecognition !== 'granted') { showToast('Necesito permiso del micrófono'); resolve(null); return; }
-            const r = await SR.start({ language: 'es-ES', maxResults: 1, prompt: '', partialResults: false, popup: false });
+            if (voicePreflightError) { resolve(voicePreflightError); return; }
+            if (!voicePreflightChecked) {
+              voicePreflightChecked = true;
+              try {
+                const available = await SR.available();
+                if (!available || !available.available) {
+                  voicePreflightError = voiceFailure('servicio', 'El servicio de reconocimiento del teléfono no está disponible.');
+                  resolve(voicePreflightError); return;
+                }
+              } catch (e) { voicePreflightError = describeVoiceError(e, 'disponibilidad'); resolve(voicePreflightError); return; }
+              try {
+                let p = SR.checkPermissions ? await SR.checkPermissions() : { speechRecognition: 'prompt' };
+                if (p.speechRecognition !== 'granted') p = await SR.requestPermissions();
+                if (p.speechRecognition !== 'granted') {
+                  voicePreflightError = voiceFailure('permiso', `Android reporta el permiso del micrófono como “${p.speechRecognition || 'desconocido'}”.`);
+                  resolve(voicePreflightError); return;
+                }
+              } catch (e) { voicePreflightError = describeVoiceError(e, 'permiso'); resolve(voicePreflightError); return; }
+            }
+            let r;
+            try { r = await SR.start({ language: 'es-ES', maxResults: 1, prompt: '', partialResults: false, popup: false }); }
+            catch (e) { resolve(describeVoiceError(e, 'inicio')); return; }
+            voiceLastError = '';
             resolve(r && r.matches && r.matches[0] ? r.matches[0] : '');
             return;
           }
           const W = window.SpeechRecognition || window.webkitSpeechRecognition;
-          if (!W) { showToast('Este dispositivo no permite voz'); resolve(null); return; }
+          if (!W) { resolve(voiceFailure('servicio', 'Este dispositivo no ofrece reconocimiento de voz en el navegador.')); return; }
           const rec = new W();
           rec.lang = 'es-ES';
-          rec.onresult = e => resolve(e.results[0][0].transcript);
-          rec.onerror = e => resolve(e && e.error === 'no-speech' ? '' : null);
+          rec.onresult = e => { voiceLastError = ''; resolve(e.results[0][0].transcript); };
+          rec.onerror = e => resolve(e && e.error === 'no-speech' ? '' : describeVoiceError(e, e && e.error || 'reconocimiento'));
           rec.onend = () => resolve('');
           rec.start();
-        } catch (e) { showToast('Falló el reconocimiento de voz. Revisa el permiso y el servicio de voz del teléfono.'); resolve(null); }
+        } catch (e) { resolve(describeVoiceError(e, 'reconocimiento')); }
       });
     }
     let voiceLoopOn = false, voiceRunning = false;
@@ -1606,6 +1639,8 @@
         return;
       }
       voiceLoopOn = true;
+      voicePreflightChecked = false;
+      voicePreflightError = null;
       voiceUiStatus = 'Conectando…';
       voiceUiDetail = 'Puedes seguir usando y cambiando de sección.';
       paintAlmaVoiceDock();
@@ -1620,11 +1655,19 @@
         setVoiceStatus('Escuchando…', 'Habla cuando quieras; ALMA seguirá activa al cambiar de sección.');
         const heard = await listenOnce();
         if (!voiceLoopOn) break;
+        if (heard && heard._almaVoiceError) {
+          voiceLoopOn = false;
+          voiceUiStatus = 'Micrófono pausado';
+          voiceUiDetail = heard.message;
+          showToast(heard.message);
+          break;
+        }
         if (heard === null) {
           voiceLoopOn = false;
           voiceUiStatus = 'Micrófono pausado';
-          voiceUiDetail = 'Revisa el permiso y toca para volver a intentar.';
-          showToast('No pude mantener el micrófono activo. Revisa su permiso.');
+          voiceUiDetail = 'La escucha se pausó por un error no identificado. Abre Diagnóstico para revisar el estado.';
+          voiceLastError = 'error: La escucha terminó sin devolver un resultado.';
+          showToast('La escucha se pausó; revisa el Diagnóstico para ver el motivo.');
           break;
         }
         if (!heard) {
@@ -1638,12 +1681,16 @@
         setVoiceStatus('Pensando…', 'Estoy preparando una respuesta para ti.');
         const input = document.getElementById('aiChatInput');
         if (input) input.value = heard;
+        const responseStartedAt = Date.now();
         await handleSendChat(voiceContextSection);
+        const responseSeconds = (Date.now() - responseStartedAt) / 1000;
         if (!voiceLoopOn) break;
         const last = appState.chat[appState.chat.length - 1];
         const reply = last && last.role === 'ai' ? last.text : '';
-        setVoiceStatus('Respondiendo…', 'Escucha la respuesta de ALMA.');
+        setVoiceStatus('Respondiendo…', `ALMA preparó la respuesta en ${responseSeconds.toFixed(1)} s; ahora la está diciendo.`);
+        const speechStartedAt = Date.now();
         await speakAsync(reply);
+        voiceLastTiming = `Respuesta: ${responseSeconds.toFixed(1)} s · reproducción de voz: ${((Date.now() - speechStartedAt) / 1000).toFixed(1)} s`;
       }
       voiceRunning = false;
       window._voiceLoop = false;
@@ -1685,6 +1732,8 @@
         const available = await SR.available();
         add('Micrófono: permiso ' + (p.speechRecognition || 'no comprobado') + (available && available.available ? ' · reconocimiento disponible ✓' : ' · reconocimiento no disponible ✗'));
       } catch (e) { add('Micrófono: error ✗ ' + (e && e.message ? e.message : e)); }
+      add('Último fallo de escucha: ' + (voiceLastError || 'ninguno registrado'));
+      add('Último tiempo medido: ' + (voiceLastTiming || 'aún no hay una respuesta de voz medida'));
       const TTS = nativePlugin('TextToSpeech');
       if (!TTS) add('Voz de respuesta: plugin no disponible ✗');
       else try {
@@ -3927,6 +3976,7 @@
       try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
       if (!sample && !appState.customApiKey) return null;
       const snapshot = buildAiContextSnapshot(userMessage, sectionHint);
+      if (window._voiceLoop) snapshot.instruccion_de_contexto += ' En conversación por voz, responde normalmente en una a tres frases, evita listas largas y ofrece ampliar si la persona lo pide.';
       snapshot.conversacion_reciente = appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text, fecha_hora: formatChatTimestamp(m.createdAt) || undefined }));
       const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Puedes conversar y ayudar con temas generales —explicar, pensar ideas, redactar, aprender o acompañar una conversación—; no te limites a las funciones de la aplicación ni des por hecho que cada mensaje pide usarla. Responde en español, de forma clara y natural. El campo ESTADO.seccion_activa es la pantalla que la persona está usando. Si pregunta qué apartado está usando, responde con ese campo; en otros temas no fuerces ni menciones la app. Usa únicamente los datos personales de ESTADO que sean pertinentes a la pregunta. En finanzas, usa ESTADO.finanzas.capital_actual como saldo en caja; si definido es false, no afirmes que conoces cuánto dinero tiene: dile que configure su capital actual en Finanzas. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni afirmes que hiciste cambios si no hay una acción válida.
 Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
