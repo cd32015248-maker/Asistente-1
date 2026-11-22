@@ -334,14 +334,14 @@
             <button onclick="sendSuggestion('¿Qué tengo hoy?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">¿Qué tengo hoy?</button>
             <button onclick="sendSuggestion('Resumen de mi dinero')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">Resumen de mi dinero</button>
             <button onclick="sendSuggestion('Hazme un resumen de mi semana')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">Mi semana</button>
+            <button onclick="sendSuggestion('¿Qué te dije ayer?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">¿Qué te dije ayer?</button>
             <button onclick="sendSuggestion('¿Cómo estudio mejor?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">¿Cómo estudio?</button>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="pickPhoto()" aria-label="Foto" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">📷</button>
             <input id="photoInput" type="file" accept="image/*" class="hidden" onchange="handlePhoto(this)">
             <input id="aiChatInput" type="text" placeholder="Escribe aquí con ALMA…" onkeydown="if(event.key==='Enter') handleSendChat()" class="flex-1 min-w-0 bg-slate-100 dark:bg-[#0B1120] text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-full px-4 py-2.5 outline-none border border-transparent focus:border-indigo-500 transition" />
-            <button onclick="startVoice()" aria-label="Dictar un mensaje" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🎤</button>
-            <button id="aiSendBtn" onclick="handleSendChat()" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-sm active:scale-95 transition flex-shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+              <button id="aiSendBtn" onclick="handleSendChat()" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-sm active:scale-95 transition flex-shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
           </div>
         </div>
         <div id="almaVoiceRoom" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 via-[#F6F8FC] to-cyan-50 px-6 text-center dark:from-[#10182b] dark:via-[#0B1120] dark:to-[#0d1924]">
@@ -483,6 +483,7 @@
           <button onclick="closeModal('modalDiag')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
         </div>
         <pre id="diagText" class="whitespace-pre-wrap text-xs font-medium text-slate-700 dark:text-slate-200 leading-relaxed" style="font-family:inherit"></pre>
+        <button id="diagExactAlarmButton" onclick="openExactAlarmSettings()" class="hidden w-full py-2.5 rounded-2xl bg-amber-500 text-white text-xs font-extrabold">Configurar alarmas exactas</button>
       </div>
     </div>
 
@@ -703,7 +704,7 @@
           <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Respaldo de datos</h3>
           <button onclick="closeModal('modalBackup')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
         </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Guarda una copia de todo (tareas, finanzas, notas, rutinas). Para restaurar, pega el texto o elige el archivo y toca Restaurar.</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Guarda una copia de tus datos (tareas, finanzas, notas y rutinas). La clave de Gemini se excluye por seguridad y permanece en este teléfono. Para restaurar, pega el texto o elige el archivo y toca Restaurar.</p>
         <button onclick="exportBackup()" class="w-full py-2.5 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar respaldo</button>
         <textarea id="backupText" rows="4" placeholder="Aquí aparece el respaldo, o pega uno para restaurar" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-[11px] font-mono text-slate-900 dark:text-white outline-none"></textarea>
         <input type="file" accept=".json,.txt" onchange="loadBackupFile(this)" class="text-xs text-slate-500 w-full" />
@@ -1359,35 +1360,59 @@
       return WORD_FRASES[Math.floor(n / step) % WORD_FRASES.length];
     }
     let notifTimer = null;
-    function scheduleNotifSoon() { clearTimeout(notifTimer); notifTimer = setTimeout(scheduleAllNotifications, 1500); }
+    let lastNotifConfigSignature = '';
+    let notifLastResult = 'Todavía no se ha intentado programar avisos.';
+    function notifConfigSignature() {
+      return JSON.stringify({
+        tasks: (appState.tasks || []).map(t => [t.id, t.title, t.date, t.startTime, t.done, t.exam]),
+        routines: (appState.routines || []).map(r => [r.id, r.name, r.days, r.time]),
+        wordHours: appState.wordHours || ['07:00', '13:00', '20:00'],
+        wordMode: appState.wordMode || 'ambos'
+      });
+    }
+    function scheduleNotifSoon() {
+      const signature = notifConfigSignature();
+      if (signature === lastNotifConfigSignature) return;
+      lastNotifConfigSignature = signature;
+      clearTimeout(notifTimer);
+      notifTimer = setTimeout(scheduleAllNotifications, 1500);
+    }
     async function scheduleAllNotifications() {
       const LN = nativePlugin('LocalNotifications');
-      if (!LN) return;
+      if (!LN) { notifLastResult = 'Plugin de notificaciones no disponible.'; return; }
       try {
-        const perm = await LN.requestPermissions();
-        if (perm.display !== 'granted') return;
-        const pend = await LN.getPending();
-        if (pend.notifications.length) await LN.cancel({ notifications: pend.notifications });
-        const now = new Date(), list = [];
-        let id = 1;
-        const add = (at, title, body) => { if (at > now && list.length < 60) list.push({ id: id++, title, body, schedule: { at, allowWhileIdle: true } }); };
-        (appState.routines || []).forEach(r => { for (let i = 0; i < 7; i++) { const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i); if ((r.days || []).map(Number).includes(day.getDay())) add(new Date(day.getFullYear(), day.getMonth(), day.getDate(), Number((r.time || '07:00').slice(0,2)), Number((r.time || '07:00').slice(3,5)), 0), '⏰ ' + (r.name || 'Tu rutina'), 'Es hora de comenzar: ' + (r.name || 'tu rutina')); } });
+        let perm = await LN.checkPermissions();
+        if (perm.display !== 'granted') perm = await LN.requestPermissions();
+        if (perm.display !== 'granted') { notifLastResult = 'Permiso de mostrar notificaciones: ' + (perm.display || 'no concedido') + '.'; return; }
+        const now = new Date(), important = [], wordAlerts = [];
+        const add = (target, at, title, body) => { if (at instanceof Date && Number.isFinite(at.getTime()) && at > now) target.push({ at, title, body }); };
+        (appState.routines || []).forEach(r => { for (let i = 0; i < 7; i++) { const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i); if ((r.days || []).map(Number).includes(day.getDay())) { const time = r.time || '07:00'; add(important, new Date(day.getFullYear(), day.getMonth(), day.getDate(), Number(time.slice(0,2)), Number(time.slice(3,5)), 0), '⏰ ' + (r.name || 'Tu rutina'), 'Es hora de comenzar: ' + (r.name || 'tu rutina')); } } });
         appState.tasks.filter(t => !t.done).forEach(t => {
           const nm = (t.title || '').replace('📝 ', '');
-          add(new Date(t.date + 'T' + (t.startTime || '09:00') + ':00'), '📌 ' + nm, 'Empieza a las ' + (t.startTime || '09:00'));
-          if (t.exam || (t.title || '').startsWith('📝')) add(new Date(shiftIso(t.date, -1) + 'T08:00:00'), '⏰ Mañana: ' + nm, 'Haz un repaso suave y descansa bien.');
+          add(important, new Date(t.date + 'T' + (t.startTime || '09:00') + ':00'), '📌 ' + nm, 'Empieza a las ' + (t.startTime || '09:00'));
+          if (t.exam || (t.title || '').startsWith('📝')) add(important, new Date(shiftIso(t.date, -1) + 'T08:00:00'), '⏰ Mañana: ' + nm, 'Haz un repaso suave y descansa bien.');
         });
         const wh = appState.wordHours || ['07:00', '13:00', '20:00'];
         const slots = wh.map((hh, i) => [hh, i, ['Palabra de la mañana', 'Palabra de la tarde', 'Palabra de la noche'][i]]);
         for (let i = 0; i < 7; i++) {
           const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
           const dayN = Math.floor((day - new Date(day.getFullYear(), 0, 0)) / 86400000);
-          slots.forEach(([h, sl, title]) => add(new Date(day.getFullYear(), day.getMonth(), day.getDate(), +h.split(':')[0], +h.split(':')[1] || 0, 0), title, wordForSlot(dayN, sl)));
+          slots.forEach(([h, sl, title]) => add(wordAlerts, new Date(day.getFullYear(), day.getMonth(), day.getDate(), +h.split(':')[0], +h.split(':')[1] || 0, 0), title, wordForSlot(dayN, sl)));
         }
+        important.sort((a, b) => a.at - b.at);
+        wordAlerts.sort((a, b) => a.at - b.at);
+        const selected = important.slice(0, 60);
+        if (selected.length < 60) selected.push(...wordAlerts.slice(0, 60 - selected.length));
+        const list = selected.map((item, i) => ({ id: i + 1, title: item.title, body: item.body, schedule: { at: item.at, allowWhileIdle: true } }));
+        const pend = await LN.getPending();
+        if (pend.notifications.length) await LN.cancel({ notifications: pend.notifications });
         if (list.length) await LN.schedule({ notifications: list });
-      } catch (e) {}
+        const omitted = Math.max(0, important.length + wordAlerts.length - list.length);
+        notifLastResult = `Programadas ${list.length} notificaciones${omitted ? `; ${omitted} quedaron fuera del límite` : ''}.`;
+      } catch (e) { notifLastResult = 'Error al programar: ' + (e && e.message ? e.message : String(e)); }
     }
     window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleAllNotifications(); });
     let activeGeminiAudio = null, activeGeminiAudioUrl = null, activeGeminiController = null, activeGeminiAudioStop = null;
     const GEMINI_TTS_VOICES = { Sulafat: 'Cálida', Aoede: 'Suave', Achird: 'Amigable', Kore: 'Segura', Zephyr: 'Alegre', Charon: 'Serena' };
     async function playGeminiTts(text, modelId = 'gemini-3.8-flash-tts') {
@@ -1497,7 +1522,10 @@
         const SR = nativePlugin('SpeechRecognition');
         try {
           if (SR) {
-            const p = await SR.requestPermissions();
+            const available = await SR.available();
+            if (!available || !available.available) { showToast('El servicio de reconocimiento de voz no está disponible en este dispositivo.'); resolve(null); return; }
+            let p = SR.checkPermissions ? await SR.checkPermissions() : { speechRecognition: 'prompt' };
+            if (p.speechRecognition !== 'granted') p = await SR.requestPermissions();
             if (p.speechRecognition !== 'granted') { showToast('Necesito permiso del micrófono'); resolve(null); return; }
             const r = await SR.start({ language: 'es-ES', maxResults: 1, prompt: '', partialResults: false, popup: false });
             resolve(r && r.matches && r.matches[0] ? r.matches[0] : '');
@@ -1508,10 +1536,10 @@
           const rec = new W();
           rec.lang = 'es-ES';
           rec.onresult = e => resolve(e.results[0][0].transcript);
-          rec.onerror = () => resolve('');
+          rec.onerror = e => resolve(e && e.error === 'no-speech' ? '' : null);
           rec.onend = () => resolve('');
           rec.start();
-        } catch (e) { resolve(''); }
+        } catch (e) { showToast('Falló el reconocimiento de voz. Revisa el permiso y el servicio de voz del teléfono.'); resolve(null); }
       });
     }
     let voiceLoopOn = false, voiceRunning = false;
@@ -1530,8 +1558,8 @@
       if (!panel || !line || !detail || !button) return;
       const section = activeVoiceSection();
       const dock = document.getElementById('almaVoiceDock');
-      if (dock) dock.classList.toggle('hidden', activeTab === 'ia' && voiceRoomOpen);
-      panel.classList.toggle('hidden', !voiceLoopOn || (activeTab === 'ia' && voiceRoomOpen));
+      if (dock) dock.classList.toggle('hidden', activeTab === 'ia');
+      panel.classList.toggle('hidden', !voiceLoopOn || activeTab === 'ia');
       line.textContent = 'ALMA · ' + voiceUiStatus + (section ? ' · ' + sectionLabel(section) : '');
       detail.textContent = voiceUiDetail;
       const room = document.getElementById('almaVoiceRoom');
@@ -1630,21 +1658,54 @@
       openModal('modalDiag');
       const out = document.getElementById('diagText'), lines = [];
       const add = t => { lines.push(t); out.textContent = lines.join('\n'); };
+      const exactButton = document.getElementById('diagExactAlarmButton');
+      if (exactButton) exactButton.classList.add('hidden');
       add('Versión: ' + (NATIVE ? 'App Android real ✓' : 'Página / navegador interno ✗ (aquí NO hay voz ni notificaciones nativas)'));
       add('Clave Gemini: ' + (appState.customApiKey ? 'guardada (' + appState.customApiKey.length + ' caracteres)' : 'NO guardada ✗'));
       add('Internet: ' + (navigator.onLine ? 'sí ✓' : 'no ✗'));
-      const checks = [['Notificaciones', 'LocalNotifications', P => P.checkPermissions()], ['Micrófono', 'SpeechRecognition', P => P.available()], ['Voz de respuesta', 'TextToSpeech', P => P.getSupportedLanguages()]];
-      for (const [label, name, fn] of checks) {
-        const P = nativePlugin(name);
-        if (!P) { add(label + ': plugin no disponible ✗'); continue; }
-        try { await fn(P); add(label + ': listo ✓'); } catch (e) { add(label + ': error ✗ ' + (e && e.message ? e.message : e)); }
+      const LN = nativePlugin('LocalNotifications');
+      if (!LN) add('Notificaciones: plugin no disponible ✗');
+      else {
+        try {
+          const p = await LN.checkPermissions();
+          add('Notificaciones visibles: ' + (p.display === 'granted' ? 'permiso concedido ✓' : 'permiso ' + (p.display || 'desconocido') + ' ✗'));
+          if (LN.checkExactNotificationSetting) {
+            const exact = await LN.checkExactNotificationSetting();
+            add('Alarmas exactas: ' + (exact.exact_alarm === 'granted' ? 'permitidas ✓' : 'no permitidas (' + (exact.exact_alarm || 'desconocido') + ') · pueden llegar tarde'));
+            if (exactButton && exact.exact_alarm !== 'granted') exactButton.classList.remove('hidden');
+          } else add('Alarmas exactas: el plugin no ofrece esta comprobación.');
+          try { const pending = await LN.getPending(); add('Avisos pendientes: ' + ((pending.notifications || []).length)); } catch (e) { add('Avisos pendientes: no se pudieron consultar.'); }
+          add('Última programación: ' + notifLastResult);
+        } catch (e) { add('Notificaciones: error ✗ ' + (e && e.message ? e.message : e)); }
       }
+      const SR = nativePlugin('SpeechRecognition');
+      if (!SR) add('Micrófono: plugin no disponible ✗');
+      else try {
+        const p = SR.checkPermissions ? await SR.checkPermissions() : {};
+        const available = await SR.available();
+        add('Micrófono: permiso ' + (p.speechRecognition || 'no comprobado') + (available && available.available ? ' · reconocimiento disponible ✓' : ' · reconocimiento no disponible ✗'));
+      } catch (e) { add('Micrófono: error ✗ ' + (e && e.message ? e.message : e)); }
+      const TTS = nativePlugin('TextToSpeech');
+      if (!TTS) add('Voz de respuesta: plugin no disponible ✗');
+      else try {
+        const result = await TTS.getSupportedLanguages();
+        const languages = result && Array.isArray(result.languages) ? result.languages : [];
+        add('Voz de respuesta: ' + (languages.length ? `${languages.length} idiomas disponibles${languages.some(x => String(x).toLowerCase().startsWith('es')) ? ', español ✓' : ', español no confirmado'}` : 'el motor no informó idiomas disponibles ✗'));
+      } catch (e) { add('Voz de respuesta: error ✗ ' + (e && e.message ? e.message : e)); }
       add('Voz del navegador: ' + (window.speechSynthesis ? 'sí' : 'no') + ' · Dictado del navegador: ' + ((window.SpeechRecognition || window.webkitSpeechRecognition) ? 'sí' : 'no'));
       if (appState.customApiKey) {
         add('Probando Gemini…');
         try { await geminiRequest([{ text: 'Responde solo este JSON: {"ok":true}' }]); add('Gemini: funciona ✓'); } catch (e) { add('Gemini: ✗ ' + e.message); }
       }
       add('— Fin. Toma una captura de esta pantalla y mándala.');
+    }
+    async function openExactAlarmSettings() {
+      const LN = nativePlugin('LocalNotifications');
+      if (!LN || !LN.changeExactNotificationSetting) { showToast('No se puede abrir la configuración de alarmas en esta versión.'); return; }
+      try {
+        const result = await LN.changeExactNotificationSetting();
+        showToast(result.exact_alarm === 'granted' ? 'Alarmas exactas permitidas' : 'Revisa y permite “Alarmas y recordatorios” en Android.');
+      } catch (e) { showToast('No pude abrir ese ajuste: ' + (e && e.message ? e.message : e)); }
     }
     async function testGemini() {
       if (!appState.customApiKey) { showToast('Primero pega y guarda tu clave de Gemini'); return; }
@@ -2135,7 +2196,9 @@
     }
     function gcalUrl(title, date, start, end) {
       const f = (d, t) => d.replace(/-/g, '') + 'T' + (t || '09:00').replace(':', '') + '00';
-      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + f(date, start) + '/' + f(date, end || addOneHour(start)) + '&details=' + encodeURIComponent('Desde Mi Asistente');
+      const endTime = end || addOneHour(start);
+      const endDate = endTime <= start ? shiftIso(date, 1) : date;
+      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + f(date, start) + '/' + f(endDate, endTime) + '&details=' + encodeURIComponent('Desde Mi Asistente');
     }
 
     // ---- Materias y notas ----
@@ -2233,15 +2296,16 @@
     // ---- Respaldo ----
     function openBackupModal() { document.getElementById('backupText').value = ''; openModal('modalBackup'); }
     async function exportBackup() {
-      const data = JSON.stringify(appState, null, 1);
+      const backupState = { ...appState, customApiKey: '' };
+      const data = JSON.stringify(backupState, null, 1);
       let d = null;
       try { d = window.claude ? await window.claude.use('downloads') : null; } catch (e) { d = null; }
       if (d) {
-        try { await d.save({ filename: 'mi-asistente-respaldo.json', data }); showToast('Respaldo guardado'); return; }
+        try { await d.save({ filename: 'mi-asistente-respaldo.json', data }); showToast('Respaldo guardado (sin clave API)'); return; }
         catch (e) { if (e && e.code === 'declined') return; }
       }
       document.getElementById('backupText').value = data;
-      showToast('Copia ese texto y guárdalo en tus notas');
+      showToast('Copia el respaldo; no contiene tu clave API');
     }
     function loadBackupFile(inp) {
       const f = inp.files && inp.files[0];
@@ -2254,7 +2318,9 @@
       try {
         const o = JSON.parse(document.getElementById('backupText').value.trim());
         if (!o || !Array.isArray(o.tasks) || !Array.isArray(o.transactions)) throw new Error('bad');
-        appState = migrateLegacyHabits({ ...createDefaultState(), ...o }, Object.prototype.hasOwnProperty.call(o, 'routines'));
+        const localApiKey = appState.customApiKey || '';
+        const safeBackup = { ...o, customApiKey: localApiKey };
+        appState = migrateLegacyHabits({ ...createDefaultState(), ...safeBackup }, Object.prototype.hasOwnProperty.call(o, 'routines'));
         closeModal('modalBackup');
         saveState();
         showToast('Datos restaurados');
@@ -2934,6 +3000,76 @@
         .replace(/\n/g, '<br>');
     }
 
+    function chatDateKey(value) {
+      const d = new Date(Number(value));
+      if (!Number.isFinite(d.getTime())) return '';
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    function formatChatTimestamp(value) {
+      const d = new Date(Number(value));
+      if (!Number.isFinite(d.getTime())) return '';
+      const today = chatDateKey(Date.now());
+      const yesterdayDate = new Date();
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      const yesterday = chatDateKey(yesterdayDate.getTime());
+      const key = chatDateKey(d.getTime());
+      const day = key === today ? 'Hoy' : key === yesterday ? 'Ayer' : d.toLocaleDateString('es-VE', { weekday: 'short', day: 'numeric', month: 'short' });
+      const time = d.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+      return `${day} · ${time}`;
+    }
+    function resolveChatMemoryDate(query) {
+      const lower = String(query || '').toLowerCase();
+      const d = new Date();
+      if (/\banteayer\b/.test(lower)) d.setDate(d.getDate() - 2);
+      else if (/\bayer\b/.test(lower) || /anoche/.test(lower)) d.setDate(d.getDate() - 1);
+      else if (/\bhoy\b/.test(lower)) {}
+      else {
+        const ago = lower.match(/\bhace\s+(\d{1,3})\s+(d[ií]as?|semanas?|mes(?:es)?)\b/);
+        if (ago) {
+          if (/semana/.test(ago[2])) d.setDate(d.getDate() - Number(ago[1]) * 7);
+          else if (/mes/.test(ago[2])) d.setMonth(d.getMonth() - Number(ago[1]));
+          else d.setDate(d.getDate() - Number(ago[1]));
+        }
+        else {
+          const months = { enero: 0, febrero: 1, marzo: 2, abril: 3, mayo: 4, junio: 5, julio: 6, agosto: 7, septiembre: 8, setiembre: 8, octubre: 9, noviembre: 10, diciembre: 11 };
+          const explicit = lower.match(/\b(?:el\s+)?(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)(?:\s+de\s+(\d{4}))?\b/);
+          if (!explicit) return null;
+          const year = explicit[3] ? Number(explicit[3]) : d.getFullYear();
+          d.setFullYear(year, months[explicit[2]], Number(explicit[1]));
+          if (!explicit[3] && d.getTime() > Date.now()) d.setFullYear(d.getFullYear() - 1);
+        }
+      }
+      return { key: chatDateKey(d.getTime()), date: d };
+    }
+    function answerFromChatMemory(query) {
+      const lower = String(query || '').toLowerCase();
+      const memoryVerbs = 'dij\\w*|escrib\\w*|mand\\w*|envi\\w*|habl\\w*|convers\\w*|mensaje\\w*|respond\\w*|contest\\w*|cont[eé]\\w*';
+      const asksRecall = /\b(recu[eé]rd\w*|acuerd\w*)\b/.test(lower) || new RegExp('\\bqu[eé].{0,100}\\b(?:' + memoryVerbs + ')\\b').test(lower);
+      if (!asksRecall) return null;
+      const history = (appState.chat || []).filter(m => !m.isTemp && (m.role === 'user' || m.role === 'ai') && String(m.text || '').trim());
+      const target = resolveChatMemoryDate(lower);
+      if (target) {
+        const userOnly = /\bqu[eé]\s+(?:(?:te|le)\s+)?(?:dij\w*|escrib\w*|mand\w*|envi\w*|cont[eé]\w*)\b|\bmi mensaje\b/.test(lower);
+        const assistantOnly = /\bqu[eé]\s+me\s+(?:dij\w*|escrib\w*|mand\w*|envi\w*|respond\w*|contest\w*)\b/.test(lower);
+        const matching = history.filter(m => chatDateKey(m.createdAt) === target.key && (!userOnly || m.role === 'user') && (!assistantOnly || m.role === 'ai'));
+        const dateLabel = target.date.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' });
+        if (!matching.length) return `No encuentro mensajes con fecha guardada del ${dateLabel}. Desde ahora guardaré el día y la hora de los mensajes nuevos; los mensajes anteriores a esta mejora no tienen una fecha fiable.`;
+        const items = matching.slice(-6).map(m => `${m.role === 'user' ? 'Tú' : 'ALMA'} (${formatChatTimestamp(m.createdAt)}): «${String(m.text).replace(/\s+/g, ' ').slice(0, 360)}»`);
+        return `Esto es lo que encuentro en nuestro historial del ${dateLabel}:\n${items.join('\n')}`;
+      }
+      const queryTokens = lower.replace(/\b(recu[eé]rd\w*|acuerd\w*|qu[eé]|me|te|dij\w*|escrib\w*|mand\w*|envi\w*|habl\w*|convers\w*|mensaje\w*|respond\w*|contest\w*|cont\w*|sobre|ayer|hoy|anteayer)\b/g, ' ').match(/[a-záéíóúüñ]{3,}/gi) || [];
+      const stop = new Set(['como', 'cuando', 'donde', 'algo', 'viejo', 'vieja', 'acerca', 'puedes', 'recuerdo', 'recuerdas']);
+      const terms = [...new Set(queryTokens.map(x => x.toLowerCase()).filter(x => !stop.has(x)))];
+      if (!terms.length) return 'Puedo revisar el historial guardado en este teléfono. Dime qué día fue o una palabra clave del tema y buscaré los mensajes relacionados.';
+      const matches = history.map(m => {
+        const body = String(m.text || '').toLowerCase();
+        const score = terms.reduce((n, term) => n + (body.includes(term) ? 1 : 0), 0);
+        return { m, score };
+      }).filter(x => x.score > 0).sort((a, b) => b.score - a.score || Number(b.m.createdAt || 0) - Number(a.m.createdAt || 0)).slice(0, 4);
+      if (!matches.length) return 'No encuentro ese tema en el historial de mensajes que está guardado en este teléfono. Prueba con otra palabra clave o dime el día aproximado.';
+      return `Encontré estos mensajes relacionados en el historial local:\n${matches.map(({m}) => `${m.role === 'user' ? 'Tú' : 'ALMA'}${m.createdAt ? ` (${formatChatTimestamp(m.createdAt)})` : ''}: «${String(m.text).replace(/\s+/g, ' ').slice(0, 360)}»`).join('\n')}`;
+    }
+
     function renderChat() {
       const box = document.getElementById('aiChatMessages');
       if (!box) return;
@@ -2949,6 +3085,7 @@
             <div class="flex justify-end">
               <div class="max-w-[85%] px-4 py-2.5 rounded-3xl rounded-br-md bg-indigo-600 text-white text-sm font-medium leading-relaxed shadow-sm">
                 ${escapeHtml(m.text)}
+                ${m.createdAt ? `<div class="mt-1 text-right text-[9px] font-medium text-indigo-100/80">${escapeHtml(formatChatTimestamp(m.createdAt))}</div>` : ''}
               </div>
             </div>
           `;
@@ -2969,6 +3106,9 @@
           if (act.status === 'cancelled') {
             return `<div class="mt-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/70 text-[11px] text-slate-400">✕ Cancelado: ${escapeHtml(act.label)}</div>`;
           }
+          if (act.status === 'rejected') {
+            return `<div class="mt-1.5 px-2.5 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-[11px] font-semibold text-rose-700 dark:text-rose-300">⚠ ${escapeHtml(act.label)}</div>`;
+          }
           return `<div class="mt-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">✓ ${escapeHtml(act.label)}</div>`;
         }).join('');
 
@@ -2977,6 +3117,7 @@
             <div class="max-w-[92%] px-4 py-3 rounded-3xl rounded-bl-md bg-slate-100 dark:bg-[#0B1120] border border-slate-200/70 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-xs leading-relaxed">
               <div>${escapeHtml(m.text)}</div>
               ${actionsHtml}
+              ${m.createdAt ? `<div class="mt-1.5 text-[9px] font-medium text-slate-400">${escapeHtml(formatChatTimestamp(m.createdAt))}</div>` : ''}
             </div>
           </div>
         `;
@@ -3013,11 +3154,121 @@
       saveState();
     }
 
+    function normalizeAiMatch(value) {
+      return String(value || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
+    function isValidAiDate(value) {
+      if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+      const [y, m, d] = value.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
+      return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+    }
+    function isValidAiTime(value) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value || '')); }
+    function validateAiAction(raw) {
+      const reject = reason => ({ ok: false, reason });
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw) || typeof raw.tipo !== 'string') return reject('La IA propuso una acción con formato no válido. No se aplicó.');
+      const action = { ...raw };
+      const text = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.trim().length <= max;
+      const amount = Number(action.monto);
+      const currencyOk = ['USD', 'VES'].includes(action.moneda);
+      const findUnique = (items, field, name) => {
+        const key = normalizeAiMatch(name);
+        if (!key || !Array.isArray(items)) return null;
+        const matches = items.filter(item => normalizeAiMatch(item && item[field]) === key);
+        return matches.length === 1 ? matches[0] : null;
+      };
+      switch (action.tipo) {
+        case 'crear_tarea':
+          if (!text(action.titulo, 120) || !isValidAiDate(action.fecha) || !isValidAiTime(action.horaInicio) || (action.horaFin && !isValidAiTime(action.horaFin))) return reject('Faltan datos válidos para crear la tarea; no se aplicó.');
+          if (action.categoria && !['Personal', 'Estudio', 'Trabajo', 'Pago'].includes(action.categoria)) return reject('La categoría de la tarea no es válida; no se aplicó.');
+          break;
+        case 'reorganizar_tareas':
+          if (!isValidAiDate(action.fechaDestino) || !appState.tasks.some(t => !t.done && t.date <= getIsoDateOffset(0))) return reject('No pude validar la fecha o las tareas pendientes para reorganizar; no se aplicó.');
+          break;
+        case 'completar_tarea':
+        case 'borrar_tarea': {
+          const matches = action.id != null
+            ? appState.tasks.filter(t => String(t.id) === String(action.id))
+            : appState.tasks.filter(t => normalizeAiMatch(t.title) === normalizeAiMatch(action.titulo));
+          if (matches.length !== 1) return reject('No encontré una única tarea que coincida exactamente; no se aplicó.');
+          action.id = matches[0].id;
+          action.titulo = matches[0].title;
+          break;
+        }
+        case 'registrar_movimiento':
+          if (!['gasto', 'ingreso'].includes(action.subtipo) || !Number.isFinite(amount) || amount <= 0 || amount > 1000000000000 || !currencyOk || (action.categoria && !['Comida', 'Transporte', 'Estudios', 'Servicios', 'Otros'].includes(action.categoria)) || (action.nota != null && String(action.nota).length > 160)) return reject('El movimiento financiero tiene datos incompletos o inválidos; no se registró.');
+          action.monto = amount;
+          break;
+        case 'registrar_deuda':
+          if (!['me_deben', 'debo'].includes(action.subtipo) || !text(action.persona, 80) || !Number.isFinite(amount) || amount <= 0 || amount > 1000000000000 || !currencyOk || (action.nota != null && String(action.nota).length > 160)) return reject('La deuda tiene datos incompletos o inválidos; no se registró.');
+          action.monto = amount;
+          break;
+        case 'saldar_deuda': {
+          const matches = appState.debts.filter(d => !d.paid && (action.id != null ? String(d.id) === String(action.id) : normalizeAiMatch(d.person) === normalizeAiMatch(action.persona)));
+          if (matches.length !== 1) return reject('No encontré una única deuda pendiente que coincida; no se modificó.');
+          action.id = matches[0].id;
+          action.persona = matches[0].person;
+          break;
+        }
+        case 'abonar_meta': {
+          const goal = findUnique(appState.goals, 'title', action.metaNombre);
+          if (!goal || !Number.isFinite(amount) || amount <= 0 || amount > 1000000000000) return reject('No pude validar la meta y el monto exactos; no se abonó.');
+          action.metaNombre = goal.title;
+          action.monto = amount;
+          break;
+        }
+        case 'completar_habito': {
+          const habit = findUnique(appState.habits, 'title', action.habitoNombre);
+          if (!habit) return reject('No encontré un único hábito con ese nombre; no se marcó.');
+          action.habitoNombre = habit.title;
+          break;
+        }
+        case 'completar_paso_rutina': {
+          const routine = findUnique(appState.routines, 'name', action.rutinaNombre);
+          const step = routine && findUnique(routine.steps, 'title', action.pasoNombre);
+          if (!step) return reject('No encontré una rutina y un paso únicos con esos nombres; no se marcó.');
+          action.rutinaNombre = routine.name;
+          action.pasoNombre = step.title;
+          break;
+        }
+        case 'crear_rutina': {
+          const days = Array.isArray(action.dias) ? [...new Set(action.dias.map(Number).filter(d => Number.isInteger(d) && d >= 0 && d <= 6))] : [];
+          const steps = Array.isArray(action.pasos) ? action.pasos.filter(s => s && text(s.titulo, 100)).slice(0, 20) : [];
+          if (!text(action.nombre, 80) || !isValidAiTime(action.hora) || !days.length || !steps.length || (appState.routines || []).some(r => normalizeAiMatch(r.name) === normalizeAiMatch(action.nombre))) return reject('La rutina está incompleta, duplicada o tiene datos inválidos; no se creó.');
+          if (steps.some(s => s.minutos != null && s.minutos !== '' && (!Number.isFinite(Number(s.minutos)) || Number(s.minutos) <= 0 || Number(s.minutos) > 180))) return reject('La duración de un paso no es válida; no se creó la rutina.');
+          action.dias = days;
+          action.pasos = steps;
+          break;
+        }
+        case 'plan_estudio':
+          if (!text(action.titulo, 120) || !isValidAiDate(action.fecha)) return reject('El plan de estudio no tiene un título o fecha válidos; no se aplicó.');
+          break;
+        case 'bloquear_dia':
+          if (!isValidAiDate(action.fecha)) return reject('La fecha para bloquear no es válida; no se aplicó.');
+          break;
+        case 'actualizar_tasa':
+          if (!Number.isFinite(Number(action.tasa)) || Number(action.tasa) <= 0 || Number(action.tasa) > 1000000000) return reject('La tasa propuesta no es válida; no se aplicó.');
+          action.tasa = Number(action.tasa);
+          break;
+        default:
+          return reject('La IA propuso un tipo de acción no permitido; no se aplicó.');
+      }
+      return { ok: true, action };
+    }
+
     function confirmAiAction(mIdx, aIdx) {
       const msg = appState.chat[mIdx];
-      if (!msg || !msg.actions || !msg.actions[aIdx]) return;
+      if (!msg || !msg.actions || !msg.actions[aIdx] || msg.actions[aIdx].status !== 'pending_confirm') return;
       const act = msg.actions[aIdx];
-      executeSingleAiAction(act.raw);
+      const checked = validateAiAction(act.raw);
+      if (!checked.ok) {
+        act.status = 'rejected';
+        act.label = checked.reason;
+        saveState();
+        showToast('No se aplicó: revisa los datos');
+        return;
+      }
+      executeSingleAiAction(checked.action);
       act.status = 'executed';
       saveState();
       showToast('Acción confirmada');
@@ -3594,22 +3845,46 @@
       throw new Error(lastErr);
     }
 
+    function isAppDataRequest(userMessage) {
+      const q = normalizeAiMatch(userMessage);
+      if (/\b(?:cuentame|escribe|redacta|explicame|ensename|que es|para que sirve|como funciona|como (?:puedo|se|hago)|una historia|un cuento|un poema|imagina|supongamos|crea (?:un|una) (?:texto|resumen|cuento|historia|poema|ensayo|presentacion|guion|carta|explicacion|descripcion|lista))\b/.test(q)) return false;
+      return /\bmi(?:s)?\s+(?:agenda|tareas?|eventos?|finanzas|dinero|saldo|balance|capital|gastos?|ingresos?|deudas?|presupuesto|metas?|rutinas?|habitos?|materias?|notas?|calificaciones?|promedio|examen(?:es)?|plan de estudio)\b/.test(q) ||
+        /\b(?:que tengo|que me falta|cuanto (?:dinero )?tengo|cuanto me queda|cuanto me deben|cuanto gaste|cuanto pague|cuanto recibi|que gaste|que debo|que tareas tengo|que toca hoy|que tengo hoy|que tengo manana|que hay en mi agenda|como van mis finanzas|resumen de mis finanzas|mis pendientes|mi tasa configurada|tasa que tengo guardada)\b/.test(q) ||
+        /\b(?:mi|mis)\s+(?:racha|pasos de hoy|tiempo de estudio|temporizador)\b/.test(q);
+    }
+
+    function hasExplicitAppActionIntent(userMessage) {
+      const q = normalizeAiMatch(userMessage);
+      if (/\b(?:cuentame|escribe|redacta|explicame|ensename|que es|para que sirve|como funciona|como (?:puedo|se|hago)|una historia|un cuento|un poema|imagina|supongamos|crea (?:un|una) (?:texto|resumen|cuento|historia|poema|ensayo|presentacion|guion|carta|explicacion|descripcion|lista))\b/.test(q)) return false;
+      const actionVerb = /\b(?:agrega|agregar|agenda|agendar|anota|anotar|recuerdame|registra|registrar|guarda|guardar|crea|crear|marca|marcar|completa|completar|elimina|eliminar|borra|borrar|quita|quitar|salda|saldar|reorganiza|reorganizar|reprograma|reprogramar|bloquea|bloquear|actualiza|actualizar|cambia|cambiar|abona|abonar|programa|programar|planifica|planificar|mueve|mover|anade|apunta)\b/;
+      const appObject = /\b(?:tarea|agenda|evento|finanzas|gasto|ingreso|movimiento|deuda|prestamo|meta|rutina|habito|paso|materia|examen|evaluacion|dia|fecha|tasa|dolar|temporizador|estudio|estudiar|clase|cita|turno|recordatorio)\b/;
+      if (actionVerb.test(q) && appObject.test(q)) return true;
+      const hasAmount = /\b\d+(?:[.,]\d+)?(?:\s*(?:\$|usd|dolares?|bs|bolivares?))?/.test(q);
+      const transaction = /\b(?:gaste|pague|compre|me costo|recibi|cobre|ingrese|gane)\b/.test(q);
+      const adviceQuestion = /\?|\b(?:crees|piensas|te parece|que opinas|es mucho|me conviene|imagina|supongamos|si gastara|si pagara)\b/.test(q);
+      if (transaction && hasAmount && !adviceQuestion) return true;
+      if (/\b(?:me debe|le debo|debo)\b/.test(q) && hasAmount && !adviceQuestion) return true;
+      const examAnnouncement = /\b(?:tengo|tenemos|me toca|tendre)\b.{0,35}\b(?:examen|parcial|prueba|evaluacion)\b/.test(q) && /\b(?:hoy|manana|pasado|lunes|martes|miercoles|jueves|viernes|sabado|domingo|\d{1,2} de)\b/.test(q) && !adviceQuestion;
+      return examAnnouncement;
+    }
+
     function buildAiContextSnapshot(userMessage, sectionHint) {
-      const q = String(userMessage || '').toLowerCase();
+      const q = normalizeAiMatch(userMessage);
       const currentSection = sectionHint || activeTab || '';
       const sectionNames = { inicio: 'Inicio', agenda: 'Agenda', ia: 'Chat de ALMA', finanzas: 'Finanzas', rutinas: 'Rutinas', materias: 'Materias y estudio', ajustes: 'Ajustes' };
       const currentSectionLabel = sectionNames[currentSection] || 'General';
-      const broad = currentSection === 'inicio' || /resumen.*(general|todo)|todo lo que|todas mis secciones|organiza.*(mi d[ií]a|mi semana)|mi semana|resumen semanal/.test(q);
-      const wantsFinance = broad || currentSection === 'finanzas' || /finanz|dinero|saldo|balance|gast|ingres|presupuesto|deuda|debo|deben|me debe|pr[eé]stamo|meta de ahorro|ahorr|d[oó]lar|bol[ií]var|tasa|movimiento|recib[ií]|pagu[eé]/.test(q);
+      const broad = /resumen.*(?:general|todo)|todo lo que|todas mis secciones|organiza.*(?:mi dia|mi semana)|mi semana|resumen semanal/.test(q);
+      const wantsFinance = broad || /\bmi(?:s)?\s+(?:finanzas|dinero|saldo|balance|capital|gastos?|ingresos?|presupuesto|deudas?|metas? de ahorro|tasa configurada)\b|\b(?:cuanto (?:dinero )?tengo|cuanto me queda|cuanto me deben|cuanto gaste|cuanto pague|cuanto recibi|que gaste|que debo|que tasa tengo|como van mis finanzas|resumen de mis finanzas|mi balance|mi saldo)\b/.test(q);
       const namesSubject = (appState.subjects || []).some(s => s.name && q.includes(s.name.toLowerCase()));
       const namesRoutine = (appState.routines || []).some(r => r.name && q.includes(r.name.toLowerCase()));
-      const wantsStudy = broad || currentSection === 'materias' || namesSubject || /materia|calificaci[oó]n|nota|promedio|examen|estudi|evaluaci[oó]n|temporizador|enfoque/.test(q);
-      const wantsRoutine = broad || currentSection === 'rutinas' || namesRoutine || /rutina|h[aá]bito|paso de hoy|racha|constancia/.test(q);
-      const wantsAgenda = broad || currentSection === 'agenda' || /agenda|tarea|pendient|evento|calendario|reprogram|organiza.*d[ií]a|hoy|ma[ñn]ana|esta semana|crea|crear|agrega|anota|recu[eé]rdame|programa|planifica|cita|turno|pagar|a las/.test(q);
+      const wantsStudy = broad || namesSubject || /\bmi(?:s)?\s+(?:materias?|notas?|calificaciones?|promedio|examen(?:es)?|plan de estudio|tiempo de estudio)\b|\b(?:mis pendientes de estudio|que examen tengo|que nota necesito|como voy en)\b/.test(q);
+      const wantsRoutine = broad || namesRoutine || /\bmi(?:s)?\s+(?:rutinas?|habitos?|racha|pasos de hoy)\b|\b(?:que rutina me toca|que paso sigue|progreso de mi rutina)\b/.test(q);
+      const wantsAgenda = broad || /\bmi(?:s)?\s+(?:agenda|tareas?|eventos?|calendario|pendientes?)\b|\b(?:que tengo hoy|que tengo manana|que tareas tengo|mis pendientes|citas de hoy)\b/.test(q);
       const today = getIsoDateOffset(0), age = ageFromBirthDate(appState.profile && appState.profile.birthDate);
       const snapshot = {
         seccion_activa: currentSectionLabel,
-        instruccion_de_contexto: `La persona está usando la pantalla ${currentSectionLabel}. Si pregunta en qué sección está, responde ${currentSectionLabel}. Para preguntas generales, prioriza el contexto de esta sección.`,
+        instruccion_de_contexto: `La persona está usando la pantalla ${currentSectionLabel}. Si pregunta en qué sección está, responde ${currentSectionLabel}. En una conversación general, responde el tema que preguntó sin forzar el contexto de la app. Solo usa los datos personales de la app que aparezcan en este ESTADO y sean pertinentes a la solicitud.`,
+        modo: hasExplicitAppActionIntent(userMessage) ? 'solicitud_de_accion_en_la_app' : (isAppDataRequest(userMessage) ? 'consulta_de_datos_de_la_app' : 'conversacion_general'),
         perfil: { nombre: appState.profile && appState.profile.name || '', edad: age, ocupacion: appState.profile && appState.profile.occupation || '' },
         fecha_hoy: today,
         dia_semana: new Date().toLocaleDateString('es-ES', { weekday: 'long' }),
@@ -3652,11 +3927,11 @@
       try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
       if (!sample && !appState.customApiKey) return null;
       const snapshot = buildAiContextSnapshot(userMessage, sectionHint);
-      snapshot.conversacion_reciente = appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text }));
-      const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Responde en español, de forma clara y breve. El campo ESTADO.seccion_activa es la pantalla actual de la persona, no la pantalla donde se encuentra la conversación técnica. Si pregunta qué apartado está usando, responde con ese campo. Si pregunta algo general, prioriza la sección actual y sus datos. En finanzas, usa ESTADO.finanzas.capital_actual como saldo en caja; si definido es false, no afirmes que conoces cuánto dinero tiene: dile que configure su capital actual en Finanzas. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni digas que hiciste cambios si no hay una acción válida.
+      snapshot.conversacion_reciente = appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text, fecha_hora: formatChatTimestamp(m.createdAt) || undefined }));
+      const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Puedes conversar y ayudar con temas generales —explicar, pensar ideas, redactar, aprender o acompañar una conversación—; no te limites a las funciones de la aplicación ni des por hecho que cada mensaje pide usarla. Responde en español, de forma clara y natural. El campo ESTADO.seccion_activa es la pantalla que la persona está usando. Si pregunta qué apartado está usando, responde con ese campo; en otros temas no fuerces ni menciones la app. Usa únicamente los datos personales de ESTADO que sean pertinentes a la pregunta. En finanzas, usa ESTADO.finanzas.capital_actual como saldo en caja; si definido es false, no afirmes que conoces cuánto dinero tiene: dile que configure su capital actual en Finanzas. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni afirmes que hiciste cambios si no hay una acción válida.
 Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
 Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); plan_estudio(titulo, fecha YYYY-MM-DD); bloquear_dia(fecha YYYY-MM-DD); reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); saldar_deuda(persona) con requiereConfirmacion true; abonar_meta(metaNombre, monto); completar_paso_rutina(rutinaNombre, pasoNombre); crear_rutina(nombre, dias como índices 0=domingo a 6=sábado, hora HH:MM, pasos como [{titulo, minutos opcional}]) con requiereConfirmacion true; actualizar_tasa(tasa).
-Las acciones nuevas de tarea, finanzas y pasos completados solo deben proponerse cuando estén claros los datos esenciales. Nunca inventes montos, fechas, pasos ni materias; pregunta si falta algo. Crear una rutina requiere confirmación y al menos nombre, un día, hora y un paso. No borres ni saldes información sin confirmación. Si menciona exámenes o pregunta cómo estudiar, adapta consejos a las materias y notas incluidas. Si la persona solo conversa o pregunta, acciones = [].
+Solo crea acciones para cambiar datos si el usuario ha pedido claramente hacer ese cambio (por ejemplo: “anota este gasto”, “agenda esta tarea”, “marca ese paso”). Una conversación general, pregunta, ejemplo hipotético o relato no es autorización para modificar la app. Si el mensaje es ambiguo, pregunta primero y devuelve acciones = []. Nunca inventes montos, fechas, pasos ni materias. Crear una rutina requiere confirmación y al menos nombre, un día, hora y un paso. No borres ni saldes información sin confirmación. Si solo conversa o pregunta, responde con naturalidad y acciones = [].
 
 ESTADO:
 ${JSON.stringify(snapshot)}
@@ -3694,12 +3969,14 @@ ${userMessage}`;
       const orb = document.getElementById('aiOrbContainer');
       const text = inp.value.trim();
       if (!text) return;
+      const memoryAnswer = answerFromChatMemory(text);
 
       inp.value = '';
       btn.disabled = true;
       orb.classList.add('ai-orb-thinking');
 
-      appState.chat.push({ role: 'user', text });
+      appState.chat.push({ role: 'user', text, createdAt: Date.now() });
+      safeSetItem(STORAGE_KEY, JSON.stringify({ ...appState, chat: appState.chat.filter(m => !m.isTemp) }));
       appState.chat.push({ role: 'ai', text: 'Procesando...', actions: [], isTemp: true });
       renderChat();
 
@@ -3707,37 +3984,65 @@ ${userMessage}`;
       const currentSectionKey = contextualSection || activeTab || '';
       const currentSectionName = ({ inicio: 'Inicio', agenda: 'Agenda', ia: 'Chat de ALMA', finanzas: 'Finanzas', rutinas: 'Rutinas', materias: 'Materias y estudio', ajustes: 'Ajustes' })[currentSectionKey] || 'la pantalla principal';
       const asksCurrentSection = /\b(d[oó]nde (?:estoy|estamos|est[aá]s)|en qu[eé] (?:secci[oó]n|apartado|pantalla)|qu[eé] apartado|cu[aá]l secci[oó]n|qu[eé] p[aá]gina)\b/i.test(text);
+      const appDataRequested = isAppDataRequest(text);
+      const permitsAppActions = hasExplicitAppActionIntent(text);
       let aiResult;
-      if (asksCurrentSection) {
+      if (memoryAnswer) {
+        aiResult = { respuesta: memoryAnswer, acciones: [] };
+      } else if (asksCurrentSection) {
         aiResult = { respuesta: `Ahora mismo estamos en ${currentSectionName}. Puedes seguir hablándome mientras usas esta pantalla.`, acciones: [] };
       } else {
-        // Try Gemini Cloud if custom API key is set, otherwise execute Smart Local NLP Engine immediately
+        // Gemini handles general conversation; the local engine is reserved for app-related requests.
         aiResult = await callGeminiCloud(text, currentSectionKey);
         if (!aiResult) {
-          await new Promise(r => setTimeout(r, 220)); // Natural micro-feedback
-          aiResult = smartLocalAiEngine(text);
-          if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
+          if (appDataRequested || permitsAppActions) {
+            await new Promise(r => setTimeout(r, 220));
+            aiResult = smartLocalAiEngine(text);
+            if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
+          } else {
+            const generalReply = appState.customApiKey
+              ? 'No pude conectarme con Gemini para responderte ahora. No hice cambios en tus datos; inténtalo de nuevo cuando tengas conexión.'
+              : 'Puedo conversar contigo sobre temas generales cuando Gemini esté configurado en Ajustes. Sin conexión a Gemini, por ahora solo puedo responder algunas consultas y comandos sencillos de la app.';
+            aiResult = { respuesta: generalReply, acciones: [] };
+            if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
+          }
         }
       }
 
       appState.chat = appState.chat.filter(m => !m.isTemp);
 
-      const processedActions = (aiResult.acciones || []).map(raw => {
-        const requiresConfirm = Boolean(raw.requiereConfirmacion) || raw.tipo === 'borrar_tarea' || raw.tipo === 'saldar_deuda' || raw.tipo === 'crear_rutina';
-        if (!requiresConfirm) {
-          executeSingleAiAction(raw);
+      if (!permitsAppActions && Array.isArray(aiResult.acciones) && aiResult.acciones.length) {
+        aiResult.acciones = [];
+        aiResult.respuesta = (aiResult.respuesta || '') + '\n\nNo hice cambios en la app porque no recibí una instrucción clara para modificar tus datos. Si eso era lo que querías, dímelo directamente.';
+      }
+
+      const actionNotes = [];
+      const processedActions = (Array.isArray(aiResult.acciones) ? aiResult.acciones : []).map(raw => {
+        const checked = validateAiAction(raw);
+        if (!checked.ok) {
+          actionNotes.push(`No apliqué una acción: ${checked.reason}`);
+          return { raw: null, label: checked.reason, status: 'rejected' };
         }
-        return {
-          raw,
-          label: buildActionLabel(raw),
-          status: requiresConfirm ? 'pending_confirm' : 'executed'
-        };
+        const action = checked.action;
+        const requiresConfirm = Boolean(action.requiereConfirmacion) || [
+          'borrar_tarea', 'saldar_deuda', 'crear_rutina', 'registrar_movimiento',
+          'registrar_deuda', 'abonar_meta', 'actualizar_tasa', 'reorganizar_tareas',
+          'plan_estudio', 'bloquear_dia'
+        ].includes(action.tipo);
+        const label = buildActionLabel(action);
+        if (requiresConfirm) {
+          actionNotes.push(`Aún no hice este cambio: ${label}.`);
+        } else {
+          executeSingleAiAction(action);
+        }
+        return { raw: action, label, status: requiresConfirm ? 'pending_confirm' : 'executed' };
       });
 
       appState.chat.push({
         role: 'ai',
-        text: aiResult.respuesta || '¡Listo!',
-        actions: processedActions
+        text: [aiResult.respuesta || '¡Listo!', ...actionNotes].join('\n\n'),
+        actions: processedActions,
+        createdAt: Date.now()
       });
 
       orb.classList.remove('ai-orb-thinking');
