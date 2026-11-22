@@ -30,7 +30,7 @@ jobs:
             @capacitor/local-notifications@6 \
             @capacitor-community/speech-recognition@6 \
             @capacitor-community/text-to-speech@6 \
-            tailwindcss@3
+            tailwindcss@3 esbuild
           cat > tailwind.config.js <<-'EOF'
           module.exports = { darkMode: 'class', content: ['./index.html'], theme: { extend: { boxShadow: { soft: '0 8px 24px -6px rgba(15,23,42,0.05)', card: '0 4px 16px -2px rgba(15,23,42,0.04)', orb: '0 12px 32px -4px rgba(79,70,229,0.45)' } } } }
           EOF
@@ -38,6 +38,13 @@ jobs:
           mkdir -p www
           cp index.html www/index.html
           npx tailwindcss -i in.css -o www/tw.css --minify
+          cat > plugins.js <<-'EOF'
+          import { LocalNotifications } from '@capacitor/local-notifications';
+          import { SpeechRecognition } from '@capacitor-community/speech-recognition';
+          import { TextToSpeech } from '@capacitor-community/text-to-speech';
+          window.__nativePlugins = { LocalNotifications, SpeechRecognition, TextToSpeech };
+          EOF
+          npx esbuild plugins.js --bundle --format=iife --outfile=www/plugins.js
           sed -i 's/VERSION_21/VERSION_17/g' node_modules/@capacitor-community/*/android/build.gradle || true
           npx cap init "Mi Asistente" "com.miasistente.app" --web-dir=www
           npx cap add android
