@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ALMA — Asistente Personal</title>
+  <title>ALMA · Tu vida en equilibrio</title>
+  <meta name="theme-color" content="#21184A" />
+  <link rel="icon" type="image/png" href="assets/alma-mark-app.png" />
   <!-- Google Fonts: Plus Jakarta Sans & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,12 +99,15 @@
     <!-- Top Sticky Header -->
     <header class="sticky top-0 z-30 bg-[#F6F8FC]/90 dark:bg-[#0B1120]/90 backdrop-blur-lg border-b border-slate-200/70 dark:border-slate-800/80 px-4 py-3">
       <div class="flex items-center justify-between gap-2">
-        <div class="min-w-0">
-          <div class="flex items-center gap-1.5">
-            <h1 id="headerGreeting" class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white truncate">Hola 👋</h1>
-            <span id="syncDot" title="Estado activo" class="w-2 h-2 rounded-full bg-emerald-500 inline-block flex-shrink-0"></span>
+        <div class="flex min-w-0 items-center gap-2.5">
+          <img src="assets/alma-mark-app.png" alt="" class="h-9 w-9 flex-shrink-0 rounded-xl bg-[#21184A] object-contain p-1 shadow-sm" />
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <h1 id="headerGreeting" class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white truncate">Hola 👋</h1>
+              <span id="syncDot" title="Estado activo" class="w-2 h-2 rounded-full bg-emerald-500 inline-block flex-shrink-0"></span>
+            </div>
+            <p id="headerDate" class="text-xs font-medium text-slate-500 dark:text-slate-400 capitalize truncate"></p>
           </div>
-          <p id="headerDate" class="text-xs font-medium text-slate-500 dark:text-slate-400 capitalize truncate"></p>
         </div>
 
         <div class="flex items-center gap-2 flex-shrink-0">
@@ -398,9 +403,15 @@
       </section>
 
       <section id="view-materias" class="tab-view hidden space-y-4 pb-3">
-        <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-rose-500 via-pink-600 to-violet-700 p-5 text-white shadow-lg shadow-rose-900/15"><div class="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10"></div><div class="relative flex items-start justify-between gap-3"><div><span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-rose-100">AVANZA CON CONFIANZA</span><h2 class="mt-1 text-2xl font-extrabold tracking-tight">Materias</h2><p class="mt-1 max-w-[230px] text-xs text-rose-100">Tus notas, objetivos y tiempo de estudio.</p></div><button onclick="openEvalModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-rose-700 shadow-sm active:scale-95">＋ Evaluación</button></div></div>
+        <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-violet-700 via-fuchsia-600 to-rose-500 p-5 text-white shadow-lg shadow-violet-900/15">
+          <div class="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10"></div>
+          <div class="relative"><span class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-fuchsia-100">TU CAMINO DE ESTUDIO</span><h2 class="mt-1 text-2xl font-extrabold tracking-tight">Materias</h2><p class="mt-1 text-xs text-fuchsia-100">Primero crea tus materias; dentro de cada una organiza notas y evaluaciones.</p>
+            <div class="mt-4 grid grid-cols-2 gap-2"><button onclick="openSubjectModal()" class="rounded-2xl bg-white px-3 py-2.5 text-xs font-extrabold text-violet-800 shadow-sm active:scale-95">＋ Añadir materia</button><button onclick="openEvalModal()" class="rounded-2xl border border-white/30 bg-white/15 px-3 py-2.5 text-xs font-extrabold text-white active:scale-95">＋ Evaluación</button></div>
+          </div>
+        </div>
         <div id="studyTimerCard" class="rounded-3xl border border-violet-100 bg-violet-50/80 p-4 dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex items-start justify-between gap-2"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600 dark:text-violet-300">ENFOQUE · INDEPENDIENTE DE TUS RUTINAS</div><h3 class="mt-1 text-sm font-extrabold text-slate-900 dark:text-white">Temporizador de estudio</h3></div><select id="timerPresetSelect" onchange="changeTimerPreset()" class="rounded-xl border border-violet-100 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 outline-none dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-200"><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="25" selected>25 min</option><option value="45">45 min</option></select></div><p id="timerActiveHabitLabel" class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Elige una materia; al completar se guardarán los minutos.</p><select id="timerSubjectSelect" class="mt-3 w-full rounded-2xl border border-violet-100 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 outline-none dark:border-slate-700 dark:bg-[#0B1120] dark:text-slate-200"></select><div class="mt-3 flex items-center gap-4"><div class="relative h-24 w-24 flex-shrink-0"><svg viewBox="0 0 100 100" class="h-full w-full -rotate-90"><circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" fill="none" class="text-violet-100 dark:text-slate-800"></circle><circle id="timerProgressCircle" cx="50" cy="50" r="42" stroke="#8B5CF6" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="263.89" stroke-dashoffset="0" class="transition-all duration-300"></circle></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span id="timerDisplay" class="text-lg font-extrabold text-slate-900 dark:text-white">25:00</span><span id="timerStateText" class="text-[9px] font-bold text-slate-400">Listo</span></div></div><div class="flex flex-1 flex-col gap-2"><button id="timerToggleBtn" onclick="toggleFocusTimer()" class="w-full rounded-2xl bg-violet-600 py-3 text-xs font-extrabold text-white shadow-sm active:scale-95"><span id="timerToggleIcon">▶</span> <span id="timerToggleLabel">Iniciar enfoque</span></button><button onclick="resetFocusTimer()" class="w-full rounded-2xl bg-white py-2.5 text-xs font-bold text-slate-600 dark:bg-[#0B1120] dark:text-slate-300">Reiniciar</button></div></div></div>
         <div class="rounded-2xl border border-rose-100 bg-rose-50/80 p-3.5 dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-extrabold text-rose-800 dark:text-rose-200"><span>Escala de notas</span><label class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">Máximo<input id="gradeMaxInput" type="number" onchange="setGradeScale()" class="w-14 rounded-xl bg-white px-2 py-1.5 text-center text-xs text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label><label class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">Aprobar<input id="gradePassInput" type="number" step="0.5" onchange="setGradeScale()" class="w-14 rounded-xl bg-white px-2 py-1.5 text-center text-xs text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label></div></div>
+        <div id="evaluationOverview"></div>
         <div id="weeklyCard"></div>
         <div id="subjectsList" class="space-y-3"></div>
       </section>
@@ -683,20 +694,26 @@
       </div>
     </div>
 
+    <div id="modalSubject" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md space-y-3 rounded-3xl border border-violet-100 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-[#151C2C]">
+        <div class="flex items-center justify-between"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600 dark:text-violet-300">TU ESPACIO DE ESTUDIO</div><h3 class="mt-0.5 text-base font-extrabold text-slate-900 dark:text-white">Añadir materia</h3></div><button onclick="closeModal('modalSubject')" aria-label="Cerrar" class="grid h-8 w-8 place-items-center rounded-full bg-slate-100 font-bold text-slate-500 dark:bg-slate-800">✕</button></div>
+        <label for="subjectNameInput" class="text-xs font-bold text-slate-600 dark:text-slate-300">Nombre de la materia</label>
+        <input id="subjectNameInput" type="text" maxlength="80" placeholder="Ej.: Biología, Matemáticas…" class="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" />
+        <button onclick="saveSubjectFromModal()" class="w-full rounded-2xl bg-violet-600 py-3 text-sm font-extrabold text-white">Guardar materia</button>
+      </div>
+    </div>
+
     <div id="modalEval" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3.5">
-        <div class="flex items-center justify-between">
-          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Nueva evaluación</h3>
-          <button onclick="closeModal('modalEval')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
-        </div>
-        <input id="evalSubjectInput" list="subjectNames" type="text" placeholder="Materia (ej: Química General)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
-        <datalist id="subjectNames"></datalist>
-        <input id="evalNameInput" type="text" placeholder="Evaluación (ej: Examen 1)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
-        <div class="grid grid-cols-2 gap-2.5">
-          <input id="evalWeightInput" type="number" placeholder="Valor (%)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
-          <input id="evalGradeInput" type="number" step="0.1" placeholder="Nota (si ya la tienes)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3.5 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
-        </div>
-        <button onclick="saveEvalFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar</button>
+      <div class="max-h-[92vh] w-full max-w-md space-y-3.5 overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-[#151C2C]">
+        <div class="flex items-center justify-between"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-300">MATERIA · EVALUACIÓN</div><h3 id="evalModalTitle" class="mt-0.5 text-base font-extrabold text-slate-900 dark:text-white">Nueva evaluación</h3></div><button onclick="closeModal('modalEval')" aria-label="Cerrar" class="grid h-8 w-8 place-items-center rounded-full bg-slate-100 font-bold text-slate-500 dark:bg-slate-800">✕</button></div>
+        <label for="evalSubjectInput" class="text-xs font-bold text-slate-600 dark:text-slate-300">Materia</label>
+        <select id="evalSubjectInput" class="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white"></select>
+        <label for="evalNameInput" class="text-xs font-bold text-slate-600 dark:text-slate-300">¿De qué es?</label>
+        <input id="evalNameInput" type="text" maxlength="80" placeholder="Ej.: Parcial 1, exposición, laboratorio…" class="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" />
+        <label for="evalDateInput" class="text-xs font-bold text-slate-600 dark:text-slate-300">Fecha de la evaluación</label>
+        <input id="evalDateInput" type="date" class="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" />
+        <div class="grid grid-cols-2 gap-2.5"><label class="text-[11px] font-bold text-slate-500">Valor (%)<input id="evalWeightInput" type="number" min="1" max="100" step="0.1" placeholder="Ej. 20" class="mt-1 w-full rounded-2xl bg-slate-100 px-3.5 py-3 text-sm font-bold text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label><label class="text-[11px] font-bold text-slate-500">Nota (opcional)<input id="evalGradeInput" type="number" step="0.1" placeholder="Si ya la tienes" class="mt-1 w-full rounded-2xl bg-slate-100 px-3.5 py-3 text-sm font-bold text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label></div>
+        <button id="evalSaveButton" onclick="saveEvalFromModal()" class="w-full rounded-2xl bg-rose-600 py-3 text-sm font-bold text-white">Guardar evaluación</button>
       </div>
     </div>
 
@@ -857,7 +874,7 @@
         weeklyHistory: [0, 0, 0, 0, 0, 0, 0],
         profile: { name: '', birthDate: '', age: '', occupation: '', done: false },
         chat: [
-          { role: 'ai', text: '¡Hola! Soy tu asistente personal. Estoy aquí para ayudarte con tu agenda, tus finanzas, tus rutinas y tus estudios. Puedes pedirme que consulte tus datos o que te ayude a organizarlos.', actions: [] }
+          { role: 'ai', text: '¡Hola! Soy ALMA. Estoy aquí para ayudarte con tu agenda, tus finanzas, tus rutinas y tus estudios. Puedes pedirme que consulte tus datos o que te ayude a organizarlos.', actions: [] }
         ],
         memories: [],
         actionLog: []
@@ -2323,7 +2340,7 @@
       const f = (d, t) => d.replace(/-/g, '') + 'T' + (t || '09:00').replace(':', '') + '00';
       const endTime = end || addOneHour(start);
       const endDate = endTime <= start ? shiftIso(date, 1) : date;
-      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + f(date, start) + '/' + f(endDate, endTime) + '&details=' + encodeURIComponent('Desde Mi Asistente');
+      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + f(date, start) + '/' + f(endDate, endTime) + '&details=' + encodeURIComponent('Organizado con ALMA');
     }
 
     // ---- Materias y notas ----
@@ -2343,79 +2360,223 @@
       if (mx > 0 && ps > 0 && ps <= mx) { appState.gradeMax = mx; appState.gradePass = ps; saveState(); }
       else showToast('Revisa la escala de notas');
     }
-    function openEvalModal() {
-      ['evalSubjectInput', 'evalNameInput', 'evalWeightInput', 'evalGradeInput'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('subjectNames').innerHTML = appState.subjects.map(x => `<option value="${escapeHtml(x.name)}">`).join('');
+    let expandedSubjectId = null;
+    let editingEvalRef = null;
+    let subjectStudyProposal = null;
+    function openSubjectModal() {
+      document.getElementById('subjectNameInput').value = '';
+      openModal('modalSubject');
+      setTimeout(() => document.getElementById('subjectNameInput').focus(), 50);
+    }
+    function getEvalIndex(sub, evalId) {
+      if (!sub || !Array.isArray(sub.evals)) return -1;
+      const legacy = /^legacy-index-(\d+)$/.exec(String(evalId));
+      if (legacy) return Number(legacy[1]) < sub.evals.length ? Number(legacy[1]) : -1;
+      return sub.evals.findIndex(x => x.id != null && String(x.id) === String(evalId));
+    }
+    function saveSubjectFromModal() {
+      const input = document.getElementById('subjectNameInput');
+      const name = input.value.trim();
+      if (!name) { showToast('Escribe el nombre de la materia'); return; }
+      if ((appState.subjects || []).some(s => normalizeAiMatch(s.name) === normalizeAiMatch(name))) { showToast('Esa materia ya está en tu lista'); return; }
+      const subject = { id: Date.now() + Math.floor(Math.random() * 1000), name, evals: [] };
+      appState.subjects.push(subject);
+      expandedSubjectId = String(subject.id);
+      closeModal('modalSubject');
+      saveState();
+      showToast('Materia guardada; ahora puedes añadirle evaluaciones');
+    }
+    function openEvalModal(subjectId = null, evalId = null) {
+      if (!(appState.subjects || []).length) { showToast('Primero agrega una materia'); openSubjectModal(); return; }
+      editingEvalRef = evalId == null ? null : { subjectId: String(subjectId), evalId: String(evalId) };
+      const select = document.getElementById('evalSubjectInput');
+      select.innerHTML = appState.subjects.map(s => `<option value="${escapeHtml(String(s.id))}">${escapeHtml(s.name)}</option>`).join('');
+      const sub = subjectId == null ? appState.subjects[0] : appState.subjects.find(s => String(s.id) === String(subjectId));
+      if (sub) select.value = String(sub.id);
+      const evIndex = editingEvalRef && sub ? getEvalIndex(sub, evalId) : -1;
+      const ev = evIndex >= 0 ? sub.evals[evIndex] : null;
+      document.getElementById('evalNameInput').value = ev ? ev.name || '' : '';
+      document.getElementById('evalDateInput').value = ev && isValidAiDate(ev.date) ? ev.date : '';
+      document.getElementById('evalWeightInput').value = ev && ev.weight != null ? ev.weight : '';
+      document.getElementById('evalGradeInput').value = ev && ev.grade != null ? ev.grade : '';
+      document.getElementById('evalModalTitle').textContent = ev ? 'Editar evaluación' : 'Nueva evaluación';
+      document.getElementById('evalSaveButton').textContent = ev ? 'Guardar cambios' : 'Guardar evaluación';
       openModal('modalEval');
     }
     function saveEvalFromModal() {
-      const sname = document.getElementById('evalSubjectInput').value.trim();
-      const ename = document.getElementById('evalNameInput').value.trim() || 'Evaluación';
+      const sid = document.getElementById('evalSubjectInput').value;
+      const sub = appState.subjects.find(x => String(x.id) === String(sid));
+      const ename = document.getElementById('evalNameInput').value.trim();
+      const evalDate = document.getElementById('evalDateInput').value;
       const weight = parseFloat(document.getElementById('evalWeightInput').value);
       const gv = document.getElementById('evalGradeInput').value;
       const grade = gv === '' ? null : parseFloat(gv);
-      if (!sname || !(weight > 0) || weight > 100) { showToast('Pon la materia y el valor (1 a 100%)'); return; }
-      let sub = appState.subjects.find(x => x.name.toLowerCase() === sname.toLowerCase());
-      if (!sub) { sub = { id: Date.now(), name: sname, evals: [] }; appState.subjects.push(sub); }
-      sub.evals.push({ id: Date.now() + 1, name: ename, weight, grade });
+      if (!sub) { showToast('Selecciona una materia'); return; }
+      if (!ename) { showToast('Escribe de qué es la evaluación'); return; }
+      if (!isValidAiDate(evalDate)) { showToast('Indica una fecha válida para detectar choques'); return; }
+      if (!(weight > 0) || weight > 100) { showToast('Pon el valor de la evaluación (1 a 100%)'); return; }
+      if (grade !== null && (!Number.isFinite(grade) || grade < 0 || grade > Number(appState.gradeMax || 20))) { showToast(`La nota debe estar entre 0 y ${appState.gradeMax || 20}`); return; }
+      sub.evals = Array.isArray(sub.evals) ? sub.evals : [];
+      if (editingEvalRef) {
+        const original = appState.subjects.find(x => String(x.id) === editingEvalRef.subjectId);
+        const oldIndex = getEvalIndex(original, editingEvalRef.evalId);
+        if (!original || oldIndex < 0) { showToast('No encontré esa evaluación; no se hicieron cambios'); return; }
+        const ev = original.evals[oldIndex];
+        Object.assign(ev, { id: ev.id ?? Date.now() + Math.floor(Math.random() * 1000), name: ename, date: evalDate, weight, grade });
+        if (original !== sub) { original.evals.splice(oldIndex, 1); sub.evals.push(ev); }
+      } else {
+        sub.evals.push({ id: Date.now() + Math.floor(Math.random() * 1000), name: ename, date: evalDate, weight, grade });
+      }
+      expandedSubjectId = String(sub.id);
+      subjectStudyProposal = null;
       closeModal('modalEval');
       saveState();
-      showToast('Evaluación guardada');
+      showToast(editingEvalRef ? 'Evaluación actualizada' : 'Evaluación guardada');
+      editingEvalRef = null;
     }
     function setEvalGrade(sid, eid, v) {
-      const sub = appState.subjects.find(x => x.id === sid);
-      const ev = sub && sub.evals.find(x => x.id === eid);
-      if (ev) { ev.grade = v === '' ? null : parseFloat(v); saveState(); }
+      const sub = appState.subjects.find(x => String(x.id) === String(sid));
+      const ix = getEvalIndex(sub, eid), ev = ix >= 0 ? sub.evals[ix] : null;
+      const grade = v === '' ? null : parseFloat(v);
+      if (ev && (grade === null || (Number.isFinite(grade) && grade >= 0 && grade <= Number(appState.gradeMax || 20)))) { ev.grade = grade; saveState(); }
+      else showToast(`La nota debe estar entre 0 y ${appState.gradeMax || 20}`);
     }
     function deleteEval(sid, eid) {
-      const sub = appState.subjects.find(x => x.id === sid);
-      if (sub) { sub.evals = sub.evals.filter(x => x.id !== eid); saveState(); }
+      const sub = appState.subjects.find(x => String(x.id) === String(sid));
+      const ix = getEvalIndex(sub, eid), ev = ix >= 0 ? sub.evals[ix] : null;
+      if (!sub || !ev || !window.confirm(`¿Eliminar la evaluación “${ev.name}” de ${sub.name}?`)) return;
+      sub.evals.splice(ix, 1);
+      subjectStudyProposal = null;
+      saveState();
     }
     function deleteSubject(sid) {
-      appState.subjects = appState.subjects.filter(x => x.id !== sid);
+      const sub = appState.subjects.find(x => String(x.id) === String(sid));
+      if (!sub || !window.confirm(`¿Eliminar la materia “${sub.name}” y sus evaluaciones? Esta acción no se puede deshacer.`)) return;
+      appState.subjects = appState.subjects.filter(x => String(x.id) !== String(sid));
+      if (String(expandedSubjectId) === String(sid)) expandedSubjectId = null;
+      subjectStudyProposal = null;
       saveState();
       showToast('Materia eliminada');
     }
+    function toggleSubjectDetails(sid) {
+      expandedSubjectId = String(expandedSubjectId) === String(sid) ? null : String(sid);
+      renderSubjects();
+    }
+    function getSubjectEvaluationSchedule() {
+      const today = getIsoDateOffset(0), out = [];
+      (appState.subjects || []).forEach((sub, si) => (Array.isArray(sub.evals) ? sub.evals : []).forEach((ev, ei) => {
+        if (!isValidAiDate(ev.date) || ev.date < today) return;
+        out.push({ key: `${String(sub.id ?? si)}:${String(ev.id ?? ei)}`, subjectId: sub.id, evalId: ev.id ?? `legacy-index-${ei}`, subject: sub.name, name: ev.name || 'Evaluación', date: ev.date, weight: ev.weight, grade: ev.grade });
+      }));
+      return out.sort((a, b) => a.date.localeCompare(b.date) || a.subject.localeCompare(b.subject));
+    }
+    function groupSubjectEvaluations(evaluations) {
+      const byDate = {};
+      evaluations.forEach(e => (byDate[e.date] = byDate[e.date] || []).push(e));
+      return byDate;
+    }
+    function findSubjectStudySlot(date, reserved) {
+      const busy = (appState.tasks || []).filter(t => !t.done && t.date === date).map(t => {
+        const start = timeToMinutes(t.startTime || '09:00');
+        const end = timeToMinutes(t.endTime || addOneHour(t.startTime || '09:00'));
+        return { start, end };
+      }).filter(x => x.start != null && x.end != null && x.end > x.start);
+      const taken = busy.concat(reserved.filter(x => x.date === date).map(x => ({ start: x.start, end: x.end })));
+      for (let start = 8 * 60; start + 30 <= 21 * 60; start += 30) {
+        const end = start + 30;
+        if (taken.some(x => start < x.end && end > x.start)) continue;
+        const fmt = m => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+        return { startTime: fmt(start), endTime: fmt(end) };
+      }
+      return null;
+    }
+    function createSubjectStudyPlan(evaluations = getSubjectEvaluationSchedule()) {
+      if (!evaluations.length) return [];
+      const exams = evaluations.map(e => ({ id: e.key, title: `${e.subject} — ${e.name}`, date: e.date }));
+      const alreadyAdded = new Set((appState.tasks || []).map(t => t.evaluationPlanKey).filter(Boolean));
+      const reserved = [], plan = [];
+      let unscheduled = 0;
+      scheduleStudy(exams).forEach(session => {
+        const ev = evaluations.find(e => String(e.key) === String(session.examId));
+        if (!ev) return;
+        const taskKey = `${ev.key}|${session.date}|${session.label}`;
+        if (alreadyAdded.has(taskKey)) return;
+        const slot = findSubjectStudySlot(session.date, reserved);
+        if (!slot) { unscheduled++; return; }
+        const item = { ...session, ...slot, subject: ev.subject, evaluation: ev.name, examDate: ev.date, taskKey };
+        reserved.push({ date: session.date, start: timeToMinutes(slot.startTime), end: timeToMinutes(slot.endTime) });
+        plan.push(item);
+      });
+      plan.unscheduled = unscheduled;
+      return plan;
+    }
+    function askAlmaForStudyPlan() {
+      switchTab('ia');
+      sendSuggestion('Analiza mis próximas evaluaciones, señala si coinciden en la misma fecha y sugiéreme cómo distribuir el estudio según mis días disponibles. No agregues ni cambies tareas sin preguntarme primero.');
+    }
+    function proposeSubjectStudyPlan() {
+      subjectStudyProposal = createSubjectStudyPlan();
+      if (!subjectStudyProposal.length) { showToast('No hay evaluaciones futuras con sesiones pendientes para proponer'); return; }
+      renderEvaluationOverview();
+      document.getElementById('subjectStudyProposal')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function applySubjectStudyPlan() {
+      const plan = subjectStudyProposal || [];
+      if (!plan.length) { showToast('Primero prepara una propuesta'); return; }
+      const changed = plan.some(x => describeTaskConflict(x.date, x.startTime, x.endTime));
+      if (changed) { subjectStudyProposal = null; renderEvaluationOverview(); showToast('Tu Agenda cambió; prepara de nuevo la propuesta para evitar choques'); return; }
+      const preview = plan.slice(0, 12).map(x => `• ${fmtDay(x.date)}, ${x.startTime}–${x.endTime} — ${x.label}: ${x.subject} / ${x.evaluation}`).join('\n');
+      const more = plan.length > 12 ? `\n• y ${plan.length - 12} sesiones más (visibles en la propuesta)` : '';
+      if (!window.confirm(`Se crearán ${plan.length} tareas de estudio con estos horarios en tu Agenda:\n\n${preview}${more}\n\n¿Confirmas que las agregue?`)) return;
+      let added = 0;
+      plan.forEach((x, i) => {
+        if ((appState.tasks || []).some(t => t.evaluationPlanKey === x.taskKey)) return;
+        appState.tasks.push({ id: Date.now() + i + Math.floor(Math.random() * 10000), title: `Estudio — ${x.label}: ${x.subject} / ${x.evaluation}`, date: x.date, startTime: x.startTime, endTime: x.endTime, category: 'Estudio', done: false, evaluationPlanKey: x.taskKey });
+        added++;
+      });
+      subjectStudyProposal = null;
+      saveState();
+      showToast(`${added} sesiones añadidas a la Agenda`);
+    }
+    function renderEvaluationOverview() {
+      const el = document.getElementById('evaluationOverview');
+      if (!el) return;
+      const upcoming = getSubjectEvaluationSchedule();
+      const groups = groupSubjectEvaluations(upcoming);
+      const clashes = Object.entries(groups).filter(([, list]) => list.length > 1);
+      const undated = (appState.subjects || []).reduce((n, s) => n + (s.evals || []).filter(e => !isValidAiDate(e.date)).length, 0);
+      const exams = upcoming.map(e => `<div class="flex items-center gap-3 rounded-2xl bg-white/80 p-3 dark:bg-[#0B1120]"><span class="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-300">📅</span><div class="min-w-0 flex-1"><div class="truncate text-xs font-extrabold text-slate-800 dark:text-slate-100">${escapeHtml(e.subject)} · ${escapeHtml(e.name)}</div><div class="mt-0.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400">${escapeHtml(fmtDay(e.date))} · ${e.weight}%</div></div><button onclick="openEvalModal(${JSON.stringify(e.subjectId)},${JSON.stringify(e.evalId)})" aria-label="Editar evaluación" class="rounded-full px-2.5 py-1.5 text-[10px] font-bold text-violet-700 dark:text-violet-300">Editar</button></div>`).join('');
+      const plan = subjectStudyProposal && subjectStudyProposal.length ? `<div id="subjectStudyProposal" class="mt-3 rounded-2xl border border-violet-200 bg-white p-3 dark:border-violet-900 dark:bg-[#0B1120]"><div class="text-xs font-extrabold text-violet-800 dark:text-violet-200">Propuesta de estudio · ${subjectStudyProposal.length} sesiones</div><p class="mt-1 text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">Revisa la distribución. No se añadirá nada a Agenda hasta que confirmes.${subjectStudyProposal.unscheduled ? ` ${subjectStudyProposal.unscheduled} sesión(es) no encontraron un horario libre.` : ''}</p><div class="mt-2 max-h-56 space-y-1.5 overflow-y-auto">${subjectStudyProposal.map(x => `<div class="rounded-xl bg-violet-50/70 px-2.5 py-2 text-[11px] text-slate-700 dark:bg-violet-950/30 dark:text-slate-200"><b>${escapeHtml(fmtDay(x.date))}</b> · ${escapeHtml(x.startTime)}–${escapeHtml(x.endTime)} · ${escapeHtml(x.label)}<div class="text-[10px] text-slate-500 dark:text-slate-400">${escapeHtml(x.subject)} · ${escapeHtml(x.evaluation)}${x.double ? ' · día con otra sesión' : ''}</div></div>`).join('')}</div><button onclick="applySubjectStudyPlan()" class="mt-3 w-full rounded-xl bg-violet-600 py-2.5 text-xs font-extrabold text-white">Añadir sesiones a Agenda…</button></div>` : '';
+      el.innerHTML = `<div class="overflow-hidden rounded-3xl border border-rose-100 bg-rose-50/70 p-4 dark:border-rose-900/40 dark:bg-[#151C2C]"><div class="flex items-start justify-between gap-2"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 dark:text-rose-300">FECHAS IMPORTANTES</div><h3 class="mt-0.5 text-sm font-extrabold text-slate-900 dark:text-white">Evaluaciones próximas</h3><p class="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">ALMA compara las fechas y ayuda a repartir el estudio.</p></div><span class="rounded-full bg-white px-2.5 py-1 text-[10px] font-extrabold text-rose-700 dark:bg-slate-800 dark:text-rose-200">${upcoming.length}</span></div>${clashes.length ? `<div class="mt-3 space-y-1.5">${clashes.map(([date, list]) => `<div class="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">⚠️ <b>${escapeHtml(fmtDay(date))}</b>: ${list.length} evaluaciones coinciden — ${list.map(e => `${escapeHtml(e.subject)} (${escapeHtml(e.name)})`).join(' · ')}</div>`).join('')}</div>` : ''}${upcoming.length ? `<div class="mt-3 space-y-2">${exams}</div>` : `<div class="mt-3 rounded-2xl bg-white/80 p-3 text-[11px] leading-relaxed text-slate-500 dark:bg-[#0B1120] dark:text-slate-400">Aún no hay evaluaciones con fecha próxima. Entra a una materia para añadir una evaluación y su fecha.</div>`}${undated ? `<p class="mt-2 text-[10px] text-slate-500 dark:text-slate-400">Conservamos ${undated} evaluación${undated === 1 ? '' : 'es'} anterior${undated === 1 ? '' : 'es'} sin fecha. Puedes editarlas para añadirla.</p>` : ''}<div class="mt-3 grid grid-cols-2 gap-2"><button onclick="proposeSubjectStudyPlan()" class="rounded-xl bg-violet-600 px-2 py-2.5 text-[10px] font-extrabold text-white">Proponer distribución</button><button onclick="askAlmaForStudyPlan()" class="rounded-xl bg-white px-2 py-2.5 text-[10px] font-extrabold text-violet-700 dark:bg-[#0B1120] dark:text-violet-300">Consultar a ALMA</button></div>${plan}</div>`;
+    }
     function renderSubjects() {
       renderWeekly();
+      renderEvaluationOverview();
       const el = document.getElementById('subjectsList');
       if (!el) return;
-      document.getElementById('gradeMaxInput').value = appState.gradeMax;
-      document.getElementById('gradePassInput').value = appState.gradePass;
-      if (!appState.subjects.length) {
-        el.innerHTML = '<div class="rounded-3xl border border-dashed border-rose-200 bg-rose-50/70 p-5 text-center dark:border-slate-700 dark:bg-[#151C2C]"><div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl dark:bg-[#0B1120]">📚</div><h3 class="mt-3 text-sm font-extrabold text-rose-950 dark:text-rose-200">Tu espacio de estudio está listo</h3><p class="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-rose-800 dark:text-rose-300">Agrega una evaluación para crear tu primera materia y ver cuánto necesitas para aprobar.</p><button onclick="openEvalModal()" class="mt-3 rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-extrabold text-white">＋ Añadir primera evaluación</button></div>';
+      const maxInput = document.getElementById('gradeMaxInput'), passInput = document.getElementById('gradePassInput');
+      if (maxInput) maxInput.value = appState.gradeMax;
+      if (passInput) passInput.value = appState.gradePass;
+      if (!(appState.subjects || []).length) {
+        el.innerHTML = '<div class="rounded-3xl border border-dashed border-violet-200 bg-violet-50/70 p-5 text-center dark:border-slate-700 dark:bg-[#151C2C]"><div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl dark:bg-[#0B1120]">📚</div><h3 class="mt-3 text-sm font-extrabold text-violet-950 dark:text-violet-200">Empieza por tus materias</h3><p class="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-violet-800 dark:text-violet-300">Crea una materia y luego entra en ella para guardar parciales, trabajos o exposiciones con su fecha.</p><button onclick="openSubjectModal()" class="mt-3 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-extrabold text-white">＋ Añadir mi primera materia</button></div>';
         return;
       }
-      el.innerHTML = appState.subjects.map(sub => {
-        const st = subjectStats(sub);
-        let msg, color;
-        if (st.acc >= st.pass) { msg = '✅ Ya llegaste a la nota para aprobar'; color = 'text-emerald-600 dark:text-emerald-400'; }
-        else if (st.left <= 0) { msg = '❌ Con las notas cargadas no alcanza para aprobar'; color = 'text-rose-600 dark:text-rose-400'; }
-        else if (st.need > st.max) { msg = `Ya no alcanza ni sacando ${st.max} en el ${st.left}% restante`; color = 'text-rose-600 dark:text-rose-400'; }
-        else { msg = `Necesitas promediar ${st.need.toFixed(1)} en el ${st.left}% que falta`; color = 'text-indigo-600 dark:text-indigo-300'; }
-        const pct = Math.min(100, Math.round(st.acc / st.pass * 100));
-        const warn = st.wt !== 100 ? `<div class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1">Los valores suman ${st.wt}%, no 100%</div>` : '';
-        const evals = sub.evals.map(e => `
-          <div class="flex items-center gap-2 py-1.5">
-            <div class="flex-1 min-w-0"><div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(e.name)}</div><div class="text-[11px] text-slate-400">${e.weight}%</div></div>
-            <input type="number" step="0.1" value="${e.grade ?? ''}" placeholder="—" onchange="setEvalGrade(${sub.id}, ${e.id}, this.value)" class="w-16 bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2 py-1.5 text-center text-xs font-bold text-slate-900 dark:text-white outline-none" />
-            <button onclick="deleteEval(${sub.id}, ${e.id})" aria-label="Eliminar" class="w-7 h-7 rounded-full text-slate-400 hover:text-rose-500 text-xs font-bold">✕</button>
-          </div>`).join('');
-        return `
-          <div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white truncate">${escapeHtml(sub.name)}</h3>
-              <button onclick="deleteSubject(${sub.id})" class="text-[11px] font-semibold text-slate-400 hover:text-rose-500">Quitar</button>
-            </div>
-            <div class="flex items-baseline justify-between mt-2">
-              <span class="text-2xl font-extrabold font-display text-slate-900 dark:text-white">${st.acc.toFixed(1)}<span class="text-xs font-bold text-slate-400"> / ${st.max}</span></span>
-              <span class="text-[11px] font-semibold text-slate-400">aprobar: ${st.pass}</span>
-            </div>
-            <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden my-2"><div class="h-full rounded-full bg-indigo-600" style="width:${pct}%"></div></div>
-            <div class="text-xs font-bold ${color}">${msg}</div>${warn}
-            <div class="mt-2 divide-y divide-slate-100 dark:divide-slate-800">${evals}</div>
-          </div>`;
+      el.innerHTML = appState.subjects.map((sub, idx) => {
+        sub.evals = Array.isArray(sub.evals) ? sub.evals : [];
+        const st = subjectStats(sub), sid = String(sub.id ?? idx), expanded = String(expandedSubjectId) === sid;
+        let msg = 'Añade evaluaciones con sus fechas para organizarte.', color = 'text-slate-500 dark:text-slate-400';
+        if (sub.evals.some(e => e.grade !== null && e.grade !== undefined && e.grade !== '')) {
+          if (st.acc >= st.pass) { msg = '✅ Ya llegaste a la nota para aprobar'; color = 'text-emerald-600 dark:text-emerald-400'; }
+          else if (st.left <= 0) { msg = '❌ Con las notas cargadas no alcanza para aprobar'; color = 'text-rose-600 dark:text-rose-400'; }
+          else if (st.need > st.max) { msg = `Ya no alcanza ni sacando ${st.max} en el ${st.left}% restante`; color = 'text-rose-600 dark:text-rose-400'; }
+          else { msg = `Necesitas promediar ${st.need.toFixed(1)} en el ${st.left}% que falta`; color = 'text-violet-600 dark:text-violet-300'; }
+        }
+        const pct = st.pass > 0 ? Math.min(100, Math.round(st.acc / st.pass * 100)) : 0;
+        const warn = st.wt && st.wt !== 100 ? `<div class="mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">Los valores suman ${st.wt}%, no 100%</div>` : '';
+        const evals = sub.evals.length ? sub.evals.map((e, ei) => { const eid = e.id ?? `legacy-index-${ei}`; return `<div class="flex items-center gap-2 border-t border-slate-100 py-2 dark:border-slate-800"><div class="min-w-0 flex-1"><div class="truncate text-xs font-bold text-slate-800 dark:text-slate-100">${escapeHtml(e.name || 'Evaluación')}</div><div class="text-[10px] text-slate-400">${isValidAiDate(e.date) ? escapeHtml(fmtDay(e.date)) : 'Sin fecha · puedes editar para añadirla'} · ${Number(e.weight) || 0}%</div></div><input type="number" step="0.1" value="${e.grade ?? ''}" placeholder="Nota" aria-label="Nota de ${escapeHtml(e.name || 'evaluación')}" onchange="setEvalGrade(${JSON.stringify(sid)},${JSON.stringify(String(eid))},this.value)" class="w-[4.5rem] rounded-xl bg-slate-100 px-2 py-1.5 text-center text-xs font-bold text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white"/><button onclick="openEvalModal(${JSON.stringify(sid)},${JSON.stringify(String(eid))})" aria-label="Editar ${escapeHtml(e.name || 'evaluación')}" class="rounded-full px-2 py-1.5 text-[10px] font-bold text-violet-700 dark:text-violet-300">Editar</button><button onclick="deleteEval(${JSON.stringify(sid)},${JSON.stringify(String(eid))})" aria-label="Eliminar evaluación" class="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full text-xs font-bold text-slate-400 hover:text-rose-500">✕</button></div>`; }).join('') : `<p class="rounded-xl bg-violet-50/70 p-3 text-[11px] text-violet-800 dark:bg-violet-950/30 dark:text-violet-200">Todavía no tienes evaluaciones en esta materia.</p>`;
+        return `<article class="overflow-hidden rounded-3xl border border-violet-100 bg-white shadow-sm dark:border-slate-800 dark:bg-[#151C2C]"><div class="flex items-center gap-2 p-4"><button onclick="toggleSubjectDetails(${JSON.stringify(sid)})" aria-expanded="${expanded}" class="flex min-w-0 flex-1 items-center gap-3 text-left"><span class="grid h-10 w-10 flex-shrink-0 place-items-center rounded-2xl bg-violet-50 text-xl dark:bg-violet-950/40">📘</span><span class="min-w-0 flex-1"><span class="block truncate text-sm font-extrabold text-slate-900 dark:text-white">${escapeHtml(sub.name)}</span><span class="mt-0.5 block text-[10px] font-semibold text-slate-500 dark:text-slate-400">${sub.evals.length} ${sub.evals.length === 1 ? 'evaluación' : 'evaluaciones'}${sub.evals.some(e => isValidAiDate(e.date)) ? ' · toca para ver' : ' · toca para organizar'}</span></span><span class="text-sm text-violet-600">${expanded ? '⌃' : '⌄'}</span></button><button onclick="openEvalModal(${JSON.stringify(sid)})" aria-label="Añadir evaluación a ${escapeHtml(sub.name)}" class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl bg-rose-50 text-lg font-bold text-rose-600 dark:bg-rose-950/40 dark:text-rose-300">＋</button><button onclick="deleteSubject(${JSON.stringify(sid)})" aria-label="Eliminar materia" class="grid h-9 w-8 flex-shrink-0 place-items-center rounded-xl text-xs text-slate-400 hover:text-rose-500">⋯</button></div>${expanded ? `<div class="border-t border-violet-50 px-4 pb-4 dark:border-slate-800"><div class="flex items-baseline justify-between pt-3"><span class="text-2xl font-extrabold text-slate-900 dark:text-white">${st.acc.toFixed(1)}<span class="text-xs font-bold text-slate-400"> / ${st.max}</span></span><span class="text-[11px] font-semibold text-slate-400">aprobar: ${st.pass}</span></div><div class="my-2 h-2.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div class="h-full rounded-full bg-violet-600" style="width:${pct}%"></div></div><div class="text-xs font-bold ${color}">${escapeHtml(msg)}</div>${warn}<div class="mt-2">${evals}</div><button onclick="openEvalModal(${JSON.stringify(sid)})" class="mt-3 w-full rounded-xl border border-dashed border-rose-300 py-2.5 text-xs font-extrabold text-rose-700 dark:border-rose-900 dark:text-rose-300">＋ Añadir evaluación a ${escapeHtml(sub.name)}</button></div>` : ''}</article>`;
       }).join('');
+      populateTimerSubjects();
     }
 
     // ---- Respaldo ----
@@ -2430,7 +2591,7 @@
       let d = null;
       try { d = window.claude ? await window.claude.use('downloads') : null; } catch (e) { d = null; }
       if (d) {
-        try { await d.save({ filename: 'mi-asistente-respaldo.json', data }); showToast('Respaldo guardado'); return; }
+        try { await d.save({ filename: 'alma-respaldo.json', data }); showToast('Respaldo guardado'); return; }
         catch (e) { if (e && e.code === 'declined') return; }
       }
       document.getElementById('backupText').value = data;
@@ -4150,6 +4311,29 @@
         };
       }
 
+      // 1.5 Rutinas y materias: respuesta contextual también sin Gemini
+      if (/rutinas?|h[aá]bitos?/.test(lower) && /qu[eé]|mis|tengo|rutina/.test(lower) && !/crea|agrega|elimina|borra/.test(lower)) {
+        const routines = appState.routines || [];
+        if (!routines.length) return { respuesta: 'Todavía no tienes rutinas guardadas. Entra en Rutinas y crea la primera con tus días, hora y pasos.', acciones: [] };
+        const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+        const lines = routines.map(r => `• ${r.name} · ${r.time || 'sin hora'} · ${(r.days || []).map(d => days[d]).filter(Boolean).join(', ') || 'sin días configurados'} · ${(r.steps || []).length} pasos`).join('\n');
+        return { respuesta: `Estas son tus rutinas guardadas:\n${lines}`, acciones: [] };
+      }
+      if (/materias?|evaluaciones?|parciales?|ex[aá]menes?/.test(lower) && /qu[eé]|mis|tengo|fecha|choque|distribu|plan/.test(lower) && !/agrega|registra|guarda|crea|elimina|borra/.test(lower)) {
+        const subjects = appState.subjects || [];
+        if (!subjects.length) return { respuesta: 'Aún no tienes materias guardadas. Entra en Materias, añade una materia y después registra sus evaluaciones con fecha.', acciones: [] };
+        const upcoming = getSubjectEvaluationSchedule(), grouped = groupSubjectEvaluations(upcoming);
+        const conflicts = Object.entries(grouped).filter(([, list]) => list.length > 1).map(([date, list]) => `⚠️ ${fmtDay(date)}: ${list.map(e => `${e.subject} — ${e.name}`).join('; ')}`);
+        const subjectLines = subjects.map(s => `• ${s.name}: ${(s.evals || []).length} evaluaciones`).join('\n');
+        const dates = upcoming.length ? upcoming.map(e => `• ${fmtDay(e.date)} — ${e.subject}: ${e.name}`).join('\n') : 'No hay evaluaciones futuras con fecha registrada todavía.';
+        let answer = `Tus materias:\n${subjectLines}\n\nPróximas evaluaciones:\n${dates}`;
+        answer += conflicts.length ? `\n\nFechas que se cruzan:\n${conflicts.join('\n')}` : (upcoming.length ? '\n\nNo veo dos evaluaciones el mismo día.' : '');
+        if (/distribu|plan|organiza|estudi/.test(lower) && upcoming.length) {
+          const plan = createSubjectStudyPlan();
+          answer += plan.length ? `\n\nPropuesta (todavía no agregada a Agenda):\n${plan.map(x => `• ${fmtDay(x.date)}, ${x.startTime}–${x.endTime} — ${x.label}: ${x.subject} / ${x.evaluation}`).join('\n')}${plan.unscheduled ? `\n\nNo encontré horario libre para ${plan.unscheduled} sesión(es).` : ''}` : '\n\nNo quedan sesiones por proponer; revisa tus días disponibles o pide a ALMA otra estrategia.';
+        }
+        return { respuesta: answer, acciones: [] };
+      }
       // 2. Check Analytic Questions ("¿qué tengo hoy?", "¿cuánto dinero me queda?", "¿cuánto me deben?", "¿puedo gastar X$?")
       if (/qu[eé] tengo|pendiente|mis tareas|agenda de hoy/.test(lower) && !/agrega|crea|anota|recu[eé]rdame/.test(lower)) {
         const todayTasks = appState.tasks.filter(t => t.date === today).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
@@ -4186,7 +4370,7 @@
         };
       }
 
-      if (/cu[aá]nto me deben|qu[eé] debo|mis deudas|pr[eé]stamos/.test(lower) && !/me debe\s+\d|le debo\s+\d/.test(lower)) {
+      if (/cu[aá]nto me deben|cu[aá]nto debo|qu[eé] debo|mis deudas|pr[eé]stamos/.test(lower) && !/me debe\s+\d|le debo\s+\d/.test(lower)) {
         const activeDebts = appState.debts.filter(d => !d.paid);
         if (activeDebts.length === 0) {
           return { respuesta: '¡Estás al día! No tienes deudas ni préstamos pendientes.', acciones: [] };
@@ -4394,7 +4578,7 @@
       const followupQuery = /\b(?:como va|como voy|en que voy|que me falta|que sigue|que queda|que esta pendiente|progreso|seguimiento|como avanzo|retomemos)\b/.test(q);
       const followupTopic = /\b(?:estudi\w*|examen(?:es)?|materia(?:s)?|curso(?:s)?|objetivo(?:s)?|proposito(?:s)?|meta(?:s)? personales?|tarea(?:s)?|pendiente(?:s)?|agenda|proyecto(?:s)?)\b/.test(q);
       return /\bmi(?:s)?\s+(?:agenda|tareas?|eventos?|finanzas|dinero|saldo|balance|capital|gastos?|ingresos?|deudas?|presupuesto|objetivos?|propositos?|metas?|rutinas?|habitos?|materias?|notas?|calificaciones?|promedio|examen(?:es)?|plan de estudio)\b/.test(q) ||
-        /\b(?:que tengo|que me falta|cuanto (?:dinero )?tengo|cuanto me queda|cuanto me deben|cuanto gaste|cuanto pague|cuanto recibi|que gaste|que debo|que tareas tengo|que toca hoy|que tengo hoy|que tengo manana|que hay en mi agenda|como van mis finanzas|resumen de mis finanzas|mis pendientes|mi tasa configurada|tasa que tengo guardada)\b/.test(q) ||
+        /\b(?:que tengo|que me falta|cuanto (?:dinero )?tengo|cuanto me queda|cuanto me deben|cuanto debo|cuanto gaste|cuanto pague|cuanto recibi|que gaste|que debo|que tareas tengo|que toca hoy|que tengo hoy|que tengo manana|que hay en mi agenda|como van mis finanzas|resumen de mis finanzas|mis pendientes|mi tasa configurada|tasa que tengo guardada|cuanto debo|que rutinas tengo|cuales son mis rutinas|que materias tengo|cuales son mis materias)\b/.test(q) ||
         /\b(?:mi|mis)\s+(?:racha|pasos de hoy|tiempo de estudio|temporizador|objetivos personales?|propositos?)\b/.test(q) || (followupQuery && followupTopic);
     }
 
@@ -4419,11 +4603,11 @@
       const sectionNames = { inicio: 'Inicio', agenda: 'Agenda', ia: 'Chat de ALMA', finanzas: 'Finanzas', rutinas: 'Rutinas', materias: 'Materias y estudio', ajustes: 'Ajustes' };
       const currentSectionLabel = sectionNames[currentSection] || 'General';
       const broad = /resumen.*(?:general|todo)|todo lo que|todas mis secciones|organiza.*(?:mi dia|mi semana)|mi semana|resumen semanal/.test(q);
-      const wantsFinance = broad || /\bmi(?:s)?\s+(?:finanzas|dinero|saldo|balance|capital|gastos?|ingresos?|presupuesto|deudas?|metas? de ahorro|tasa configurada)\b|\b(?:cuanto (?:dinero )?tengo|cuanto me queda|cuanto me deben|cuanto gaste|cuanto pague|cuanto recibi|que gaste|que debo|que tasa tengo|como van mis finanzas|resumen de mis finanzas|mi balance|mi saldo)\b/.test(q);
+      const wantsFinance = broad || /\bmi(?:s)?\s+(?:finanzas|dinero|saldo|balance|capital|gastos?|ingresos?|presupuesto|deudas?|metas? de ahorro|tasa configurada)\b|\b(?:cuanto (?:dinero )?tengo|cuanto me queda|cuanto me deben|cuanto debo|cuanto gaste|cuanto pague|cuanto recibi|que gaste|que debo|que tasa tengo|como van mis finanzas|resumen de mis finanzas|mi balance|mi saldo)\b/.test(q);
       const namesSubject = (appState.subjects || []).some(s => s.name && q.includes(s.name.toLowerCase()));
       const namesRoutine = (appState.routines || []).some(r => r.name && q.includes(r.name.toLowerCase()));
-      const wantsStudy = broad || namesSubject || /\bmi(?:s)?\s+(?:materias?|notas?|calificaciones?|promedio|examen(?:es)?|plan de estudio|tiempo de estudio)\b|\b(?:mis pendientes de estudio|que examen tengo|que nota necesito|como voy en)\b/.test(q);
-      const wantsRoutine = broad || namesRoutine || /\bmi(?:s)?\s+(?:rutinas?|habitos?|racha|pasos de hoy)\b|\b(?:que rutina me toca|que paso sigue|progreso de mi rutina)\b/.test(q);
+      const wantsStudy = broad || namesSubject || /\bmi(?:s)?\s+(?:materias?|notas?|calificaciones?|promedio|examen(?:es)?|plan de estudio|tiempo de estudio)\b|\b(?:mis pendientes de estudio|que examen tengo|que nota necesito|como voy en|que materias tengo|cuales son mis materias|que evaluaciones tengo)\b/.test(q);
+      const wantsRoutine = broad || namesRoutine || /\bmi(?:s)?\s+(?:rutinas?|habitos?|racha|pasos de hoy)\b|\b(?:que rutina me toca|que rutinas tengo|cuales son mis rutinas|como van mis rutinas|que paso sigue|progreso de mi rutina)\b/.test(q);
       const wantsAgenda = broad || /\bmi(?:s)?\s+(?:agenda|tareas?|eventos?|calendario|pendientes?)\b|\b(?:que tengo hoy|que tengo manana|que tareas tengo|mis pendientes|citas de hoy)\b/.test(q);
       const today = getIsoDateOffset(0), age = ageFromBirthDate(appState.profile && appState.profile.birthDate);
       const asksProfile = /\b(?:mi nombre|como me llamo|mi edad|cuantos anos tengo|cuando cumplo|mi cumpleanos|mi fecha de nacimiento|mi ocupacion)\b/.test(q);
@@ -4474,13 +4658,23 @@
           movimientos_recientes: (appState.transactions || []).slice(0, 20)
         };
       }
-      if (wantsStudy) snapshot.estudios = {
-        materias: (appState.subjects || []).map(s => ({ nombre: s.name, evaluaciones: (s.evals || []).map(e => ({ nombre: e.name, porcentaje: e.weight, nota: e.grade })) })),
-        estudio_registrado: (appState.studyLog || []).slice(-40),
-        examenes: (appState.tasks || []).filter(t => t.exam && (!t.done || t.date >= today)).slice(0, 40),
-        escala_notas: { maximo: appState.gradeMax, aprobar: appState.gradePass },
-        dias_no_disponibles: { semanales: appState.busyWeekdays, fechas: appState.busyDates }
-      };
+      if (wantsStudy) {
+        const upcomingEvals = getSubjectEvaluationSchedule();
+        const groupedEvals = groupSubjectEvaluations(upcomingEvals);
+        const localStudyPlan = createSubjectStudyPlan();
+        snapshot.estudios = {
+          materias: (appState.subjects || []).map(s => ({ nombre: s.name, evaluaciones: (s.evals || []).map(e => ({ nombre: e.name, fecha: e.date || null, porcentaje: e.weight, nota: e.grade })) })),
+          evaluaciones_proximas: upcomingEvals.map(e => ({ materia: e.subject, nombre: e.name, fecha: e.date, porcentaje: e.weight })),
+          choques_de_fecha: Object.entries(groupedEvals).filter(([, list]) => list.length > 1).map(([fecha, list]) => ({ fecha, cantidad: list.length, evaluaciones: list.map(e => `${e.subject}: ${e.name}`) })),
+          propuesta_local_de_estudio: localStudyPlan.map(x => ({ fecha: x.date, hora_inicio: x.startTime, hora_fin: x.endTime, materia: x.subject, evaluacion: x.evaluation, sesion: x.label })),
+          sesiones_sin_horario_libre: localStudyPlan.unscheduled || 0,
+          estudio_registrado: (appState.studyLog || []).slice(-40),
+          examenes: (appState.tasks || []).filter(t => t.exam && (!t.done || t.date >= today)).slice(0, 40),
+          escala_notas: { maximo: appState.gradeMax, aprobar: appState.gradePass },
+          dias_no_disponibles: { semanales: appState.busyWeekdays, fechas: appState.busyDates },
+          instruccion: 'Señala las fechas con varias evaluaciones y ofrece una distribución de estudio. No crees ni cambies tareas sin confirmación explícita.'
+        };
+      }
       if (wantsRoutine) {
         const progress = routineDayProgress(today);
         snapshot.rutinas = { hoy: progress.due.map(r => ({ nombre: r.name, hora: r.time, pasos: (r.steps || []).map(s => ({ nombre: s.title, minutos: s.duration, completado: (progress.checks[r.id] || []).includes(s.id) })) })), todas: (appState.routines || []).map(r => ({ nombre: r.name, hora: r.time, dias: r.days, pasos: (r.steps || []).map(s => ({ nombre: s.title, minutos: s.duration })) })), racha: routineCurrentStreak() };
