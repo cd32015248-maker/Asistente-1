@@ -326,6 +326,7 @@
           <div class="flex-1 min-w-0"><div class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">ALMA</div><div id="aiEngineBadge" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">● <span id="aiEngineLabel">IA local</span></div></div>
           <button onclick="enterAlmaVoiceMode()" aria-label="Hablar con ALMA por voz" class="px-3 h-10 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 active:scale-95 transition flex-shrink-0">🎙️ Hablar</button>
           <button onclick="toggleVoiceReplies()" aria-label="Voz" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🔊</button>
+          <button onclick="openMemoryModal()" aria-label="Mis recuerdos" title="Mis recuerdos" class="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-950/50 text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🧠</button>
           <button onclick="switchTab('ajustes')" aria-label="Ajustes" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">⚙️</button>
         </div>
         <div id="aiChatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
@@ -570,6 +571,7 @@
             <input id="taskEndInput" type="time" value="10:00" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-900 dark:text-white outline-none" />
           </div>
         </div>
+        <div id="taskConflictNotice" class="hidden rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"></div>
         <button onclick="saveTaskFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold shadow-sm">Guardar en Agenda</button>
       </div>
     </div>
@@ -698,13 +700,37 @@
       </div>
     </div>
 
+    <div id="modalMemory" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+      <div class="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-3xl border border-violet-100 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-[#151C2C]">
+        <div class="flex items-center justify-between"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-violet-600 dark:text-violet-300">ALMA · EN ESTE TELÉFONO</div><h3 class="mt-0.5 text-base font-extrabold text-slate-900 dark:text-white">Mis recuerdos</h3></div><button onclick="closeModal('modalMemory')" aria-label="Cerrar" class="grid h-9 w-9 place-items-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800">✕</button></div>
+        <p class="mt-2 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">ALMA solo guarda un recuerdo cuando lo pides y confirmas. Se conserva localmente; el almacenamiento del teléfono no está cifrado por esta función. Los recuerdos sensibles no se envían a Gemini.</p>
+        <button onclick="openActionLogModal()" class="mt-2 rounded-full bg-indigo-50 px-3 py-1.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">Ver registro de acciones</button>
+        <div class="mt-4 flex items-center justify-between"><span class="text-xs font-extrabold text-slate-700 dark:text-slate-200">Guardados</span><button onclick="clearSavedMemories()" class="rounded-full bg-rose-50 px-3 py-1.5 text-[10px] font-bold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">Borrar todos</button></div>
+        <div id="memoryList" class="mt-2 max-h-52 space-y-2 overflow-y-auto"></div>
+        <div class="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700"><div id="memoryFormTitle" class="text-xs font-extrabold text-slate-800 dark:text-slate-100">Añadir recuerdo</div><textarea id="memoryTextInput" maxlength="500" rows="3" oninput="updateMemoryPrivacyConsent()" placeholder="Ej.: Prefiero estudiar por la mañana" class="mt-2 w-full rounded-2xl bg-slate-100 px-3.5 py-3 text-xs text-slate-900 outline-none focus:ring-2 focus:ring-violet-300 dark:bg-[#0B1120] dark:text-white"></textarea>
+          <div class="mt-2 grid grid-cols-2 gap-2"><select id="memoryTypeInput" onchange="updateMemoryExpiryVisibility()" class="rounded-xl bg-slate-100 px-3 py-2.5 text-xs font-bold text-slate-800 outline-none dark:bg-[#0B1120] dark:text-white"><option value="temporal">Temporal (30 días)</option><option value="permanente">Permanente</option></select><input id="memoryExpiresInput" type="date" class="rounded-xl bg-slate-100 px-2 py-2.5 text-[10px] font-bold text-slate-700 outline-none dark:bg-[#0B1120] dark:text-slate-200" aria-label="Vence el" /></div>
+          <label id="memoryPrivateConsentWrap" class="mt-2 hidden items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[10px] leading-relaxed text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"><input id="memoryPrivateConsent" type="checkbox" class="mt-0.5"><span>Autorizo guardar este dato personal o sensible como recuerdo local. No se enviará a Gemini.</span></label>
+          <div class="mt-3 flex gap-2"><button id="memorySaveButton" onclick="saveMemoryFromModal()" class="flex-1 rounded-2xl bg-violet-600 py-2.5 text-xs font-extrabold text-white">Guardar recuerdo</button><button id="memoryCancelEditButton" onclick="resetMemoryForm()" class="hidden rounded-2xl bg-slate-100 px-3 py-2.5 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">Cancelar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalActionLog" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+      <div class="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-3xl border border-indigo-100 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-[#151C2C]">
+        <div class="flex items-center justify-between"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">CAMBIOS CONFIRMADOS</div><h3 class="mt-0.5 text-base font-extrabold text-slate-900 dark:text-white">Registro de acciones</h3></div><button onclick="closeModal('modalActionLog')" aria-label="Cerrar" class="grid h-9 w-9 place-items-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800">✕</button></div>
+        <p class="mt-2 text-[10px] text-slate-500 dark:text-slate-400">Registro local de las últimas 100 acciones realizadas mediante ALMA. Borrar el chat no borra este registro.</p>
+        <div id="actionLogList" class="mt-3 space-y-2"></div>
+      </div>
+    </div>
+
     <div id="modalBackup" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
       <div class="w-full max-w-md bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Respaldo de datos</h3>
           <button onclick="closeModal('modalBackup')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
         </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Guarda una copia de tus datos (tareas, finanzas, notas y rutinas). La clave de Gemini se excluye por seguridad y permanece en este teléfono. Para restaurar, pega el texto o elige el archivo y toca Restaurar.</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">La clave de Gemini siempre se excluye y permanece en este teléfono. Los recuerdos también se excluyen por defecto; puedes incluirlos si quieres trasladarlos. El archivo de respaldo puede contener otros datos personales y no está cifrado.</p>
+        <label class="flex items-start gap-2 rounded-xl bg-violet-50 p-2.5 text-[10px] font-semibold leading-relaxed text-violet-900 dark:bg-violet-950/30 dark:text-violet-200"><input id="backupIncludeMemories" type="checkbox" class="mt-0.5"><span>Incluir recuerdos en este respaldo (opcional)</span></label>
         <button onclick="exportBackup()" class="w-full py-2.5 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar respaldo</button>
         <textarea id="backupText" rows="4" placeholder="Aquí aparece el respaldo, o pega uno para restaurar" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-3 py-2.5 text-[11px] font-mono text-slate-900 dark:text-white outline-none"></textarea>
         <input type="file" accept=".json,.txt" onchange="loadBackupFile(this)" class="text-xs text-slate-500 w-full" />
@@ -749,6 +775,20 @@
       } catch (e) {
         // Fallback already stored in memoryStorageFallback
       }
+    }
+    function getPersistableState() {
+      const persisted = { ...appState };
+      persisted.chat = (appState.chat || []).filter(m => !m.isTemp).map(m => {
+        const copy = { ...m };
+        const pendingSensitive = (m.actions || []).some(a => a.status === 'pending_confirm' && a.raw && a.raw.tipo === 'guardar_recuerdo' && isSensitiveMemoryText(a.raw.texto));
+        if (pendingSensitive) {
+          copy.text = 'Propuesta de recuerdo sensible pendiente. Por privacidad no se guardó localmente; vuelve a escribirla para confirmarla.';
+          copy.actions = (m.actions || []).filter(a => !(a.status === 'pending_confirm' && a.raw && a.raw.tipo === 'guardar_recuerdo' && isSensitiveMemoryText(a.raw.texto)));
+        }
+        if (copy.redactOnDisk || isSensitiveMemoryText(copy.text)) copy.text = '[Contenido sensible omitido del historial local por privacidad]';
+        return copy;
+      });
+      return persisted;
     }
 
     // =========================================================================
@@ -808,6 +848,7 @@
         transactions: [],
         capitalBase: null,
         goals: [],
+        personalGoals: [],
         debts: [],
         habits: [],
         routines: [],
@@ -817,13 +858,26 @@
         profile: { name: '', birthDate: '', age: '', occupation: '', done: false },
         chat: [
           { role: 'ai', text: '¡Hola! Soy tu asistente personal. Estoy aquí para ayudarte con tu agenda, tus finanzas, tus rutinas y tus estudios. Puedes pedirme que consulte tus datos o que te ayude a organizarlos.', actions: [] }
-        ]
+        ],
+        memories: [],
+        actionLog: []
       };
     }
 
     function migrateLegacyHabits(state, hadRoutineField) {
       if (!Array.isArray(state.routines)) state.routines = [];
       if (!state.routineChecks || typeof state.routineChecks !== 'object') state.routineChecks = {};
+      if (!Array.isArray(state.memories)) state.memories = [];
+      if (!Array.isArray(state.actionLog)) state.actionLog = [];
+      state.actionLog = state.actionLog.filter(a => a && typeof a.summary === 'string').slice(-100);
+      state.memories = state.memories.filter(m => m && typeof m.text === 'string').map(m => ({
+        id: m.id || ('memory-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7)),
+        text: m.text.slice(0, 500),
+        type: m.type === 'permanente' ? 'permanente' : 'temporal',
+        createdAt: Number(m.createdAt) || Date.now(),
+        updatedAt: Number(m.updatedAt) || Number(m.createdAt) || Date.now(),
+        expiresAt: m.type === 'permanente' ? '' : (typeof m.expiresAt === 'string' ? m.expiresAt : '')
+      }));
       if (!hadRoutineField && Array.isArray(state.habits) && state.habits.length) {
         const id = 'legacy-habits-' + Date.now();
         const steps = state.habits.map((h, i) => ({ id: h.id || ('legacy-step-' + i), title: h.title || 'Paso anterior', icon: h.icon || '✨', duration: Number(h.duration) || null }));
@@ -845,7 +899,7 @@
     })();
 
     function saveState() {
-      safeSetItem(STORAGE_KEY, JSON.stringify(appState));
+      safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
       renderAll();
       scheduleNotifSoon();
     }
@@ -999,6 +1053,8 @@
       openModal('modalTask');
     }
     function saveTaskFromModal() {
+      const notice = document.getElementById('taskConflictNotice');
+      if (notice) { notice.classList.add('hidden'); notice.textContent = ''; }
       const title = document.getElementById('taskTitleInput').value.trim();
       const date = document.getElementById('taskDateInput').value || getIsoDateOffset(0);
       const startTime = document.getElementById('taskStartInput').value || '09:00';
@@ -1008,6 +1064,12 @@
         showToast('Escribe el nombre de la tarea');
         return;
       }
+      if (!isValidAiDate(date) || !isValidAiTime(startTime) || !isValidAiTime(endTime) || timeToMinutes(endTime) <= timeToMinutes(startTime)) {
+        if (notice) { notice.textContent = 'Revisa la fecha y el horario: la hora de fin debe ser posterior al inicio.'; notice.classList.remove('hidden'); }
+        return;
+      }
+      const conflict = describeTaskConflict(date, startTime, endTime);
+      if (conflict) { if (notice) { notice.textContent = conflict; notice.classList.remove('hidden'); } return; }
       appState.tasks.push({
         id: Date.now() + Math.floor(Math.random() * 1000),
         title, date, startTime, endTime, category, done: false
@@ -1025,12 +1087,16 @@
         showToast('Escribe una tarea');
         return;
       }
+      const date = selectedDate || getIsoDateOffset(0);
+      const endTime = addOneHour(startTime);
+      const conflict = describeTaskConflict(date, startTime, endTime);
+      if (conflict) { showToast(conflict); return; }
       appState.tasks.push({
         id: Date.now() + Math.floor(Math.random() * 1000),
         title,
-        date: selectedDate || getIsoDateOffset(0),
+        date,
         startTime,
-        endTime: addOneHour(startTime),
+        endTime,
         category: 'Personal',
         done: false
       });
@@ -2353,18 +2419,22 @@
     }
 
     // ---- Respaldo ----
-    function openBackupModal() { document.getElementById('backupText').value = ''; openModal('modalBackup'); }
+    function openBackupModal() { document.getElementById('backupText').value = ''; document.getElementById('backupIncludeMemories').checked = false; openModal('modalBackup'); }
     async function exportBackup() {
-      const backupState = { ...appState, customApiKey: '' };
+      const backupState = { ...getPersistableState(), customApiKey: '' };
+      if (!document.getElementById('backupIncludeMemories').checked) {
+        delete backupState.memories;
+        backupState.memoriesExcluded = true;
+      }
       const data = JSON.stringify(backupState, null, 1);
       let d = null;
       try { d = window.claude ? await window.claude.use('downloads') : null; } catch (e) { d = null; }
       if (d) {
-        try { await d.save({ filename: 'mi-asistente-respaldo.json', data }); showToast('Respaldo guardado (sin clave API)'); return; }
+        try { await d.save({ filename: 'mi-asistente-respaldo.json', data }); showToast('Respaldo guardado'); return; }
         catch (e) { if (e && e.code === 'declined') return; }
       }
       document.getElementById('backupText').value = data;
-      showToast('Copia el respaldo; no contiene tu clave API');
+      showToast('Copia el respaldo; no contiene la clave API');
     }
     function loadBackupFile(inp) {
       const f = inp.files && inp.files[0];
@@ -2378,7 +2448,9 @@
         const o = JSON.parse(document.getElementById('backupText').value.trim());
         if (!o || !Array.isArray(o.tasks) || !Array.isArray(o.transactions)) throw new Error('bad');
         const localApiKey = appState.customApiKey || '';
-        const safeBackup = { ...o, customApiKey: localApiKey };
+        const preservedMemories = o.memoriesExcluded === true || !Object.prototype.hasOwnProperty.call(o, 'memories') ? (appState.memories || []) : (Array.isArray(o.memories) ? o.memories : []);
+        const safeBackup = { ...o, memories: preservedMemories, customApiKey: localApiKey };
+        delete safeBackup.memoriesExcluded;
         appState = migrateLegacyHabits({ ...createDefaultState(), ...safeBackup }, Object.prototype.hasOwnProperty.call(o, 'routines'));
         closeModal('modalBackup');
         saveState();
@@ -3076,6 +3148,134 @@
       const time = d.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
       return `${day} · ${time}`;
     }
+    let memoryEditingIndex = null;
+    function isSensitiveMemoryText(value) {
+      const text = String(value || '');
+      return /\b(?:contrase[nñ]a|password|clave de acceso|pin|cvv|c[oó]digo de verificaci[oó]n|tarjeta de cr[eé]dito|cuenta bancaria|n[uú]mero de cuenta|c[eé]dula|pasaporte|fecha de nacimiento|cumplea[nñ]os|tel[eé]fono|domicilio|direcci[oó]n|diagn[oó]stico|medicamento|tratamiento m[eé]dico|salud|salario|ingresos?|deuda|saldo bancario|finanzas personales)\b/i.test(text) || /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(text) || /\b\d{13,19}\b/.test(text);
+    }
+    function activeSavedMemories() {
+      const today = getIsoDateOffset(0);
+      return (appState.memories || []).filter(m => m.type === 'permanente' || !m.expiresAt || m.expiresAt >= today);
+    }
+    function openMemoryModal() {
+      renderMemoryList();
+      resetMemoryForm();
+      openModal('modalMemory');
+    }
+    function renderMemoryList() {
+      const list = document.getElementById('memoryList');
+      if (!list) return;
+      const memories = appState.memories || [];
+      if (!memories.length) {
+        list.innerHTML = '<div class="rounded-2xl border border-dashed border-violet-200 bg-violet-50/60 p-3 text-center text-[11px] text-violet-800 dark:border-slate-700 dark:bg-[#0B1120] dark:text-violet-200">Todavía no hay recuerdos guardados. Dile a ALMA “recuerda que…” y confirma, o añade uno aquí.</div>';
+        return;
+      }
+      list.innerHTML = memories.map((m, i) => {
+        const expired = m.type === 'temporal' && m.expiresAt && m.expiresAt < getIsoDateOffset(0);
+        const expiry = m.type === 'permanente' ? 'Sin vencimiento' : (m.expiresAt ? `Vence ${m.expiresAt}` : 'Temporal');
+        return `<div class="rounded-2xl border ${expired ? 'border-slate-200 opacity-60 dark:border-slate-700' : 'border-violet-100 dark:border-slate-700'} bg-white p-3 dark:bg-[#101827]"><div class="flex items-start justify-between gap-2"><div class="min-w-0 flex-1"><div class="whitespace-pre-wrap break-words text-[11px] font-semibold text-slate-800 dark:text-slate-100">${escapeHtml(m.text)}</div><div class="mt-1 text-[9px] text-slate-400">${m.type === 'permanente' ? 'Permanente' : 'Temporal'} · ${escapeHtml(expiry)}${expired ? ' · vencido' : ''}</div></div><div class="flex shrink-0 gap-1"><button onclick="editSavedMemory(${i})" class="rounded-lg bg-slate-100 px-2 py-1 text-[9px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-200">Editar</button><button onclick="deleteSavedMemory(${i})" class="rounded-lg bg-rose-50 px-2 py-1 text-[9px] font-bold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">Borrar</button></div></div></div>`;
+      }).join('');
+    }
+    function updateMemoryExpiryVisibility() {
+      const temporal = document.getElementById('memoryTypeInput').value === 'temporal';
+      document.getElementById('memoryExpiresInput').classList.toggle('hidden', !temporal);
+    }
+    function updateMemoryPrivacyConsent() {
+      const wrap = document.getElementById('memoryPrivateConsentWrap');
+      const needed = isSensitiveMemoryText(document.getElementById('memoryTextInput').value);
+      wrap.classList.toggle('hidden', !needed);
+      wrap.classList.toggle('flex', needed);
+    }
+    function resetMemoryForm() {
+      memoryEditingIndex = null;
+      document.getElementById('memoryTextInput').value = '';
+      document.getElementById('memoryTypeInput').value = 'temporal';
+      document.getElementById('memoryExpiresInput').value = getIsoDateOffset(30);
+      document.getElementById('memoryPrivateConsent').checked = false;
+      document.getElementById('memoryPrivateConsentWrap').classList.add('hidden');
+      document.getElementById('memoryPrivateConsentWrap').classList.remove('flex');
+      document.getElementById('memoryFormTitle').textContent = 'Añadir recuerdo';
+      document.getElementById('memorySaveButton').textContent = 'Guardar recuerdo';
+      document.getElementById('memoryCancelEditButton').classList.add('hidden');
+      updateMemoryExpiryVisibility();
+    }
+    function editSavedMemory(index) {
+      const m = (appState.memories || [])[index];
+      if (!m) return;
+      memoryEditingIndex = index;
+      document.getElementById('memoryTextInput').value = m.text;
+      document.getElementById('memoryTypeInput').value = m.type;
+      document.getElementById('memoryExpiresInput').value = m.expiresAt || getIsoDateOffset(30);
+      document.getElementById('memoryPrivateConsent').checked = false;
+      const privateWrap = document.getElementById('memoryPrivateConsentWrap');
+      privateWrap.classList.toggle('hidden', !isSensitiveMemoryText(m.text));
+      privateWrap.classList.toggle('flex', isSensitiveMemoryText(m.text));
+      document.getElementById('memoryFormTitle').textContent = 'Corregir recuerdo';
+      document.getElementById('memorySaveButton').textContent = 'Guardar corrección';
+      document.getElementById('memoryCancelEditButton').classList.remove('hidden');
+      updateMemoryExpiryVisibility();
+      document.getElementById('memoryTextInput').focus();
+    }
+    function saveMemoryFromModal() {
+      const text = document.getElementById('memoryTextInput').value.trim();
+      const type = document.getElementById('memoryTypeInput').value;
+      const expiry = type === 'temporal' ? document.getElementById('memoryExpiresInput').value : '';
+      if (!text || text.length > 500 || !['temporal', 'permanente'].includes(type)) { showToast('Escribe un recuerdo válido'); return; }
+      if (type === 'temporal' && (!isValidAiDate(expiry) || expiry < getIsoDateOffset(0))) { showToast('Elige una fecha de vencimiento válida'); return; }
+      const sensitive = isSensitiveMemoryText(text);
+      if (sensitive && !document.getElementById('memoryPrivateConsent').checked) { showToast('Marca la autorización para guardar este dato sensible'); return; }
+      const old = memoryEditingIndex == null ? null : appState.memories[memoryEditingIndex];
+      if (old && !confirm(`¿Confirmas esta corrección?\n\nAntes: ${old.text}\n\nDespués: ${text}`)) return;
+      if (old) {
+        Object.assign(old, { text, type, expiresAt: expiry, updatedAt: Date.now() });
+      } else {
+        const duplicate = (appState.memories || []).some(m => normalizeAiMatch(m.text) === normalizeAiMatch(text));
+        if (duplicate) { showToast('Ese recuerdo ya está guardado'); return; }
+        appState.memories.push({ id: 'memory-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), text, type, createdAt: Date.now(), updatedAt: Date.now(), expiresAt: expiry });
+      }
+      saveState();
+      renderMemoryList();
+      resetMemoryForm();
+      showToast(old ? 'Recuerdo corregido' : 'Recuerdo guardado');
+    }
+    function deleteSavedMemory(index) {
+      const m = (appState.memories || [])[index];
+      if (!m || !confirm(`¿Borrar este recuerdo?\n\n${m.text}`)) return;
+      appState.memories.splice(index, 1);
+      saveState();
+      renderMemoryList();
+      resetMemoryForm();
+      showToast('Recuerdo borrado');
+    }
+    function clearSavedMemories() {
+      if (!(appState.memories || []).length) { showToast('No hay recuerdos guardados'); return; }
+      if (!confirm(`¿Borrar los ${appState.memories.length} recuerdos guardados? Esta acción no se puede deshacer desde la app.`)) return;
+      appState.memories = [];
+      saveState();
+      renderMemoryList();
+      resetMemoryForm();
+      showToast('Todos los recuerdos fueron borrados');
+    }
+    function recordAiAction(raw) {
+      if (!raw || !raw.tipo) return;
+      let summary = buildActionLabel(raw);
+      if (raw.tipo === 'reorganizar_tareas') summary = `Reorganizó ${raw.cantidad || (raw.asignaciones || []).length || 1} tareas para ${raw.fechaDestino || 'la fecha elegida'}`;
+      if (raw.tipo === 'guardar_recuerdo') summary = `Guardó un recuerdo ${raw.clase === 'permanente' ? 'permanente' : 'temporal'}`;
+      if (raw.tipo === 'eliminar_recuerdo') summary = 'Eliminó un recuerdo guardado';
+      appState.actionLog = appState.actionLog || [];
+      appState.actionLog.push({ id: 'action-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), type: raw.tipo, summary: String(summary).slice(0, 220), createdAt: Date.now() });
+      if (appState.actionLog.length > 100) appState.actionLog = appState.actionLog.slice(-100);
+    }
+    function openActionLogModal() {
+      renderActionLog();
+      openModal('modalActionLog');
+    }
+    function renderActionLog() {
+      const list = document.getElementById('actionLogList');
+      if (!list) return;
+      const entries = (appState.actionLog || []).slice().reverse();
+      list.innerHTML = entries.length ? entries.map(a => `<div class="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-3 dark:border-slate-700 dark:bg-[#101827]"><div class="text-[11px] font-semibold text-slate-800 dark:text-slate-100">${escapeHtml(a.summary)}</div><div class="mt-1 text-[9px] text-slate-400">${escapeHtml(formatChatTimestamp(a.createdAt))}</div></div>`).join('') : '<div class="rounded-2xl border border-dashed border-slate-200 p-4 text-center text-[11px] text-slate-400 dark:border-slate-700">Aún no hay acciones de ALMA registradas.</div>';
+    }
     function resolveChatMemoryDate(query) {
       const lower = String(query || '').toLowerCase();
       const d = new Date();
@@ -3129,6 +3329,76 @@
       return `Encontré estos mensajes relacionados en el historial local:\n${matches.map(({m}) => `${m.role === 'user' ? 'Tú' : 'ALMA'}${m.createdAt ? ` (${formatChatTimestamp(m.createdAt)})` : ''}: «${String(m.text).replace(/\s+/g, ' ').slice(0, 360)}»`).join('\n')}`;
     }
 
+    function parseMemoryCommand(query) {
+      const text = String(query || '').trim();
+      const save = text.match(/^(?:alma[, ]*)?(?:recuerda(?: permanentemente| siempre| temporalmente)?\s+que\s+|guarda\s+en\s+(?:tu\s+)?memoria\s+que\s+|no\s+olvides\s+que\s+)(.{2,500})[.!?]*$/i);
+      if (save) {
+        const type = /\b(?:permanentemente|para siempre|de forma permanente|siempre)\b/i.test(text) ? 'permanente' : 'temporal';
+        let expiry = getIsoDateOffset(30);
+        if (/\bpor hoy\b/i.test(text)) expiry = getIsoDateOffset(0);
+        else if (/\bpor esta semana\b/i.test(text)) expiry = getIsoDateOffset(7);
+        return { respuesta: 'Puedo guardar esto como recuerdo ' + (type === 'permanente' ? 'permanente' : `temporal hasta ${expiry}`) + '. Revisa el texto y confirma abajo; no lo guardaré sin tu confirmación.', acciones: [{ tipo: 'guardar_recuerdo', texto: save[1].trim(), clase: type, vence: type === 'temporal' ? expiry : '', requiereConfirmacion: true }] };
+      }
+      const forget = text.match(/^(?:alma[, ]*)?(?:olvida|borra|elimina)\s+(?:el\s+)?recuerdo(?:\s+de)?\s+(.{2,160})[.!?]*$/i);
+      if (forget) {
+        const needle = normalizeAiMatch(forget[1]);
+        const hits = activeSavedMemories().filter(m => normalizeAiMatch(m.text).includes(needle) || needle.includes(normalizeAiMatch(m.text)));
+        if (hits.length !== 1) return { respuesta: hits.length ? 'Encontré más de un recuerdo que podría coincidir. Abre 🧠 y elige exactamente cuál borrar.' : 'No encontré un recuerdo único que coincida. Abre 🧠 para revisar los recuerdos guardados.', acciones: [] };
+        return { respuesta: 'Confirma abajo si quieres borrar este recuerdo. No lo eliminaré hasta que confirmes.', acciones: [{ tipo: 'eliminar_recuerdo', id: hits[0].id, texto: hits[0].text, requiereConfirmacion: true }] };
+      }
+      return null;
+    }
+    function answerFromSavedMemories(query) {
+      const q = normalizeAiMatch(query);
+      const listRequest = /\b(?:que recuerdas de mi|que tienes guardado|muestrame mis recuerdos|lista mis recuerdos|ver mis recuerdos|que sabes de mi memoria)\b/.test(q);
+      const memories = activeSavedMemories();
+      if (listRequest) {
+        if (!memories.length) return 'Todavía no tengo recuerdos activos guardados. Puedes decirme “recuerda que…” y confirmar, o añadir uno desde el botón 🧠. El historial del chat es independiente.';
+        return `Estos son los recuerdos activos que tengo guardados localmente:\n${memories.map(m => `• ${m.type === 'permanente' ? 'Permanente' : 'Temporal'}: ${m.text}`).join('\n')}`;
+      }
+      const asksMemory = /\b(?:recuerd\w*|memoria|guardaste|guardado)\b/.test(q);
+      if (!asksMemory || resolveChatMemoryDate(query) || /\b(?:te dije|me dijiste|hablamos|conversamos|mi mensaje)\b/.test(q)) return null;
+      const tokens = q.replace(/\b(?:alma|recuerd\w*|acuerd\w*|memoria|guardaste|guardado|que|cual|cu[aá]l|me|te|de|mi|mis|sobre|dije|dijiste|hablamos|tengo|tienes|sabes|preferencia|preferencias)\b/g, ' ').match(/[a-záéíóúüñ]{3,}/gi) || [];
+      const terms = [...new Set(tokens.map(normalizeAiMatch))];
+      const matches = memories.map(m => ({ m, score: terms.reduce((n, term) => n + (normalizeAiMatch(m.text).includes(term) ? 1 : 0), 0) })).filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 5);
+      if (!matches.length) return terms.length ? 'No encuentro un recuerdo guardado que coincida con eso. Puedes corregir o añadir recuerdos desde 🧠; también puedo buscar mensajes anteriores si me dices qué día o tema.' : null;
+      return `Esto es lo que tengo guardado sobre ese tema:\n${matches.map(({m}) => `• ${m.text} (${m.type === 'permanente' ? 'permanente' : 'temporal'})`).join('\n')}`;
+    }
+    function selectRelevantMemories(query) {
+      const q = normalizeAiMatch(query);
+      const terms = [...new Set((q.match(/[a-zñ]{3,}/g) || []).filter(w => !new Set(['alma', 'para', 'como', 'cuando', 'donde', 'quiero', 'puedes', 'ayuda', 'sobre', 'esto', 'esta', 'este', 'tengo', 'tienes']).has(w)))];
+      if (!terms.length) return [];
+      return activeSavedMemories().filter(m => !isSensitiveMemoryText(m.text)).map(m => {
+        const body = normalizeAiMatch(m.text);
+        return { m, score: terms.reduce((n, term) => n + (body.includes(term) ? 1 : 0), 0) };
+      }).filter(x => x.score > 0).sort((a, b) => b.score - a.score || Number(b.m.updatedAt || 0) - Number(a.m.updatedAt || 0)).slice(0, 5).map(({m}) => ({ tipo: m.type, recuerdo: m.text, actualizado: formatChatTimestamp(m.updatedAt) }));
+    }
+
+    function selectRelevantConversation(query) {
+      const q = normalizeAiMatch(query);
+      const continuityCue = /\b(?:eso|esa|ese|aquello|lo anterior|lo que hablamos|lo que vimos|seguimos|sigamos|continuemos|continua|retomemos|y\s+lo\s+(?:de|del)|lo\s+(?:de|del)|sobre\s+lo\s+de|como quedo|que paso con|al respecto|ayer|anoche|anteayer)\b/.test(q);
+      const target = resolveChatMemoryDate(q);
+      const stop = new Set(['alma','que','como','cuando','donde','esto','esta','este','eso','esa','ese','aquel','aquello','lo','la','el','de','del','me','te','yo','tu','mi','mis','sobre','ayer','anoche','anteayer','hablamos','dijimos','dije','dijiste','paso','quedo','quedo','seguimos','sigamos','retomemos','continua','continuemos','por','favor','puedes','quiero','decir','hacer','hago','hace','con','para','una','uno','unos','unas','pero','entonces','tambien','algo','anterior']);
+      const terms = [...new Set((q.match(/[a-zñ]{3,}/g) || []).filter(word => !stop.has(word)))];
+      if (!continuityCue && terms.length < 2) return [];
+      const history = (appState.chat || []).filter(m => !m.isTemp && (m.role === 'user' || m.role === 'ai') && String(m.text || '').trim()).slice(-300);
+      for (let i = history.length - 1; i >= 0; i--) {
+        if (history[i].role === 'user' && normalizeAiMatch(history[i].text) === q) { history.splice(i, 1); break; }
+      }
+      const matches = history.filter(m => !m.redactOnDisk && !isSensitiveMemoryText(m.text)).map(m => {
+        const body = normalizeAiMatch(m.text);
+        const overlap = terms.reduce((n, term) => n + (body.includes(term) ? 1 : 0), 0);
+        const sameDate = target && chatDateKey(m.createdAt) === target.key;
+        return { m, score: overlap + (sameDate ? 2 : 0), sameDate: Boolean(sameDate) };
+      }).filter(x => x.score > 0 && (terms.length ? x.score >= 1 : x.sameDate))
+        .sort((a, b) => b.score - a.score || Number(b.m.createdAt || 0) - Number(a.m.createdAt || 0)).slice(0, 3);
+      if (!matches.length && continuityCue) {
+        return history.filter(m => !m.redactOnDisk && !isSensitiveMemoryText(m.text)).slice(-4).map(m => ({
+          rol: m.role === 'user' ? 'usuario' : 'ALMA', texto: String(m.text).replace(/\s+/g, ' ').slice(0, 280), fecha_hora: formatChatTimestamp(m.createdAt) || ''
+        }));
+      }
+      return matches.map(({ m }) => ({ rol: m.role === 'user' ? 'usuario' : 'ALMA', texto: String(m.text).replace(/\s+/g, ' ').slice(0, 280), fecha_hora: formatChatTimestamp(m.createdAt) || '' }));
+    }
     function renderChat() {
       const box = document.getElementById('aiChatMessages');
       if (!box) return;
@@ -3152,9 +3422,11 @@
 
         const actionsHtml = (m.actions || []).map((act, aIdx) => {
           if (act.status === 'pending_confirm') {
+            const needsPrivateConsent = act.raw && act.raw.tipo === 'guardar_recuerdo' && isSensitiveMemoryText(act.raw.texto);
             return `
               <div class="mt-2 p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/70">
                 <div class="text-[11px] font-bold text-amber-900 dark:text-amber-200">Confirmar acción: ${escapeHtml(act.label)}</div>
+                ${needsPrivateConsent ? `<label class="mt-2 flex items-start gap-2 text-[10px] leading-relaxed text-amber-900 dark:text-amber-200"><input id="memoryPrivConsent_${mIdx}_${aIdx}" type="checkbox" class="mt-0.5"><span>Autorizo guardar este dato sensible localmente. No se enviará a Gemini.</span></label>` : ''}
                 <div class="flex items-center gap-2 mt-2">
                   <button onclick="confirmAiAction(${mIdx}, ${aIdx})" class="px-3 py-1 rounded-xl bg-emerald-600 text-white text-[11px] font-bold active:scale-95 transition">Sí, confirmar</button>
                   <button onclick="cancelAiAction(${mIdx}, ${aIdx})" class="px-3 py-1 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold active:scale-95 transition">Cancelar</button>
@@ -3223,6 +3495,67 @@
       return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
     }
     function isValidAiTime(value) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value || '')); }
+    function timeToMinutes(value) {
+      if (!isValidAiTime(value)) return null;
+      const [hours, minutes] = value.split(':').map(Number);
+      return hours * 60 + minutes;
+    }
+    function findTaskConflicts(date, startTime, endTime, excludeId) {
+      const start = timeToMinutes(startTime), end = timeToMinutes(endTime);
+      if (!isValidAiDate(date) || start == null || end == null || end <= start) return [];
+      return (appState.tasks || []).filter(t => {
+        const taskStart = t.startTime || '09:00';
+        const taskEnd = t.endTime || addOneHour(taskStart);
+        return !t.done && String(t.id) !== String(excludeId ?? '') && t.date === date &&
+          timeToMinutes(taskStart) != null && timeToMinutes(taskEnd) != null &&
+          timeToMinutes(taskEnd) > timeToMinutes(taskStart) && start < timeToMinutes(taskEnd) && end > timeToMinutes(taskStart);
+      });
+    }
+    function findFreeTaskSlots(date, durationMinutes, excludeId) {
+      const duration = Math.max(15, Math.min(720, Number(durationMinutes) || 60));
+      const slots = [];
+      for (let start = 7 * 60; start + duration <= 22 * 60; start += 30) {
+        const from = `${String(Math.floor(start / 60)).padStart(2, '0')}:${String(start % 60).padStart(2, '0')}`;
+        const toMin = start + duration;
+        const to = `${String(Math.floor(toMin / 60)).padStart(2, '0')}:${String(toMin % 60).padStart(2, '0')}`;
+        if (!findTaskConflicts(date, from, to, excludeId).length) slots.push({ inicio: from, fin: to });
+        if (slots.length === 3) break;
+      }
+      return slots;
+    }
+    function buildReorganizationSchedule(targetDate) {
+      if (!isValidAiDate(targetDate)) return null;
+      const today = getIsoDateOffset(0);
+      const pending = (appState.tasks || []).filter(t => !t.done && t.date <= today)
+        .sort((a, b) => (a.date + (a.startTime || '')).localeCompare(b.date + (b.startTime || '')));
+      if (!pending.length) return null;
+      const movingIds = new Set(pending.map(t => String(t.id)));
+      const busy = (appState.tasks || []).filter(t => !t.done && t.date === targetDate && !movingIds.has(String(t.id))).map(t => ({
+        start: timeToMinutes(t.startTime || '09:00'),
+        end: timeToMinutes(t.endTime || addOneHour(t.startTime || '09:00'))
+      })).filter(t => t.start != null && t.end != null && t.end > t.start);
+      const schedule = [];
+      for (const task of pending) {
+        let chosen = null;
+        for (let start = 7 * 60; start + 60 <= 22 * 60; start += 30) {
+          const collision = [...busy, ...schedule.map(slot => ({ start: slot.startMin, end: slot.endMin }))]
+            .some(slot => start < slot.end && start + 60 > slot.start);
+          if (!collision) { chosen = start; break; }
+        }
+        if (chosen == null) return null;
+        const format = n => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;
+        schedule.push({ id: task.id, titulo: task.title, horaInicio: format(chosen), horaFin: format(chosen + 60), startMin: chosen, endMin: chosen + 60 });
+      }
+      return schedule.map(({ startMin, endMin, ...slot }) => slot);
+    }
+    function describeTaskConflict(date, startTime, endTime, excludeId) {
+      const conflicts = findTaskConflicts(date, startTime, endTime, excludeId);
+      if (!conflicts.length) return '';
+      const names = conflicts.slice(0, 3).map(t => `“${t.title}” (${t.startTime || '??:??'}–${t.endTime || '??:??'})`).join(', ');
+      const duration = Math.max(15, (timeToMinutes(endTime) || 0) - (timeToMinutes(startTime) || 0));
+      const free = findFreeTaskSlots(date, duration, excludeId).map(slot => `${slot.inicio}–${slot.fin}`).join(', ');
+      return `Ese horario choca con ${names}.${free ? ` Huecos disponibles de ${duration} min: ${free}.` : ' No encontré otro hueco de esa duración entre 07:00 y 22:00.'} No cambié ninguna tarea; elige otro horario.`;
+    }
     function validateAiAction(raw) {
       const reject = reason => ({ ok: false, reason });
       if (!raw || typeof raw !== 'object' || Array.isArray(raw) || typeof raw.tipo !== 'string') return reject('La IA propuso una acción con formato no válido. No se aplicó.');
@@ -3237,13 +3570,23 @@
         return matches.length === 1 ? matches[0] : null;
       };
       switch (action.tipo) {
-        case 'crear_tarea':
-          if (!text(action.titulo, 120) || !isValidAiDate(action.fecha) || !isValidAiTime(action.horaInicio) || (action.horaFin && !isValidAiTime(action.horaFin))) return reject('Faltan datos válidos para crear la tarea; no se aplicó.');
+        case 'crear_tarea': {
+          const end = action.horaFin || addOneHour(action.horaInicio);
+          if (!text(action.titulo, 120) || !isValidAiDate(action.fecha) || !isValidAiTime(action.horaInicio) || !isValidAiTime(end) || timeToMinutes(end) <= timeToMinutes(action.horaInicio)) return reject('Faltan datos válidos o el fin no es posterior al inicio; no se aplicó.');
           if (action.categoria && !['Personal', 'Estudio', 'Trabajo', 'Pago'].includes(action.categoria)) return reject('La categoría de la tarea no es válida; no se aplicó.');
+          const conflict = describeTaskConflict(action.fecha, action.horaInicio, end);
+          if (conflict) return reject(conflict);
+          action.horaFin = end;
           break;
-        case 'reorganizar_tareas':
-          if (!isValidAiDate(action.fechaDestino) || !appState.tasks.some(t => !t.done && t.date <= getIsoDateOffset(0))) return reject('No pude validar la fecha o las tareas pendientes para reorganizar; no se aplicó.');
+        }
+        case 'reorganizar_tareas': {
+          if (!isValidAiDate(action.fechaDestino) || action.fechaDestino < getIsoDateOffset(0)) return reject('La fecha destino no es válida o ya pasó; no se aplicó.');
+          const schedule = buildReorganizationSchedule(action.fechaDestino);
+          if (!schedule) return reject('No hay tareas pendientes para mover o no encontré suficientes huecos libres ese día. No cambié nada; elige otra fecha o reorganiza menos tareas.');
+          action.asignaciones = schedule;
+          action.cantidad = schedule.length;
           break;
+        }
         case 'completar_tarea':
         case 'borrar_tarea': {
           const matches = action.id != null
@@ -3299,6 +3642,17 @@
           action.pasos = steps;
           break;
         }
+        case 'crear_objetivo':
+          if (!text(action.titulo, 120) || (action.fechaObjetivo && (!isValidAiDate(action.fechaObjetivo) || action.fechaObjetivo < getIsoDateOffset(0))) || (appState.personalGoals || []).some(g => normalizeAiMatch(g.title) === normalizeAiMatch(action.titulo))) return reject('El objetivo está incompleto, duplicado o tiene una fecha inválida; no se guardó.');
+          break;
+        case 'actualizar_objetivo': {
+          const matches = (appState.personalGoals || []).filter(g => action.id != null ? String(g.id) === String(action.id) : normalizeAiMatch(g.title) === normalizeAiMatch(action.titulo));
+          if (matches.length !== 1 || !['activo', 'completado'].includes(action.estado)) return reject('No encontré un único objetivo o el estado no es válido; no se actualizó.');
+          action.id = matches[0].id;
+          action.titulo = matches[0].title;
+          if (action.nota != null && (typeof action.nota !== 'string' || action.nota.length > 240)) return reject('La nota de seguimiento es demasiado larga; no se guardó.');
+          break;
+        }
         case 'plan_estudio':
           if (!text(action.titulo, 120) || !isValidAiDate(action.fecha)) return reject('El plan de estudio no tiene un título o fecha válidos; no se aplicó.');
           break;
@@ -3309,6 +3663,18 @@
           if (!Number.isFinite(Number(action.tasa)) || Number(action.tasa) <= 0 || Number(action.tasa) > 1000000000) return reject('La tasa propuesta no es válida; no se aplicó.');
           action.tasa = Number(action.tasa);
           break;
+        case 'guardar_recuerdo':
+          if (!text(action.texto, 500) || !['temporal', 'permanente'].includes(action.clase) || (action.clase === 'temporal' && action.vence && (!isValidAiDate(action.vence) || action.vence < getIsoDateOffset(0)))) return reject('El recuerdo tiene texto o duración inválidos; no se guardó.');
+          if ((appState.memories || []).some(m => normalizeAiMatch(m.text) === normalizeAiMatch(action.texto))) return reject('Ese recuerdo ya está guardado; no se duplicó.');
+          if (isSensitiveMemoryText(action.texto) && !action.requiereConfirmacion && action.autorizacionPrivada !== true) return reject('El dato parece sensible y requiere tu autorización explícita; no se guardó.');
+          break;
+        case 'eliminar_recuerdo': {
+          const matches = (appState.memories || []).filter(m => String(m.id) === String(action.id));
+          if (matches.length !== 1) return reject('No encontré ese recuerdo de forma única; no se eliminó.');
+          action.texto = matches[0].text;
+          action.id = matches[0].id;
+          break;
+        }
         default:
           return reject('La IA propuso un tipo de acción no permitido; no se aplicó.');
       }
@@ -3319,6 +3685,11 @@
       const msg = appState.chat[mIdx];
       if (!msg || !msg.actions || !msg.actions[aIdx] || msg.actions[aIdx].status !== 'pending_confirm') return;
       const act = msg.actions[aIdx];
+      if (act.raw && act.raw.tipo === 'guardar_recuerdo' && isSensitiveMemoryText(act.raw.texto)) {
+        const consent = document.getElementById(`memoryPrivConsent_${mIdx}_${aIdx}`);
+        if (!consent || !consent.checked) { showToast('Marca la autorización explícita para guardar este dato sensible'); return; }
+        act.raw.autorizacionPrivada = true;
+      }
       const checked = validateAiAction(act.raw);
       if (!checked.ok) {
         act.status = 'rejected';
@@ -3329,6 +3700,10 @@
       }
       executeSingleAiAction(checked.action);
       act.status = 'executed';
+      if (act.raw && act.raw.tipo === 'guardar_recuerdo' && isSensitiveMemoryText(act.raw.texto)) {
+        act.label = 'Recuerdo sensible guardado con tu autorización';
+        act.raw = { tipo: 'guardar_recuerdo', texto: '', clase: act.raw.clase };
+      }
       saveState();
       showToast('Acción confirmada');
     }
@@ -3336,7 +3711,12 @@
     function cancelAiAction(mIdx, aIdx) {
       const msg = appState.chat[mIdx];
       if (!msg || !msg.actions || !msg.actions[aIdx]) return;
-      msg.actions[aIdx].status = 'cancelled';
+      const action = msg.actions[aIdx];
+      action.status = 'cancelled';
+      if (action.raw && action.raw.tipo === 'guardar_recuerdo' && isSensitiveMemoryText(action.raw.texto)) {
+        action.label = 'Propuesta sensible cancelada; su contenido no se conservará aquí';
+        action.raw = { tipo: 'guardar_recuerdo', texto: '', clase: action.raw.clase };
+      }
       saveState();
     }
 
@@ -3344,8 +3724,10 @@
       switch (raw.tipo) {
         case 'crear_tarea':
           return `Tarea agendada: ${raw.titulo} (${raw.fecha === getIsoDateOffset(0) ? 'Hoy' : raw.fecha === getIsoDateOffset(1) ? 'Mañana' : raw.fecha}${raw.horaInicio ? ' · ' + raw.horaInicio : ''})`;
-        case 'reorganizar_tareas':
-          return `Tareas pendientes reprogramadas (${raw.cantidad || 1})`;
+        case 'reorganizar_tareas': {
+          const details = (raw.asignaciones || []).map(slot => `${slot.horaInicio}–${slot.horaFin} ${slot.titulo}`).join('; ');
+          return `Propuesta para reorganizar ${raw.cantidad || (raw.asignaciones || []).length} tareas${details ? `: ${details}` : ''}`;
+        }
         case 'completar_tarea':
           return `Tarea completada: ${raw.titulo}`;
         case 'borrar_tarea':
@@ -3364,12 +3746,20 @@
           return `Paso completado: ${raw.pasoNombre} · ${raw.rutinaNombre}`;
         case 'crear_rutina':
           return `Crear rutina: ${raw.nombre} · ${raw.hora} · ${(raw.pasos || []).length} pasos`;
+        case 'crear_objetivo':
+          return `Crear objetivo personal: ${raw.titulo}${raw.fechaObjetivo ? ` · fecha meta ${raw.fechaObjetivo}` : ''}`;
+        case 'actualizar_objetivo':
+          return `Objetivo ${raw.estado}: ${raw.titulo}${raw.nota ? ` · ${raw.nota}` : ''}`;
         case 'plan_estudio':
           return `Plan de estudio: ${raw.titulo} (examen ${raw.fecha.slice(8)}/${raw.fecha.slice(5, 7)})`;
         case 'bloquear_dia':
           return `Día bloqueado para estudiar: ${raw.fecha.slice(8)}/${raw.fecha.slice(5, 7)}`;
         case 'actualizar_tasa':
           return `Tasa actualizada: ${Number(raw.tasa).toFixed(2)} Bs por 1 $`;
+        case 'guardar_recuerdo':
+          return `Guardar recuerdo ${raw.clase === 'permanente' ? 'permanente' : `temporal hasta ${raw.vence || 'en 30 días'}`}: ${raw.texto}`;
+        case 'eliminar_recuerdo':
+          return `Borrar recuerdo: ${raw.texto}`;
         default:
           return 'Acción ejecutada';
       }
@@ -3393,12 +3783,10 @@
         });
       } else if (raw.tipo === 'reorganizar_tareas') {
         const targetDate = raw.fechaDestino || getIsoDateOffset(1);
-        const pending = appState.tasks.filter(t => !t.done && t.date <= today);
-        const slots = ['09:00', '10:30', '14:00', '16:00', '18:00'];
-        pending.forEach((t, idx) => {
-          t.date = targetDate;
-          t.startTime = slots[idx % slots.length];
-          t.endTime = addOneHour(t.startTime);
+        const assignments = Array.isArray(raw.asignaciones) ? raw.asignaciones : buildReorganizationSchedule(targetDate);
+        if (assignments && assignments.length) assignments.forEach(slot => {
+          const task = appState.tasks.find(t => String(t.id) === String(slot.id));
+          if (task && !task.done) { task.date = targetDate; task.startTime = slot.horaInicio; task.endTime = slot.horaFin; }
         });
         selectedDate = targetDate;
       } else if (raw.tipo === 'completar_tarea') {
@@ -3485,6 +3873,16 @@
           appState.routines = appState.routines || [];
           appState.routines.push({ id: Date.now() + Math.floor(Math.random() * 10000), name, days, time, steps });
         }
+      } else if (raw.tipo === 'crear_objetivo') {
+        appState.personalGoals = appState.personalGoals || [];
+        appState.personalGoals.push({ id: 'goal-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), title: raw.titulo.trim(), targetDate: raw.fechaObjetivo || '', status: 'activo', notes: [], createdAt: Date.now(), updatedAt: Date.now() });
+      } else if (raw.tipo === 'actualizar_objetivo') {
+        const goal = (appState.personalGoals || []).find(g => String(g.id) === String(raw.id));
+        if (goal) {
+          goal.status = raw.estado;
+          goal.updatedAt = Date.now();
+          if (raw.nota) { goal.notes = Array.isArray(goal.notes) ? goal.notes : []; goal.notes.push({ text: raw.nota.trim(), createdAt: Date.now() }); goal.notes = goal.notes.slice(-30); }
+        }
       } else if (raw.tipo === 'plan_estudio' && raw.fecha) {
         const titulo = raw.titulo || 'Examen';
         if (!appState.tasks.some(t => t.exam && t.date === raw.fecha && t.title === `📝 ${titulo}`)) {
@@ -3498,7 +3896,15 @@
       } else if (raw.tipo === 'actualizar_tasa') {
         const tasa = parseFloat(raw.tasa);
         if (tasa > 0) appState.exchangeRate = tasa;
+      } else if (raw.tipo === 'guardar_recuerdo') {
+        if (!(appState.memories || []).some(m => normalizeAiMatch(m.text) === normalizeAiMatch(raw.texto))) {
+          appState.memories = appState.memories || [];
+          appState.memories.push({ id: 'memory-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), text: raw.texto.trim(), type: raw.clase, createdAt: Date.now(), updatedAt: Date.now(), expiresAt: raw.clase === 'temporal' ? (raw.vence || getIsoDateOffset(30)) : '' });
+        }
+      } else if (raw.tipo === 'eliminar_recuerdo') {
+        appState.memories = (appState.memories || []).filter(m => String(m.id) !== String(raw.id));
       }
+      recordAiAction(raw);
     }
 
     // -------------------------------------------------------------------------
@@ -3590,6 +3996,64 @@
       return str.replace(/\b\w/g, c => c.toUpperCase());
     }
 
+    function buildPersonalFollowupData(query) {
+      const q = normalizeAiMatch(query);
+      const intent = /\b(?:como va|como voy|en que voy|que me falta|que sigue|que queda|que esta pendiente|progreso|seguimiento|como avanzo|retomemos)\b/.test(q);
+      if (!intent) return null;
+      const goals = Array.isArray(appState.personalGoals) ? appState.personalGoals : [];
+      const tasks = Array.isArray(appState.tasks) ? appState.tasks : [];
+      const studyTopic = /\b(?:estudi\w*|examen(?:es)?|materia(?:s)?|curso(?:s)?)\b/.test(q);
+      const taskTopic = /\b(?:tarea(?:s)?|pendiente(?:s)?|agenda|proyecto(?:s)?)\b/.test(q);
+      const goalTopic = /\b(?:objetivo(?:s)?|proposito(?:s)?|meta(?:s)?(?: personales?)?)\b/.test(q);
+      const ignored = new Set(['como','va','voy','con','que','me','falta','sigue','queda','esta','estan','mi','mis','lo','de','del','para','por','el','la','los','las','un','una','unos','unas','cual','cuales','progreso','seguimiento','retomemos','objetivo','objetivos','proposito','propositos','meta','metas','personal','personales','tarea','tareas','pendiente','pendientes','agenda','proyecto','proyectos','estudio','estudiar','estudiando','materia','materias','examen','examenes','curso','cursos','hoy','manana','esta','semana']);
+      const terms = [...new Set((q.match(/[a-zñ]{3,}/g) || []).filter(w => !ignored.has(w) && !/^(?:estudi\w*|examen\w*|materia\w*|curso\w*|objetiv\w*|proposit\w*|meta\w*|tarea\w*|pendiente\w*|proyecto\w*|agenda)$/.test(w)))];
+      const words = value => normalizeAiMatch(value).match(/[a-zñ]{3,}/g) || [];
+      const shares = (value, needles) => {
+        const hay = words(value);
+        return needles.some(a => hay.some(b => a === b || (a.length >= 5 && b.startsWith(a.slice(0, 5))) || (b.length >= 5 && a.startsWith(b.slice(0, 5)))));
+      };
+      const matchingGoals = goals.filter(g => shares(g.title, terms));
+      const includeAllGoals = goalTopic && !terms.length;
+      const studyGoals = studyTopic && !terms.length ? goals.filter(g => /\b(?:estudi\w*|curso|materia)\b/.test(normalizeAiMatch(g.title))) : [];
+      const selectedGoals = (includeAllGoals ? goals : matchingGoals.length ? matchingGoals : studyGoals).slice(0, 8);
+      const pending = tasks.filter(t => !t.done);
+      let selectedTasks = [];
+      if (studyTopic || taskTopic) {
+        selectedTasks = pending.filter(t => {
+          const topicalMatch = shares(t.title, terms);
+          if (terms.length) return topicalMatch;
+          if (studyTopic) return t.category === 'Estudio' || Boolean(t.exam);
+          return taskTopic;
+        });
+      } else if (selectedGoals.length) {
+        const goalWords = selectedGoals.flatMap(g => words(g.title).filter(w => w.length >= 4));
+        selectedTasks = pending.filter(t => shares(t.title, goalWords));
+      }
+      selectedTasks.sort((a, b) => String(a.date || '9999-99-99').localeCompare(String(b.date || '9999-99-99')));
+      const today = getIsoDateOffset(0);
+      return {
+        fecha_corte: today,
+        objetivos: selectedGoals.filter(g => !isSensitiveMemoryText(g.title)).map(g => ({ titulo: g.title, estado: g.status === 'completado' ? 'completado' : 'activo', fecha_objetivo: g.targetDate || null, notas_recientes: (Array.isArray(g.notes) ? g.notes : []).slice(-3).filter(n => !isSensitiveMemoryText(n.text)).map(n => n.text) })),
+        tareas_pendientes: selectedTasks.filter(t => !isSensitiveMemoryText(t.title)).slice(0, 8).map(t => ({ titulo: t.title, fecha: t.date || null, categoria: t.category || '', estado_fecha: t.date && t.date < today ? 'vencida' : t.date === today ? 'para_hoy' : t.date ? 'proxima' : 'sin_fecha' })),
+        instruccion: 'Los objetivos y las tareas son listas separadas; no afirmes que una tarea pertenece a un objetivo salvo que el dato lo indique. Las tareas aparecen pendientes solo porque done es falso. No infieras progreso, cumplimiento ni causalidad desde el silencio o las fechas. No cambies estados ni fechas; responde como resumen de solo lectura.'
+      };
+    }
+    function answerPersonalFollowupLocally(query) {
+      const data = buildPersonalFollowupData(query);
+      if (!data) return null;
+      const lines = [];
+      if (data.objetivos.length) {
+        lines.push('Objetivos personales registrados:');
+        data.objetivos.forEach(g => lines.push(`• ${g.titulo}: ${g.estado}${g.fecha_objetivo ? ` · fecha meta ${g.fecha_objetivo}` : ''}${g.notas_recientes.length ? ` · nota reciente: ${g.notas_recientes[g.notas_recientes.length - 1]}` : ''}`));
+      }
+      if (data.tareas_pendientes.length) {
+        lines.push('Tareas pendientes en la agenda (no necesariamente vinculadas a esos objetivos):');
+        data.tareas_pendientes.forEach(t => lines.push(`• ${t.titulo}${t.fecha ? ` · ${t.estado_fecha} (${t.fecha})` : ' · sin fecha'}`));
+      }
+      if (!lines.length) return { respuesta: 'No encuentro objetivos o tareas guardadas que coincidan con este tema. No inferí progreso ni cambié nada; si me dices el nombre del objetivo o proyecto, puedo revisar de nuevo.', acciones: [] };
+      lines.push('Este resumen refleja solo lo registrado; no marqué nada como completado ni modifiqué fechas.');
+      return { respuesta: lines.join('\n'), acciones: [] };
+    }
     function smartLocalAiEngine(userText) {
       const text = userText.trim();
       const lower = text.toLowerCase();
@@ -3599,6 +4063,24 @@
       const replyLines = [];
 
       if (/resumen.*semana|c[oó]mo me fue.*semana/.test(lower)) return { respuesta: weeklySummaryText(), acciones: [] };
+      const createGoalMatch = lower.match(/\b(?:crea|crear|guarda|guardar|anota|anotar|registra|registrar)\s+(?:mi\s+)?objetivo(?:\s+personal)?\s*(?::|de|para|es)?\s+(.+?)\s*$/i);
+      if (createGoalMatch && hasExplicitAppActionIntent(text)) {
+        const title = createGoalMatch[1].trim().replace(/[.!?]+$/, '');
+        if (title) return { respuesta: `Puedo guardar “${title}” como objetivo personal. Revisa la propuesta y confírmala si está bien.`, acciones: [{ tipo: 'crear_objetivo', titulo: capitalizeWords(title), requiereConfirmacion: true }] };
+      }
+      const completeGoalMatch = lower.match(/\b(?:completa|completar|termin[eé]|logr[eé])\s+(?:mi\s+)?objetivo(?:\s+personal)?\s+(?:de\s+)?(.+?)\s*$/i);
+      if (completeGoalMatch && hasExplicitAppActionIntent(text)) {
+        const title = completeGoalMatch[1].trim().replace(/[.!?]+$/, '');
+        const matches = (appState.personalGoals || []).filter(g => normalizeAiMatch(g.title) === normalizeAiMatch(title));
+        if (matches.length === 1) return { respuesta: `¿Confirmas que marque como completado el objetivo “${matches[0].title}”?`, acciones: [{ tipo: 'actualizar_objetivo', id: matches[0].id, titulo: matches[0].title, estado: 'completado', requiereConfirmacion: true }] };
+        return { respuesta: matches.length ? 'Encontré más de un objetivo parecido. Dime cuál quieres completar.' : 'No encontré ese objetivo personal guardado. Puedes pedirme que lo guarde primero.', acciones: [] };
+      }
+      const followupAnswer = answerPersonalFollowupLocally(text);
+      if (followupAnswer) return followupAnswer;
+      if (/(?:mis\s+)?objetivos?(?:\s+personales?)?|mis propositos|mis metas de vida/.test(lower) && /\b(?:mis|que|como|lista|ver|muestr|revisa|seguimiento)\b/.test(lower)) {
+        const goals = appState.personalGoals || [];
+        return { respuesta: goals.length ? goals.map(g => `• ${g.title} — ${g.status === 'completado' ? 'completado' : 'activo'}${g.targetDate ? ` · fecha meta ${g.targetDate}` : ''}${g.notes && g.notes.length ? `\n  Seguimiento reciente: ${g.notes[g.notes.length - 1].text}` : ''}`).join('\n') : 'Todavía no tienes objetivos personales guardados. Si quieres, dime “guarda objetivo personal: …” y lo añadimos después de que confirmes.', acciones: [] };
+      }
 
       // 0.1 Días en que no puede estudiar
       const busyM = lower.match(/(?:no puedo|no podr[eé]|no estoy disponible|estoy ocupad[oa]|no tengo tiempo|no estudio)[^.]*?\b(lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|ma[ñn]ana|hoy)\b/);
@@ -3658,10 +4140,12 @@
           cantidad: pending.length,
           requiereConfirmacion: false
         });
-        const slots = ['09:00', '10:30', '14:00', '16:00', '18:00'];
-        const summary = pending.map((t, i) => `• ${slots[i % slots.length]} — ${t.title}`).join('\n');
+        const schedule = buildReorganizationSchedule(targetDate);
+        if (!schedule) return { respuesta: `No encontré suficientes espacios libres para acomodar las ${pending.length} tareas en ${targetLabel}. No cambié nada. Elige otro día o dime cuáles priorizamos.`, acciones: [] };
+        actions[0].asignaciones = schedule;
+        const summary = schedule.map(slot => `• ${slot.horaInicio}–${slot.horaFin} — ${slot.titulo}`).join('\n');
         return {
-          respuesta: `He reorganizado tus ${pending.length} tareas pendientes para ${targetLabel} en bloques horarios ordenados:\n${summary}`,
+          respuesta: `Puedo proponerte este horario para tus ${pending.length} tareas pendientes de ${targetLabel}. Todavía no cambié nada; revisa los bloques y confirma si te sirven:\n${summary}`,
           acciones: actions
         };
       }
@@ -3907,16 +4391,18 @@
     function isAppDataRequest(userMessage) {
       const q = normalizeAiMatch(userMessage);
       if (/\b(?:cuentame|escribe|redacta|explicame|ensename|que es|para que sirve|como funciona|como (?:puedo|se|hago)|una historia|un cuento|un poema|imagina|supongamos|crea (?:un|una) (?:texto|resumen|cuento|historia|poema|ensayo|presentacion|guion|carta|explicacion|descripcion|lista))\b/.test(q)) return false;
-      return /\bmi(?:s)?\s+(?:agenda|tareas?|eventos?|finanzas|dinero|saldo|balance|capital|gastos?|ingresos?|deudas?|presupuesto|metas?|rutinas?|habitos?|materias?|notas?|calificaciones?|promedio|examen(?:es)?|plan de estudio)\b/.test(q) ||
+      const followupQuery = /\b(?:como va|como voy|en que voy|que me falta|que sigue|que queda|que esta pendiente|progreso|seguimiento|como avanzo|retomemos)\b/.test(q);
+      const followupTopic = /\b(?:estudi\w*|examen(?:es)?|materia(?:s)?|curso(?:s)?|objetivo(?:s)?|proposito(?:s)?|meta(?:s)? personales?|tarea(?:s)?|pendiente(?:s)?|agenda|proyecto(?:s)?)\b/.test(q);
+      return /\bmi(?:s)?\s+(?:agenda|tareas?|eventos?|finanzas|dinero|saldo|balance|capital|gastos?|ingresos?|deudas?|presupuesto|objetivos?|propositos?|metas?|rutinas?|habitos?|materias?|notas?|calificaciones?|promedio|examen(?:es)?|plan de estudio)\b/.test(q) ||
         /\b(?:que tengo|que me falta|cuanto (?:dinero )?tengo|cuanto me queda|cuanto me deben|cuanto gaste|cuanto pague|cuanto recibi|que gaste|que debo|que tareas tengo|que toca hoy|que tengo hoy|que tengo manana|que hay en mi agenda|como van mis finanzas|resumen de mis finanzas|mis pendientes|mi tasa configurada|tasa que tengo guardada)\b/.test(q) ||
-        /\b(?:mi|mis)\s+(?:racha|pasos de hoy|tiempo de estudio|temporizador)\b/.test(q);
+        /\b(?:mi|mis)\s+(?:racha|pasos de hoy|tiempo de estudio|temporizador|objetivos personales?|propositos?)\b/.test(q) || (followupQuery && followupTopic);
     }
 
     function hasExplicitAppActionIntent(userMessage) {
       const q = normalizeAiMatch(userMessage);
       if (/\b(?:cuentame|escribe|redacta|explicame|ensename|que es|para que sirve|como funciona|como (?:puedo|se|hago)|una historia|un cuento|un poema|imagina|supongamos|crea (?:un|una) (?:texto|resumen|cuento|historia|poema|ensayo|presentacion|guion|carta|explicacion|descripcion|lista))\b/.test(q)) return false;
       const actionVerb = /\b(?:agrega|agregar|agenda|agendar|anota|anotar|recuerdame|registra|registrar|guarda|guardar|crea|crear|marca|marcar|completa|completar|elimina|eliminar|borra|borrar|quita|quitar|salda|saldar|reorganiza|reorganizar|reprograma|reprogramar|bloquea|bloquear|actualiza|actualizar|cambia|cambiar|abona|abonar|programa|programar|planifica|planificar|mueve|mover|anade|apunta)\b/;
-      const appObject = /\b(?:tarea|agenda|evento|finanzas|gasto|ingreso|movimiento|deuda|prestamo|meta|rutina|habito|paso|materia|examen|evaluacion|dia|fecha|tasa|dolar|temporizador|estudio|estudiar|clase|cita|turno|recordatorio)\b/;
+      const appObject = /\b(?:tarea|agenda|evento|finanzas|gasto|ingreso|movimiento|deuda|prestamo|objetivo|proposito|meta|rutina|habito|paso|materia|examen|evaluacion|dia|fecha|tasa|dolar|temporizador|estudio|estudiar|clase|cita|turno|recordatorio)\b/;
       if (actionVerb.test(q) && appObject.test(q)) return true;
       const hasAmount = /\b\d+(?:[.,]\d+)?(?:\s*(?:\$|usd|dolares?|bs|bolivares?))?/.test(q);
       const transaction = /\b(?:gaste|pague|compre|me costo|recibi|cobre|ingrese|gane)\b/.test(q);
@@ -3940,16 +4426,39 @@
       const wantsRoutine = broad || namesRoutine || /\bmi(?:s)?\s+(?:rutinas?|habitos?|racha|pasos de hoy)\b|\b(?:que rutina me toca|que paso sigue|progreso de mi rutina)\b/.test(q);
       const wantsAgenda = broad || /\bmi(?:s)?\s+(?:agenda|tareas?|eventos?|calendario|pendientes?)\b|\b(?:que tengo hoy|que tengo manana|que tareas tengo|mis pendientes|citas de hoy)\b/.test(q);
       const today = getIsoDateOffset(0), age = ageFromBirthDate(appState.profile && appState.profile.birthDate);
+      const asksProfile = /\b(?:mi nombre|como me llamo|mi edad|cuantos anos tengo|cuando cumplo|mi cumpleanos|mi fecha de nacimiento|mi ocupacion)\b/.test(q);
       const snapshot = {
         seccion_activa: currentSectionLabel,
         instruccion_de_contexto: `La persona está usando la pantalla ${currentSectionLabel}. Si pregunta en qué sección está, responde ${currentSectionLabel}. En una conversación general, responde el tema que preguntó sin forzar el contexto de la app. Solo usa los datos personales de la app que aparezcan en este ESTADO y sean pertinentes a la solicitud.`,
         modo: hasExplicitAppActionIntent(userMessage) ? 'solicitud_de_accion_en_la_app' : (isAppDataRequest(userMessage) ? 'consulta_de_datos_de_la_app' : 'conversacion_general'),
-        perfil: { nombre: appState.profile && appState.profile.name || '', edad: age, ocupacion: appState.profile && appState.profile.occupation || '' },
         fecha_hoy: today,
         dia_semana: new Date().toLocaleDateString('es-ES', { weekday: 'long' }),
         hora_actual: new Date().toTimeString().slice(0, 5)
       };
-      if (wantsAgenda) snapshot.agenda = { tareas: (appState.tasks || []).filter(t => !t.done || t.date >= today).sort((a,b) => (a.date + (a.startTime || '')).localeCompare(b.date + (b.startTime || ''))).slice(0, 80) };
+      if (asksProfile) snapshot.perfil = { nombre: appState.profile && appState.profile.name || '', edad: age, ocupacion: appState.profile && appState.profile.occupation || '' };
+      const relevantMemories = selectRelevantMemories(userMessage);
+      if (relevantMemories.length) snapshot.recuerdos_relevantes = relevantMemories;
+      const relevantConversation = selectRelevantConversation(userMessage);
+      if (relevantConversation.length) snapshot.conversacion_relacionada = relevantConversation;
+      const followupData = buildPersonalFollowupData(userMessage);
+      if (followupData) snapshot.seguimiento_personal = followupData;
+      const asksObjectives = broad || /\b(?:objetivos?|propositos?|seguimiento de objetivos?|planes personales?)\b/.test(q);
+      const planningQuestion = broad || /\b(?:organiza|planifica|planea|prioriza|pendientes|que tengo hoy|que tengo manana|horarios?|conflictos?|choques?|solapamientos?|se cruzan?|agenda|tareas?)\b/.test(q);
+      if (wantsAgenda || planningQuestion) {
+        const tasks = (appState.tasks || []).filter(t => !t.done || t.date >= today).sort((a,b) => (a.date + (a.startTime || '')).localeCompare(b.date + (b.startTime || ''))).slice(0, 80);
+        const conflicts = [];
+        const byDate = {};
+        tasks.filter(t => !t.done && isValidAiTime(t.startTime) && isValidAiTime(t.endTime) && timeToMinutes(t.endTime) > timeToMinutes(t.startTime)).forEach(t => (byDate[t.date] = byDate[t.date] || []).push(t));
+        Object.keys(byDate).forEach(date => {
+          const list = byDate[date].sort((a,b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+          for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+            if (timeToMinutes(list[j].startTime) >= timeToMinutes(list[i].endTime)) break;
+            conflicts.push({ fecha: date, tarea_1: list[i].title, horario_1: `${list[i].startTime}-${list[i].endTime}`, tarea_2: list[j].title, horario_2: `${list[j].startTime}-${list[j].endTime}` });
+          }
+        });
+        snapshot.agenda = { tareas: tasks, pendientes: tasks.filter(t => !t.done), conflictos_horarios: conflicts.slice(0, 20), instruccion: 'Usa solo estos datos. Si propones reprogramar, indica el conflicto y pide elegir o confirmar; nunca cambies horarios en una consulta.' };
+      }
+      if (asksObjectives) snapshot.objetivos_personales = (appState.personalGoals || []).filter(g => !isSensitiveMemoryText(g.title)).map(g => ({ id: g.id, titulo: g.title, fecha_objetivo: g.targetDate || null, estado: g.status, notas_seguimiento: (g.notes || []).slice(-5).filter(n => !isSensitiveMemoryText(n.text)).map(n => n.text) }));
       if (wantsFinance) {
         const fin = computeFinanceMetrics();
         snapshot.finanzas = {
@@ -3982,16 +4491,21 @@
 
     async function callGeminiCloud(userMessage, sectionHint) {
       window._aiErr = '';
+      if (isSensitiveMemoryText(userMessage)) return null;
       let sample = null;
       try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
       if (!sample && !appState.customApiKey) return null;
       const snapshot = buildAiContextSnapshot(userMessage, sectionHint);
       if (window._voiceLoop) snapshot.instruccion_de_contexto += ' En conversación por voz, responde normalmente en una a tres frases, evita listas largas y ofrece ampliar si la persona lo pide.';
-      snapshot.conversacion_reciente = appState.chat.filter(m => !m.isTemp).slice(-6).map(m => ({ rol: m.role, texto: m.text, fecha_hora: formatChatTimestamp(m.createdAt) || undefined }));
-      const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Puedes conversar y ayudar con temas generales —explicar, pensar ideas, redactar, aprender o acompañar una conversación—; no te limites a las funciones de la aplicación ni des por hecho que cada mensaje pide usarla. Responde en español, de forma clara y natural. El campo ESTADO.seccion_activa es la pantalla que la persona está usando. Si pregunta qué apartado está usando, responde con ese campo; en otros temas no fuerces ni menciones la app. Usa únicamente los datos personales de ESTADO que sean pertinentes a la pregunta. En finanzas, usa ESTADO.finanzas.capital_actual como saldo en caja; si definido es false, no afirmes que conoces cuánto dinero tiene: dile que configure su capital actual en Finanzas. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni afirmes que hiciste cambios si no hay una acción válida.
+      const recentConversation = appState.chat.filter(m => !m.isTemp && !m.redactOnDisk && !isSensitiveMemoryText(m.text) && (m.role === 'user' || m.role === 'ai')).slice(-6);
+      for (let i = recentConversation.length - 1; i >= 0; i--) {
+        if (recentConversation[i].role === 'user' && normalizeAiMatch(recentConversation[i].text) === normalizeAiMatch(userMessage)) { recentConversation.splice(i, 1); break; }
+      }
+      if (recentConversation.length) snapshot.conversacion_reciente = recentConversation.map(m => ({ rol: m.role, texto: m.text, fecha_hora: formatChatTimestamp(m.createdAt) || undefined }));
+      const prompt = `Eres ALMA, una asistente personal mujer dentro de una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Puedes conversar y ayudar con temas generales —explicar, pensar ideas, redactar, aprender o acompañar una conversación—; no te limites a las funciones de la aplicación ni des por hecho que cada mensaje pide usarla. Responde en español, de forma clara y natural. El campo ESTADO.seccion_activa es la pantalla que la persona está usando. Si pregunta qué apartado está usando, responde con ese campo; en otros temas no fuerces ni menciones la app. Usa únicamente los datos personales de ESTADO que sean pertinentes a la pregunta. Los recuerdos de ESTADO.recuerdos_relevantes son notas locales seleccionadas por pertinencia, no hechos infalibles: úsalos solo si ayudan, no los repitas como introducción y acepta correcciones. ESTADO.conversacion_relacionada contiene fragmentos breves de mensajes anteriores elegidos por coincidencia de tema o referencia temporal; son citas del historial, no pruebas de que una situación siga vigente. Úsalos solo para entender la referencia actual, diferencia quién lo dijo, reconoce incertidumbre y pregunta si no queda claro a qué se refiere. Un fragmento previo nunca autoriza por sí solo una acción actual. La app no envía a Gemini recuerdos ni mensajes marcados como sensibles. En finanzas, usa ESTADO.finanzas.capital_actual como saldo en caja; si definido es false, no afirmes que conoces cuánto dinero tiene: dile que configure su capital actual en Finanzas. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni afirmes que hiciste cambios si no hay una acción válida.
 Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
-Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); plan_estudio(titulo, fecha YYYY-MM-DD); bloquear_dia(fecha YYYY-MM-DD); reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); saldar_deuda(persona) con requiereConfirmacion true; abonar_meta(metaNombre, monto); completar_paso_rutina(rutinaNombre, pasoNombre); crear_rutina(nombre, dias como índices 0=domingo a 6=sábado, hora HH:MM, pasos como [{titulo, minutos opcional}]) con requiereConfirmacion true; actualizar_tasa(tasa).
-Solo crea acciones para cambiar datos si el usuario ha pedido claramente hacer ese cambio (por ejemplo: “anota este gasto”, “agenda esta tarea”, “marca ese paso”). Una conversación general, pregunta, ejemplo hipotético o relato no es autorización para modificar la app. Si el mensaje es ambiguo, pregunta primero y devuelve acciones = []. Nunca inventes montos, fechas, pasos ni materias. Crear una rutina requiere confirmación y al menos nombre, un día, hora y un paso. No borres ni saldes información sin confirmación. Si solo conversa o pregunta, responde con naturalidad y acciones = [].
+Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); crear_objetivo(titulo, fechaObjetivo opcional YYYY-MM-DD) con requiereConfirmacion true; actualizar_objetivo(titulo exacto, estado: activo|completado, nota opcional) con requiereConfirmacion true; plan_estudio(titulo, fecha YYYY-MM-DD); bloquear_dia(fecha YYYY-MM-DD); reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); saldar_deuda(persona) con requiereConfirmacion true; abonar_meta(metaNombre, monto); completar_paso_rutina(rutinaNombre, pasoNombre); crear_rutina(nombre, dias como índices 0=domingo a 6=sábado, hora HH:MM, pasos como [{titulo, minutos opcional}]) con requiereConfirmacion true; actualizar_tasa(tasa).
+En planificación, detecta choques con ESTADO.agenda.conflictos_horarios, menciona tareas pendientes reales y sugiere huecos libres sin afirmar que se movieron. Si existe ESTADO.seguimiento_personal, responde desde esos registros, cita la fecha de corte y distingue objetivos y tareas; no infieras progreso ni relación entre ellos. Distingue ESTADO.objetivos_personales de metas_ahorro: nunca mezcles objetivos personales con finanzas. Solo crea acciones para cambiar datos si el usuario ha pedido claramente hacer ese cambio (por ejemplo: “anota este gasto”, “agenda esta tarea”, “marca ese paso”, “guarda este objetivo”). Una conversación general, pregunta, ejemplo hipotético o relato no es autorización para modificar la app. Si el mensaje es ambiguo, pregunta primero y devuelve acciones = []. Nunca inventes montos, fechas, pasos ni materias. Crear una rutina requiere confirmación y al menos nombre, un día, hora y un paso. No borres ni saldes información sin confirmación. Si solo conversa o pregunta, responde con naturalidad y acciones = [].
 
 ESTADO:
 ${JSON.stringify(snapshot)}
@@ -4029,14 +4543,16 @@ ${userMessage}`;
       const orb = document.getElementById('aiOrbContainer');
       const text = inp.value.trim();
       if (!text) return;
-      const memoryAnswer = answerFromChatMemory(text);
+      const memoryCommand = parseMemoryCommand(text);
+      const savedMemoryAnswer = memoryCommand ? null : answerFromSavedMemories(text);
+      const memoryAnswer = memoryCommand || savedMemoryAnswer ? null : answerFromChatMemory(text);
 
       inp.value = '';
       btn.disabled = true;
       orb.classList.add('ai-orb-thinking');
 
-      appState.chat.push({ role: 'user', text, createdAt: Date.now() });
-      safeSetItem(STORAGE_KEY, JSON.stringify({ ...appState, chat: appState.chat.filter(m => !m.isTemp) }));
+      appState.chat.push({ role: 'user', text, createdAt: Date.now(), redactOnDisk: isSensitiveMemoryText(text) });
+      safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
       appState.chat.push({ role: 'ai', text: 'Procesando...', actions: [], isTemp: true });
       renderChat();
 
@@ -4045,12 +4561,18 @@ ${userMessage}`;
       const currentSectionName = ({ inicio: 'Inicio', agenda: 'Agenda', ia: 'Chat de ALMA', finanzas: 'Finanzas', rutinas: 'Rutinas', materias: 'Materias y estudio', ajustes: 'Ajustes' })[currentSectionKey] || 'la pantalla principal';
       const asksCurrentSection = /\b(d[oó]nde (?:estoy|estamos|est[aá]s)|en qu[eé] (?:secci[oó]n|apartado|pantalla)|qu[eé] apartado|cu[aá]l secci[oó]n|qu[eé] p[aá]gina)\b/i.test(text);
       const appDataRequested = isAppDataRequest(text);
-      const permitsAppActions = hasExplicitAppActionIntent(text);
+      const permitsAppActions = Boolean(memoryCommand) || hasExplicitAppActionIntent(text);
       let aiResult;
-      if (memoryAnswer) {
+      if (memoryCommand) {
+        aiResult = memoryCommand;
+      } else if (savedMemoryAnswer) {
+        aiResult = { respuesta: savedMemoryAnswer, acciones: [] };
+      } else if (memoryAnswer) {
         aiResult = { respuesta: memoryAnswer, acciones: [] };
       } else if (asksCurrentSection) {
         aiResult = { respuesta: `Ahora mismo estamos en ${currentSectionName}. Puedes seguir hablándome mientras usas esta pantalla.`, acciones: [] };
+      } else if (isSensitiveMemoryText(text)) {
+        aiResult = { respuesta: 'Para cuidar tu privacidad, no envié este mensaje a Gemini porque parece incluir un dato sensible. No hice cambios en la app; puedes reformularlo sin ese dato si quieres continuar.', acciones: [] };
       } else {
         // Gemini handles general conversation; the local engine is reserved for app-related requests.
         aiResult = await callGeminiCloud(text, currentSectionKey);
@@ -4087,7 +4609,8 @@ ${userMessage}`;
         const requiresConfirm = Boolean(action.requiereConfirmacion) || [
           'borrar_tarea', 'saldar_deuda', 'crear_rutina', 'registrar_movimiento',
           'registrar_deuda', 'abonar_meta', 'actualizar_tasa', 'reorganizar_tareas',
-          'plan_estudio', 'bloquear_dia'
+          'plan_estudio', 'bloquear_dia', 'guardar_recuerdo', 'eliminar_recuerdo',
+          'crear_objetivo', 'actualizar_objetivo'
         ].includes(action.tipo);
         const label = buildActionLabel(action);
         if (requiresConfirm) {
