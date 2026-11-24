@@ -1714,7 +1714,7 @@
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
           signal: controller.signal,
           body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: 'Dilo en español latinoamericano, con voz femenina cálida, natural y conversacional, con pausas naturales y sin sonar robótica: ' + text }]}],
+            contents: [{ role: 'user', parts: [{ text }]}],
             generationConfig: {
               responseModalities: ['AUDIO'],
               speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: appState.geminiTtsVoice || 'Sulafat' } } }
@@ -1760,8 +1760,9 @@
         if (activeGeminiAudioUrl === objectUrl) { URL.revokeObjectURL(objectUrl); activeGeminiAudioUrl = null; }
       }
     }
+    const DEFAULT_ELEVENLABS_PROXY_ORIGIN = 'https://almavoice-hsrerqu3.manus.space';
     async function playElevenLabsTts(text) {
-      const configuredUrl = String(appState.elevenLabsProxyUrl || '').trim().replace(/\/+$/, '');
+      const configuredUrl = String(appState.elevenLabsProxyUrl || (NATIVE ? DEFAULT_ELEVENLABS_PROXY_ORIGIN : '')).trim().replace(/\/+$/, '');
       const baseUrl = configuredUrl || (!NATIVE && /^https?:$/.test(location.protocol) ? location.origin : '');
       if (!baseUrl) throw new Error('Configura la URL HTTPS del servidor ElevenLabs en Ajustes.');
       let endpoint;
@@ -2215,7 +2216,7 @@
     function setElevenLabsTtsEnabled(value) {
       appState.elevenLabsTtsEnabled = !!value;
       if (!safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()))) { showToast('No se pudo guardar el ajuste de voz.'); return; }
-      showToast(appState.elevenLabsTtsEnabled ? 'Voz ElevenLabs activada; requiere un servidor HTTPS configurado' : 'Voz ElevenLabs apagada');
+      showToast(appState.elevenLabsTtsEnabled ? 'Voz ElevenLabs activada; verifica la URL y el token del proxy' : 'Voz ElevenLabs apagada');
     }
     function setElevenLabsVoice(value) {
       if (!Object.prototype.hasOwnProperty.call(ELEVENLABS_PREMADE_VOICES, value)) return;
@@ -2366,11 +2367,11 @@
           <p class="text-[10px] leading-relaxed text-slate-400">La naturalidad depende de las voces instaladas en Android. Para más opciones, revisa Ajustes del teléfono → Texto a voz e instala voces españolas de alta calidad.</p>` ) +
         card('🎙️ Voz natural de ElevenLabs', `
           <div class="flex items-center justify-between gap-2 rounded-2xl bg-rose-50 p-3 dark:bg-rose-950/30"><div><div class="text-xs font-bold text-rose-800 dark:text-rose-200">Usar ElevenLabs</div><p class="mt-0.5 text-[10px] leading-relaxed text-rose-700 dark:text-rose-300">Opcional y apagada al inicio. Si falla, ALMA vuelve a Gemini o a la voz del teléfono.</p></div><input aria-label="Activar voz natural ElevenLabs" type="checkbox" ${appState.elevenLabsTtsEnabled ? 'checked' : ''} onchange="setElevenLabsTtsEnabled(this.checked)" class="h-5 w-5 accent-rose-600" /></div>
-          <div><label for="elevenLabsProxyUrl" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">URL HTTPS del servidor de voz</label><input id="elevenLabsProxyUrl" type="url" value="${escapeHtml(appState.elevenLabsProxyUrl || '')}" placeholder="https://tu-servidor.example" autocomplete="url" class="w-full ${inp} font-mono" /><p class="mt-1 text-[10px] leading-relaxed text-slate-400">El APK necesita un proxy privado para no incluir la API key de ElevenLabs.</p></div>
+          <div><label for="elevenLabsProxyUrl" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">URL HTTPS del servidor de voz</label><input id="elevenLabsProxyUrl" type="url" value="${escapeHtml(appState.elevenLabsProxyUrl || DEFAULT_ELEVENLABS_PROXY_ORIGIN)}" placeholder="https://tu-servidor.example" autocomplete="url" class="w-full ${inp} font-mono" /><p class="mt-1 text-[10px] leading-relaxed text-slate-400">El APK no incluye la API key de ElevenLabs; la URL del proxy ya está configurada.</p></div>
           <div><label for="elevenLabsProxyToken" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">Token de acceso al servidor</label><input id="elevenLabsProxyToken" type="password" value="${escapeHtml(appState.elevenLabsProxyToken || '')}" placeholder="Token de tu proxy" autocomplete="off" class="w-full ${inp} font-mono" /><p class="mt-1 text-[10px] leading-relaxed text-slate-400">Solo se conserva durante esta sesión y nunca entra en respaldos.</p></div>
           <div><label for="elevenLabsVoiceSelect" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">Voz preestablecida</label><select id="elevenLabsVoiceSelect" onchange="setElevenLabsVoice(this.value)" class="w-full ${inp}">${Object.entries(ELEVENLABS_PREMADE_VOICES).map(([id, label]) => `<option value="${id}" ${id === (appState.elevenLabsVoiceId || 'cgSgspJ2msm6clMCkdW9') ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select><p class="mt-1 text-[10px] leading-relaxed text-slate-400">Jessica queda seleccionada inicialmente. ALMA usa eleven_flash_v2_5 y envía el texto de la respuesta a ElevenLabs.</p></div>
           <div class="flex flex-wrap gap-2"><button onclick="saveElevenLabsSettings()" class="rounded-full bg-rose-600 px-3 py-2 text-xs font-bold text-white">Guardar ajustes de voz</button><button onclick="testElevenLabsTts()" class="rounded-full bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 dark:bg-rose-950/50 dark:text-rose-200">Probar ElevenLabs</button></div>
-          <p class="text-[10px] leading-relaxed text-slate-400">Antes de usarlo en Android, despliega el proxy en HTTPS y configura el token; esta carpeta no incluye un servidor ya publicado ni se compiló un APK.</p>` ) +
+          <p class="text-[10px] leading-relaxed text-slate-400">El proxy exige tu token Bearer. Introdúcelo y guárdalo para esta sesión; no se incluye en el APK ni en los respaldos. La voz natural sigue apagada hasta que la actives.</p>` ) +
         card('✨ Palabra del día', `
           <div class="flex gap-1.5">${pill('Ambos', "setWordMode('ambos')", mode === 'ambos')}${pill('Frases', "setWordMode('frases')", mode === 'frases')}${pill('Versículos', "setWordMode('versiculos')", mode === 'versiculos')}</div>
           ${['Mañana', 'Tarde', 'Noche'].map((n, i) => row(n, `<input type="time" value="${wh[i]}" onchange="setWordHour(${i}, this.value)" class="${inp}" />`)).join('')}
