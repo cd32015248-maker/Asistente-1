@@ -87,7 +87,10 @@
     }
     @keyframes almaStart { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .alma-start-in { animation: almaStart 650ms cubic-bezier(.2,.8,.2,1) both; }
+    .alma-launch-screen { opacity: 1; transition: opacity 420ms ease; }
+    .alma-launch-screen.alma-launch-hide { opacity: 0; }
     @media (prefers-reduced-motion: reduce) { .alma-start-in, .tab-view { animation-duration: 1ms !important; } }
+    @media (prefers-reduced-motion: reduce) { .alma-launch-screen .ai-orb-wrapper, .alma-launch-screen .ai-orb-core::before { animation: none !important; } }
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
@@ -95,6 +98,14 @@
   </style>
 </head>
 <body class="bg-[#EEF2F8] dark:bg-[#060A14] text-slate-800 dark:text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <div id="almaLaunchSplash" class="alma-launch-screen fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-br from-[#21184A] via-indigo-700 to-cyan-600 text-center text-white" aria-label="Iniciando ALMA" role="status">
+    <div class="mb-5 rounded-full border border-white/20 bg-white/10 p-5 shadow-2xl backdrop-blur-sm">
+      <div class="ai-orb-wrapper"><div class="ai-orb-core h-28 w-28"></div></div>
+    </div>
+    <div class="text-3xl font-extrabold tracking-[0.24em]">ALMA</div>
+    <p class="mt-2 text-sm font-medium tracking-wide text-white/80">Tu vida en equilibrio</p>
+  </div>
 
   <!-- Main Mobile App Shell -->
   <div id="appShell" class="max-w-md mx-auto min-h-screen bg-[#F6F8FC] dark:bg-[#0B1120] relative shadow-2xl overflow-x-hidden pb-28 transition-colors duration-200">
@@ -360,7 +371,7 @@
           </div>
           <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
             <button id="webSearchToggle" onclick="toggleWebSearch()" aria-pressed="false" class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 dark:border-slate-700 dark:bg-[#151C2C] dark:text-slate-300">🌐 Buscar en Internet: no</button>
-            <span class="text-[9px] text-slate-400">Gemini 3+: 5.000 búsquedas gratis/mes; luego US$14 por 1.000.</span>
+            <span class="text-[9px] text-slate-400">El permiso queda activo hasta que lo desactives. Gemini 3+: 5.000 búsquedas gratis/mes; luego US$14 por 1.000.</span>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="pickPhoto()" aria-label="Foto" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">📷</button>
@@ -375,6 +386,7 @@
           <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">ALMA</h2><p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Hablemos por voz</p>
           <div class="mt-7 min-h-[52px]"><div id="almaChatVoiceStatus" class="text-sm font-extrabold text-indigo-700 dark:text-indigo-300">Lista para escucharte</div><div id="almaChatVoiceHint" class="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">Toca el micrófono y conversemos.</div></div>
           <button id="almaChatVoiceToggle" onclick="toggleAlmaVoice()" aria-label="Pausar o reanudar el micrófono" class="mt-5 inline-flex min-w-[190px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 px-6 py-4 text-sm font-extrabold text-white shadow-xl shadow-indigo-500/25 ring-4 ring-white/70 transition active:scale-95 dark:ring-slate-900/60"><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"></path></svg><span id="almaChatVoiceToggleLabel">Pausar micrófono</span></button>
+          <button id="almaVoiceRoomInterrupt" onclick="interruptAlmaSpeech()" class="hidden mt-3 min-w-[190px] rounded-full border border-rose-200 bg-white/90 px-5 py-3 text-sm font-extrabold text-rose-700 shadow-sm active:scale-95 dark:border-rose-900 dark:bg-slate-900/80 dark:text-rose-300">■ Parar voz y seguir escuchando</button>
           <p class="mt-5 max-w-xs rounded-2xl border border-white/80 bg-white/70 px-3.5 py-2.5 text-left text-[10px] leading-relaxed text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">El chat escrito sigue guardado. Mientras el micrófono está activo puedes cambiar de sección y ALMA seguirá contigo.</p>
         </div>
       </section>
@@ -536,6 +548,7 @@
           <div id="almaVoiceStatusLine" class="text-[11px] font-extrabold">ALMA · Pausada</div>
           <div id="almaVoiceDetail" class="mt-0.5 max-w-[195px] truncate text-[10px] text-slate-300"></div>
         </div>
+        <button id="almaVoiceInterrupt" onclick="interruptAlmaSpeech()" aria-label="Interrumpir la voz de ALMA" title="Parar la voz; el micrófono seguirá activo" class="hidden grid h-12 w-12 flex-shrink-0 place-items-center rounded-full bg-rose-600 text-white shadow-xl ring-4 ring-white/80 transition active:scale-90 dark:ring-[#0B1120]">■</button>
         <button id="almaVoiceToggle" onclick="toggleAlmaVoice()" aria-label="Activar a ALMA" title="Hablar con ALMA" class="grid h-14 w-14 flex-shrink-0 place-items-center rounded-full bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 text-white shadow-xl ring-4 ring-white/80 transition active:scale-90 dark:ring-[#0B1120]">
           <svg id="almaVoiceMicIcon" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"></path></svg>
         </button>
@@ -948,7 +961,7 @@
         monthlyBudget: 250.00,
         wordHours: ['07:00', '13:00', '20:00'],
         wordMode: 'ambos',
-        jokeNotificationEnabled: false,
+        jokeNotificationEnabled: true,
         jokeNotificationHour: '18:00',
         tasks: [],
         transactions: [],
@@ -1007,7 +1020,12 @@
       if (raw) {
         try {
           const saved = JSON.parse(raw);
-          return migrateLegacyHabits({ ...createDefaultState(), ...saved }, Object.prototype.hasOwnProperty.call(saved, 'routines'));
+          const merged = { ...createDefaultState(), ...saved };
+          if (!saved.hourlyNotificationMigration) {
+            merged.jokeNotificationEnabled = true;
+            merged.hourlyNotificationMigration = 1;
+          }
+          return migrateLegacyHabits(merged, Object.prototype.hasOwnProperty.call(saved, 'routines'));
         } catch (e) {
           // Preserve the original bytes before the next save can replace the bad record.
           storageCorruptionDetected = true;
@@ -1733,7 +1751,7 @@
     function setJokeNotificationEnabled(enabled) {
       appState.jokeNotificationEnabled = !!enabled;
       saveState();
-      showToast(enabled ? 'Chiste diario activado' : 'Chiste diario desactivado');
+      showToast(enabled ? 'Chistes cada hora activados' : 'Chistes desactivados');
     }
     function setJokeNotificationHour(hour) {
       if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(hour || ''))) return;
@@ -1766,7 +1784,7 @@
         let perm = await LN.checkPermissions();
         if (perm.display !== 'granted') perm = await LN.requestPermissions();
         if (perm.display !== 'granted') { setNotifLastResult('Permiso de mostrar notificaciones: ' + (perm.display || 'no concedido') + '.'); return; }
-        const now = new Date(), important = [], wordAlerts = [], jokeAlerts = [];
+        const now = new Date(), important = [], recurringAlerts = [];
         const add = (target, at, title, body) => { if (at instanceof Date && Number.isFinite(at.getTime()) && at > now) target.push({ at, title, body }); };
         (appState.routines || []).forEach(r => { for (let i = 0; i < 7; i++) { const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i); if ((r.days || []).map(Number).includes(day.getDay())) { const time = r.time || '07:00'; add(important, new Date(day.getFullYear(), day.getMonth(), day.getDate(), Number(time.slice(0,2)), Number(time.slice(3,5)), 0), '⏰ ' + (r.name || 'Tu rutina'), 'Es hora de comenzar: ' + (r.name || 'tu rutina')); } } });
         appState.tasks.filter(t => !t.done).forEach(t => {
@@ -1782,33 +1800,31 @@
             add(important, new Date(now.getTime() + 60000), '💳 Mañana vence tu pago', `Recuerda pagar ${d.person || 'tu deuda'} (${amount}).`);
           } else add(important, reminderAt, '💳 Mañana vence tu pago', `Recuerda pagar ${d.person || 'tu deuda'} (${amount}).`);
         });
-        if (appState.jokeNotificationEnabled) {
-          const jokeTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(appState.jokeNotificationHour || '')) ? appState.jokeNotificationHour : '18:00';
-          for (let i = 0; i < 7; i++) {
-            const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-            const iso = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-            const [jh, jm] = jokeTime.split(':').map(Number);
-            add(jokeAlerts, new Date(day.getFullYear(), day.getMonth(), day.getDate(), jh, jm, 0), '😄 Tu chiste del día', dailyJoke(iso));
+        // Daily repeating alarms continue indefinitely; content differs by hour but repeats in that same slot each day.
+        for (let hour = 7; hour <= 21; hour++) {
+          const wordAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, 0, 0);
+          if (wordAt <= now) wordAt.setDate(wordAt.getDate() + 1);
+          const dayN = Math.floor((wordAt - new Date(wordAt.getFullYear(), 0, 0)) / 86400000);
+          const wordText = wordForSlot(dayN, hour);
+          recurringAlerts.push({ id: 1000 + hour, title: '📖 Palabra para ti', body: wordText, at: wordAt });
+          if (appState.jokeNotificationEnabled) {
+            const jokeAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, 30, 0);
+            if (jokeAt <= now) jokeAt.setDate(jokeAt.getDate() + 1);
+            const dateKey = `${jokeAt.getFullYear()}${String(jokeAt.getMonth() + 1).padStart(2, '0')}${String(jokeAt.getDate()).padStart(2, '0')}`;
+            const seed = dateKey.split('').reduce((sum, digit) => sum + Number(digit), 0);
+            const joke = WORD_CHISTES[(seed + hour) % WORD_CHISTES.length];
+            recurringAlerts.push({ id: 2000 + hour, title: '😄 Un chiste para ti', body: joke, at: jokeAt });
           }
         }
-        const wh = appState.wordHours || ['07:00', '13:00', '20:00'];
-        const slots = wh.map((hh, i) => [hh, i, ['Palabra de la mañana', 'Palabra de la tarde', 'Palabra de la noche'][i]]);
-        for (let i = 0; i < 7; i++) {
-          const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-          const dayN = Math.floor((day - new Date(day.getFullYear(), 0, 0)) / 86400000);
-          slots.forEach(([h, sl, title]) => add(wordAlerts, new Date(day.getFullYear(), day.getMonth(), day.getDate(), +h.split(':')[0], +h.split(':')[1] || 0, 0), title, wordForSlot(dayN, sl)));
-        }
         important.sort((a, b) => a.at - b.at);
-        wordAlerts.sort((a, b) => a.at - b.at);
-        const selected = important.slice(0, 60);
-        if (selected.length < 60) selected.push(...jokeAlerts.slice(0, 60 - selected.length));
-        if (selected.length < 60) selected.push(...wordAlerts.slice(0, 60 - selected.length));
-        const list = selected.map((item, i) => ({ id: i + 1, title: item.title, body: item.body, schedule: { at: item.at, allowWhileIdle: true } }));
+        const selectedImportant = important.slice(0, 30);
+        const list = selectedImportant.map((item, i) => ({ id: i + 1, title: item.title, body: item.body, schedule: { at: item.at, allowWhileIdle: true } }));
+        list.push(...recurringAlerts.map(item => ({ id: item.id, title: item.title, body: item.body, schedule: { at: item.at, repeats: true, allowWhileIdle: true } })));
         const pend = await LN.getPending();
         if (pend.notifications.length) await LN.cancel({ notifications: pend.notifications });
         if (list.length) await LN.schedule({ notifications: list });
-        const omitted = Math.max(0, important.length + jokeAlerts.length + wordAlerts.length - list.length);
-        setNotifLastResult(`Programadas ${list.length} notificaciones${omitted ? `; ${omitted} quedaron fuera del límite` : ''}.`);
+        const omitted = Math.max(0, important.length - selectedImportant.length);
+        setNotifLastResult(`Programados avisos recurrentes cada hora de 7:00 a. m. a 9:30 p. m., además de ${selectedImportant.length} recordatorios${omitted ? `; ${omitted} recordatorios quedaron fuera del límite` : ''}.`);
       } catch (e) { setNotifLastResult('Error al programar: ' + (e && e.message ? e.message : String(e))); }
     }
     window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
@@ -2085,6 +2101,11 @@
       const button = document.getElementById('almaVoiceToggle');
       if (!panel || !line || !detail || !button) return;
       const section = activeVoiceSection();
+      const speaking = voiceLoopOn && voiceUiStatus === 'Respondiendo…';
+      const interruptButton = document.getElementById('almaVoiceInterrupt');
+      const roomInterruptButton = document.getElementById('almaVoiceRoomInterrupt');
+      if (interruptButton) interruptButton.classList.toggle('hidden', !speaking || activeTab === 'ia');
+      if (roomInterruptButton) roomInterruptButton.classList.toggle('hidden', !speaking || activeTab !== 'ia' || !voiceRoomOpen);
       const dock = document.getElementById('almaVoiceDock');
       if (dock) dock.classList.toggle('hidden', activeTab === 'ia');
       panel.classList.toggle('hidden', !voiceLoopOn || activeTab === 'ia');
@@ -2111,6 +2132,11 @@
       voiceUiStatus = status;
       if (detail !== undefined) voiceUiDetail = detail;
       paintAlmaVoiceDock();
+    }
+    function interruptAlmaSpeech() {
+      if (!voiceLoopOn) return;
+      stopSpeaking();
+      setVoiceStatus('Escuchando…', 'Interrumpí la respuesta. Puedes hablar; el micrófono sigue activo.');
     }
     function enterAlmaVoiceMode() {
       voiceRoomOpen = true;
@@ -2480,8 +2506,8 @@
     function renderSettings() {
       const el = document.getElementById('settingsBody');
       if (!el) return;
-      const mode = appState.wordMode || 'ambos', wh = appState.wordHours || ['07:00', '13:00', '20:00'];
-      const jokeOn = !!appState.jokeNotificationEnabled, jokeHour = appState.jokeNotificationHour || '18:00';
+      const mode = appState.wordMode || 'ambos';
+      const jokeOn = !!appState.jokeNotificationEnabled;
       const card = (t, inner) => `<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft space-y-3"><h3 class="text-sm font-extrabold text-slate-900 dark:text-white">${t}</h3>${inner}</div>`;
       const row = (label, btn) => `<div class="flex items-center justify-between gap-3"><span class="text-xs font-semibold text-slate-600 dark:text-slate-300">${label}</span>${btn}</div>`;
       const pill = (txt, fn, on) => `<button onclick="${fn}" class="px-3 py-1.5 rounded-full text-[11px] font-bold ${on ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}">${txt}</button>`;
@@ -2511,14 +2537,13 @@
           <div><label for="elevenLabsVoiceSelect" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">Voz preestablecida</label><select id="elevenLabsVoiceSelect" onchange="setElevenLabsVoice(this.value)" class="w-full ${inp}">${Object.entries(ELEVENLABS_PREMADE_VOICES).map(([id, label]) => `<option value="${id}" ${id === (appState.elevenLabsVoiceId || 'cgSgspJ2msm6clMCkdW9') ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select><p class="mt-1 text-[10px] leading-relaxed text-slate-400">Jessica queda seleccionada inicialmente. ALMA usa eleven_flash_v2_5 y envía el texto de la respuesta a ElevenLabs.</p></div>
           <div class="flex flex-wrap gap-2"><button onclick="saveElevenLabsSettings()" class="rounded-full bg-rose-600 px-3 py-2 text-xs font-bold text-white">Guardar ajustes de voz</button><button onclick="testElevenLabsTts()" class="rounded-full bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 dark:bg-rose-950/50 dark:text-rose-200">Probar ElevenLabs</button></div>
           <p class="text-[10px] leading-relaxed text-slate-400">El proxy exige tu token Bearer. Introdúcelo y guárdalo para esta sesión; no se incluye en el APK ni en los respaldos. La voz natural sigue apagada hasta que la actives.</p>` ) +
-        card('✨ Palabra del día', `
+        card('✨ Palabras y versículos', `
           <div class="flex gap-1.5">${pill('Ambos', "setWordMode('ambos')", mode === 'ambos')}${pill('Frases', "setWordMode('frases')", mode === 'frases')}${pill('Versículos', "setWordMode('versiculos')", mode === 'versiculos')}</div>
-          ${['Mañana', 'Tarde', 'Noche'].map((n, i) => row(n, `<input type="time" value="${wh[i]}" onchange="setWordHour(${i}, this.value)" class="${inp}" />`)).join('')}
+          <p class="rounded-2xl bg-indigo-50 p-3 text-[11px] leading-relaxed text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-200">ALMA enviará una frase o versículo cada hora, de 7:00 a. m. a 9:00 p. m. El contenido asignado a cada hora se repite diariamente.</p>
           ${NATIVE ? pill('🔔 Probar notificación', 'testNotification()', false) : ''}`) +
-        card('😄 Chiste diario', `
-          <label class="flex items-center justify-between gap-3 rounded-2xl bg-amber-50 p-3 dark:bg-amber-950/30"><span><span class="block text-xs font-bold text-amber-900 dark:text-amber-100">Recibir un chiste al día</span><span class="mt-0.5 block text-[10px] text-amber-800/80 dark:text-amber-200/80">Opcional; se programa para los próximos 7 días.</span></span><input type="checkbox" ${jokeOn ? 'checked' : ''} onchange="setJokeNotificationEnabled(this.checked)" class="h-5 w-5 accent-amber-600" /></label>
-          ${row('Hora del chiste', `<input aria-label="Hora del chiste diario" type="time" value="${escapeHtml(jokeHour)}" onchange="setJokeNotificationHour(this.value)" class="${inp}" />`)}
-          <p class="text-[10px] leading-relaxed text-slate-400">Apagado por defecto. Al activarlo, ALMA enviará un chiste al día a la hora elegida; no enviará avisos aleatorios durante el día.</p>`) +
+        card('😄 Chistes por hora', `
+          <label class="flex items-center justify-between gap-3 rounded-2xl bg-amber-50 p-3 dark:bg-amber-950/30"><span><span class="block text-xs font-bold text-amber-900 dark:text-amber-100">Recibir chistes cada hora</span><span class="mt-0.5 block text-[10px] text-amber-800/80 dark:text-amber-200/80">Entre 7:30 a. m. y 9:30 p. m.</span></span><input type="checkbox" ${jokeOn ? 'checked' : ''} onchange="setJokeNotificationEnabled(this.checked)" class="h-5 w-5 accent-amber-600" /></label>
+          <p class="text-[10px] leading-relaxed text-slate-400">Se alterna con la palabra: llega un aviso cada media hora. El chiste asignado a cada horario se repite diariamente.</p>`) +
         card('🔔 Notificaciones del teléfono', `
           <p id="notifStatusText" class="rounded-2xl bg-slate-50 p-3 text-[11px] font-semibold leading-relaxed text-slate-700 dark:bg-[#0B1120] dark:text-slate-200">${escapeHtml(notifLastResult)}</p>
           <p class="text-[10px] leading-relaxed text-slate-400">El estado muestra el último intento de programación. El permiso y las alarmas exactas también dependen de Android; usa Diagnóstico si los avisos no llegan o se retrasan.</p>
@@ -5521,9 +5546,6 @@ ${userMessage}`;
       const text = inp.value.trim();
       if (!text) return;
       const useWebSearch = almaWebSearchEnabled;
-      almaWebSearchEnabled = false;
-      const webButton = document.getElementById('webSearchToggle');
-      if (webButton) { webButton.setAttribute('aria-pressed', 'false'); webButton.textContent = '🌐 Buscar en Internet: no'; webButton.className = 'rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 dark:border-slate-700 dark:bg-[#151C2C] dark:text-slate-300'; }
       const memoryCommand = parseMemoryCommand(text);
       const savedMemoryAnswer = memoryCommand ? null : answerFromSavedMemories(text);
       const memoryAnswer = memoryCommand || savedMemoryAnswer ? null : answerFromChatMemory(text);
@@ -5648,6 +5670,12 @@ ${userMessage}`;
       if (activeTab === 'ajustes') renderSettings();
     }
 
+    function hideAlmaLaunchSplash() {
+      const splash = document.getElementById('almaLaunchSplash');
+      if (!splash) return;
+      splash.classList.add('alma-launch-hide');
+      setTimeout(() => splash.remove(), 450);
+    }
     async function initializeAlma() {
       await restoreRuntimeSecrets();
       applyTheme();
@@ -5656,8 +5684,9 @@ ${userMessage}`;
       renderAll();
       const homeView = document.getElementById('view-inicio');
       if (homeView) { homeView.classList.add('alma-start-in'); setTimeout(() => homeView.classList.remove('alma-start-in'), 700); }
+      setTimeout(hideAlmaLaunchSplash, 1100);
     }
-    window.addEventListener('load', () => initializeAlma().catch(e => { renderAll(); showToast('ALMA inició con una advertencia de almacenamiento protegido.'); }));
+    window.addEventListener('load', () => initializeAlma().catch(e => { renderAll(); hideAlmaLaunchSplash(); showToast('ALMA inició con una advertencia de almacenamiento protegido.'); }));
   </script>
   <!-- Se genera en el workflow Android; en navegador web este archivo puede no existir. -->
   <script src="./plugins.js"></script>
