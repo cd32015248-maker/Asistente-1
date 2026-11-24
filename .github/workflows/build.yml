@@ -54,37 +54,7 @@ jobs:
           sed -i "s/versionCode 1/versionCode $((1000 + GITHUB_RUN_NUMBER))/" android/app/build.gradle
           sed -i "s/versionName \"1.0\"/versionName \"1.0.${GITHUB_RUN_NUMBER}\"/" android/app/build.gradle
 
-      - name: Preparar firma estable desde GitHub Actions Secrets
-        env:
-          ALMA_SIGNING_KEYSTORE_BASE64: ${{ secrets.ALMA_SIGNING_KEYSTORE_BASE64 }}
-          ALMA_SIGNING_STORE_PASSWORD: ${{ secrets.ALMA_SIGNING_STORE_PASSWORD }}
-          ALMA_SIGNING_KEY_ALIAS: ${{ secrets.ALMA_SIGNING_KEY_ALIAS }}
-          ALMA_SIGNING_KEY_PASSWORD: ${{ secrets.ALMA_SIGNING_KEY_PASSWORD }}
-        run: |
-          set -euo pipefail
-          if [ -z "$ALMA_SIGNING_KEYSTORE_BASE64" ] || [ -z "$ALMA_SIGNING_STORE_PASSWORD" ] || [ -z "$ALMA_SIGNING_KEY_ALIAS" ] || [ -z "$ALMA_SIGNING_KEY_PASSWORD" ]; then
-            echo 'Faltan secrets de firma. Configúralos en GitHub > Settings > Secrets and variables > Actions antes de compilar.' >&2
-            exit 1
-          fi
-          printf '%s' "$ALMA_SIGNING_KEYSTORE_BASE64" | base64 --decode > android/app/alma-release.jks
-          cat >> android/app/build.gradle <<'EOF'
-          android {
-              signingConfigs {
-                  almaStable {
-                      storeFile file('alma-release.jks')
-                      storePassword System.getenv('ALMA_SIGNING_STORE_PASSWORD')
-                      keyAlias System.getenv('ALMA_SIGNING_KEY_ALIAS')
-                      keyPassword System.getenv('ALMA_SIGNING_KEY_PASSWORD')
-                  }
-              }
-              buildTypes {
-                  release {
-                      signingConfig signingConfigs.almaStable
-                      minifyEnabled false
-                  }
-              }
-          }
-          EOF
+
 
       - name: Compilar APK release firmado
         env:
