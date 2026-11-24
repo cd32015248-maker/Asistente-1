@@ -85,6 +85,9 @@
     .tab-view {
       animation: fadeSlideUp 0.2s ease-out;
     }
+    @keyframes almaStart { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .alma-start-in { animation: almaStart 650ms cubic-bezier(.2,.8,.2,1) both; }
+    @media (prefers-reduced-motion: reduce) { .alma-start-in, .tab-view { animation-duration: 1ms !important; } }
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
@@ -165,7 +168,7 @@
         <div id="homeAlerts"></div>
         <div id="wordCard"></div>
         
-        <!-- 2x2 Pastel Bento Grid -->
+        <!-- Pastel Bento Dashboard Grid -->
         <div class="grid grid-cols-2 gap-3">
           <!-- Bento 1: Tareas de Hoy -->
           <div onclick="switchTab('agenda')" class="cursor-pointer rounded-3xl p-4 bg-[#FEF3C7] dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 shadow-card active:scale-[0.98] transition">
@@ -230,6 +233,21 @@
             <div class="text-2xl font-extrabold text-emerald-950 dark:text-emerald-100 font-display" id="bentoRoutinePct">0%</div>
             <div class="text-xs font-semibold text-emerald-900/80 dark:text-emerald-200/80 mt-0.5">Rutina Diaria</div>
             <div class="text-[11px] text-emerald-800/75 dark:text-emerald-300/75 mt-1 truncate" id="bentoRoutineSub">0 de 0 hábitos</div>
+          </div>
+          <!-- Bento 5: Estudio -->
+          <div onclick="switchTab('materias')" class="cursor-pointer rounded-3xl p-4 bg-[#FFF1F2] dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-800/50 shadow-card active:scale-[0.98] transition">
+            <div class="flex items-center justify-between mb-2"><span class="w-8 h-8 rounded-2xl bg-rose-400/25 flex items-center justify-center text-rose-800 dark:text-rose-300">📚</span><span class="text-[11px] font-bold text-rose-800/80 dark:text-rose-300/80">Estudio →</span></div>
+            <div class="text-xl font-extrabold text-rose-950 dark:text-rose-100 font-display" id="bentoStudyValue">0 min</div>
+            <div class="text-xs font-semibold text-rose-900/80 dark:text-rose-200/80 mt-0.5">Estudio de hoy</div>
+            <div class="text-[11px] text-rose-800/75 dark:text-rose-300/75 mt-1 truncate" id="bentoStudySub">Tus materias aparecerán aquí</div>
+          </div>
+
+          <!-- Bento 6: Presupuesto mensual -->
+          <div onclick="switchTab('finanzas')" class="cursor-pointer rounded-3xl p-4 bg-[#CCFBF1] dark:bg-teal-950/35 border border-teal-200/80 dark:border-teal-800/50 shadow-card active:scale-[0.98] transition">
+            <div class="flex items-center justify-between mb-2"><span class="w-8 h-8 rounded-2xl bg-teal-400/25 flex items-center justify-center text-teal-800 dark:text-teal-300">🪙</span><span class="text-[11px] font-bold text-teal-800/80 dark:text-teal-300/80">Presupuesto →</span></div>
+            <div class="text-xl font-extrabold text-teal-950 dark:text-teal-100 font-display" id="bentoBudgetValue">$250</div>
+            <div class="text-xs font-semibold text-teal-900/80 dark:text-teal-200/80 mt-0.5">Disponible este mes</div>
+            <div class="text-[11px] text-teal-800/75 dark:text-teal-300/75 mt-1 truncate" id="bentoBudgetSub">Presupuesto mensual</div>
           </div>
         </div>
 
@@ -339,6 +357,10 @@
             <button onclick="sendSuggestion('Hazme un resumen de mi semana')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">Mi semana</button>
             <button onclick="sendSuggestion('¿Qué te dije ayer?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">¿Qué te dije ayer?</button>
             <button onclick="sendSuggestion('¿Cómo estudio mejor?')" class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#151C2C] border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm active:scale-95 transition">¿Cómo estudio?</button>
+          </div>
+          <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <button id="webSearchToggle" onclick="toggleWebSearch()" aria-pressed="false" class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 dark:border-slate-700 dark:bg-[#151C2C] dark:text-slate-300">🌐 Buscar en Internet: no</button>
+            <span class="text-[9px] text-slate-400">Gemini 3+: 5.000 búsquedas gratis/mes; luego US$14 por 1.000.</span>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="pickPhoto()" aria-label="Foto" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">📷</button>
@@ -719,7 +741,17 @@
         <input id="debtPersonInput" type="text" placeholder="Nombre de la persona" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
         <input id="debtAmountInput" type="number" step="0.01" placeholder="Monto" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 dark:text-white outline-none" />
         <input id="debtNoteInput" type="text" placeholder="Motivo (opcional)" class="w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none" />
+        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300">Fecha de pago o acuerdo (opcional)<input id="debtDueDateInput" type="date" class="mt-1 w-full bg-slate-100 dark:bg-[#0B1120] rounded-2xl px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white outline-none" /><span class="mt-1 block text-[10px] font-medium text-slate-400">Si es una deuda que debes pagar, ALMA intentará avisarte el día anterior a las 8:00 a. m.</span></label>
         <button onclick="saveDebtFromModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold">Guardar Deuda</button>
+      </div>
+    </div>
+
+    <div id="modalDebtDueDate" class="fixed inset-0 z-50 hidden bg-slate-900/55 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md rounded-3xl border border-sky-100 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-[#151C2C] space-y-3">
+        <div class="flex items-center justify-between"><div><div class="text-[10px] font-extrabold uppercase tracking-wider text-sky-600 dark:text-sky-300">RECORDATORIO DE DEUDA</div><h3 id="editDebtDueDateHeading" class="mt-0.5 text-base font-extrabold text-slate-900 dark:text-white">Fecha de pago</h3></div><button onclick="closeModal('modalDebtDueDate')" aria-label="Cerrar" class="grid h-8 w-8 place-items-center rounded-full bg-slate-100 font-bold text-slate-500 dark:bg-slate-800">✕</button></div>
+        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300">Fecha acordada<input id="editDebtDueDateInput" type="date" class="mt-1 w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-900 outline-none dark:bg-[#0B1120] dark:text-white" /></label>
+        <p class="text-[10px] leading-relaxed text-slate-400">Para “Yo debo”, ALMA programa un aviso el día anterior a las 8:00 a. m. Deja la fecha vacía para quitarla y cancelar ese aviso.</p>
+        <button onclick="saveDebtDueDate()" class="w-full rounded-2xl bg-sky-600 py-3 text-sm font-extrabold text-white">Guardar fecha</button>
       </div>
     </div>
 
@@ -836,7 +868,7 @@
       }
     }
     function getPersistableState() {
-      const persisted = { ...appState };
+      const persisted = { ...appState, schemaVersion: 3 };
       // API secrets must never be written into the app's durable local database.
       delete persisted.customApiKey;
       delete persisted.groqApiKey;
@@ -914,6 +946,10 @@
         openRouterApiKey: '',
         exchangeRate: 45.00,
         monthlyBudget: 250.00,
+        wordHours: ['07:00', '13:00', '20:00'],
+        wordMode: 'ambos',
+        jokeNotificationEnabled: false,
+        jokeNotificationHour: '18:00',
         tasks: [],
         transactions: [],
         capitalBase: null,
@@ -982,10 +1018,11 @@
     })();
     // Provider keys stay in sessionStorage, never in ALMA's durable data or backups.
     const RUNTIME_AI_KEYS = {
-      gemini: { field: 'customApiKey', storage: 'alma_gemini_key_session' },
-      groq: { field: 'groqApiKey', storage: 'alma_groq_key_session' },
-      openrouter: { field: 'openRouterApiKey', storage: 'alma_openrouter_key_session' }
+      gemini: { field: 'customApiKey', storage: 'alma_gemini_key_session', secure: 'alma_gemini_key' },
+      groq: { field: 'groqApiKey', storage: 'alma_groq_key_session', secure: 'alma_groq_key' },
+      openrouter: { field: 'openRouterApiKey', storage: 'alma_openrouter_key_session', secure: 'alma_openrouter_key' }
     };
+    const ELEVEN_SECURE_KEY = 'alma_elevenlabs_proxy_token';
     try {
       appState.customApiKey = sessionStorage.getItem(RUNTIME_AI_KEYS.gemini.storage) || '';
       appState.groqApiKey = sessionStorage.getItem(RUNTIME_AI_KEYS.groq.storage) || '';
@@ -997,25 +1034,52 @@
       appState.openRouterApiKey = '';
       appState.elevenLabsProxyToken = '';
     }
-    function setRuntimeProviderKey(provider, value) {
+    async function persistRuntimeSecret(key, value, sessionKey) {
+      const clean = String(value || '').trim();
+      try {
+        if (clean) sessionStorage.setItem(sessionKey, clean); else sessionStorage.removeItem(sessionKey);
+      } catch (e) { /* Runtime memory still holds the value for this session. */ }
+      if (!NATIVE) return false;
+      const secure = nativePlugin('SecureStoragePlugin');
+      if (!secure) throw new Error('No está disponible el plugin de almacenamiento seguro de Android.');
+      if (clean) await secure.set({ key, value: clean });
+      else { try { await secure.remove({ key }); } catch (e) { /* La clave puede no existir. */ } }
+      return true;
+    }
+    async function setRuntimeProviderKey(provider, value) {
       const config = RUNTIME_AI_KEYS[provider];
       if (!config) return false;
       const clean = String(value || '').trim();
       appState[config.field] = clean;
-      try {
-        if (clean) sessionStorage.setItem(config.storage, clean);
-        else sessionStorage.removeItem(config.storage);
-      } catch (e) { /* The key remains in memory until this page is closed. */ }
-      return true;
+      return persistRuntimeSecret(config.secure, clean, config.storage);
     }
     function setRuntimeApiKey(value) { return setRuntimeProviderKey('gemini', value); }
-    function setRuntimeElevenLabsProxyToken(value) {
+    async function setRuntimeElevenLabsProxyToken(value) {
       const clean = String(value || '').trim();
       appState.elevenLabsProxyToken = clean;
-      try {
-        if (clean) sessionStorage.setItem('alma_elevenlabs_proxy_session', clean);
-        else sessionStorage.removeItem('alma_elevenlabs_proxy_session');
-      } catch (e) { /* The token remains in memory until this page is closed. */ }
+      return persistRuntimeSecret(ELEVEN_SECURE_KEY, clean, 'alma_elevenlabs_proxy_session');
+    }
+    async function restoreRuntimeSecrets() {
+      if (!NATIVE) return;
+      const secure = nativePlugin('SecureStoragePlugin');
+      if (!secure) { showToast('No está disponible el almacenamiento protegido; no vuelvas a guardar claves todavía.'); return; }
+      const entries = [...Object.entries(RUNTIME_AI_KEYS).map(([provider, c]) => [c.field, c.secure, c.storage]), ['elevenLabsProxyToken', ELEVEN_SECURE_KEY, 'alma_elevenlabs_proxy_session']];
+      for (const [field, key, sessionKey] of entries) {
+        try {
+          const saved = await secure.get({ key });
+          if (saved && typeof saved.value === 'string') {
+            appState[field] = saved.value;
+            try { sessionStorage.setItem(sessionKey, saved.value); } catch (e) { /* In-memory restore is enough this run. */ }
+          }
+        } catch (e) {
+          // Migrate any old in-session value into Android Keystore-backed storage.
+          const legacy = appState[field] || '';
+          if (legacy) {
+            try { await secure.set({ key, value: legacy }); }
+            catch (saveError) { showToast('No pude guardar una clave de forma protegida; vuelve a ingresarla tras resolverlo.'); }
+          }
+        }
+      }
     }
 
     let storageWarningShown = false;
@@ -1148,18 +1212,16 @@
       document.getElementById('aiApiKeyInput').value = appState.customApiKey || '';
       openModal('modalAiSettings');
     }
-    function saveAiApiKey() {
-      setRuntimeApiKey(document.getElementById('aiApiKeyInput').value);
-      closeModal('modalAiSettings');
-      saveState();
-      showToast(appState.customApiKey ? 'API Key de Gemini guardada' : 'Usando motor inteligente local');
+    async function saveAiApiKey() {
+      try {
+        const persisted = await setRuntimeApiKey(document.getElementById('aiApiKeyInput').value);
+        closeModal('modalAiSettings'); saveState();
+        showToast(!appState.customApiKey ? 'Usando motor inteligente local' : (persisted ? 'Clave guardada en almacenamiento protegido de Android' : 'Clave disponible solo durante esta sesión web; Android debe instalarse con almacenamiento seguro.'));
+      } catch (e) { showToast('No pude guardar la clave protegida: ' + (e.message || e)); }
     }
-    function clearAiApiKey() {
-      setRuntimeApiKey('');
-      document.getElementById('aiApiKeyInput').value = '';
-      closeModal('modalAiSettings');
-      saveState();
-      showToast('Clave eliminada');
+    async function clearAiApiKey() {
+      try { await setRuntimeApiKey(''); } catch (e) { showToast('No pude borrar la clave protegida: ' + (e.message || e)); return; }
+      document.getElementById('aiApiKeyInput').value = ''; closeModal('modalAiSettings'); saveState(); showToast('Clave eliminada');
     }
 
     function recordExchangeRate(value, source = 'manual') {
@@ -1398,10 +1460,30 @@
       showToast(`Abonaste $${amt.toFixed(2)}`);
     }
 
+    let activeDebtDueDateId = null;
+    function openDebtDueDateModal(id) {
+      const debt = (appState.debts || []).find(x => String(x.id) === String(id));
+      if (!debt) return;
+      activeDebtDueDateId = debt.id;
+      document.getElementById('editDebtDueDateHeading').textContent = `Fecha de pago · ${debt.person || 'deuda'}`;
+      document.getElementById('editDebtDueDateInput').value = /^\d{4}-\d{2}-\d{2}$/.test(String(debt.dueDate || '')) ? debt.dueDate : '';
+      openModal('modalDebtDueDate');
+    }
+    function saveDebtDueDate() {
+      const debt = (appState.debts || []).find(x => String(x.id) === String(activeDebtDueDateId));
+      if (!debt) { closeModal('modalDebtDueDate'); return; }
+      const dueDate = document.getElementById('editDebtDueDateInput').value || '';
+      if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) { showToast('La fecha no es válida'); return; }
+      debt.dueDate = dueDate;
+      closeModal('modalDebtDueDate');
+      saveState();
+      showToast(dueDate ? 'Fecha y recordatorio guardados' : 'Fecha y recordatorio quitados');
+    }
     function openDebtModal() {
       document.getElementById('debtPersonInput').value = '';
       document.getElementById('debtAmountInput').value = '';
       document.getElementById('debtNoteInput').value = '';
+      document.getElementById('debtDueDateInput').value = '';
       openModal('modalDebt');
     }
     function saveDebtFromModal() {
@@ -1410,13 +1492,14 @@
       const person = document.getElementById('debtPersonInput').value.trim();
       const amount = parseFloat(document.getElementById('debtAmountInput').value);
       const note = document.getElementById('debtNoteInput').value.trim();
+      const dueDate = document.getElementById('debtDueDateInput').value || '';
       if (!person || !amount || amount <= 0) {
         showToast('Ingresa la persona y el monto');
         return;
       }
       appState.debts.unshift({
         id: Date.now() + Math.floor(Math.random() * 1000),
-        type, person, currency, amount, note, paid: false,
+        type, person, currency, amount, note, dueDate, paid: false,
         exchangeRate: Number(appState.exchangeRate) > 0 ? Number(appState.exchangeRate) : 45,
         createdAt: Date.now()
       });
@@ -1538,6 +1621,10 @@
       let netVesWallet = 0;
       let incomeUsdEquiv = 0;
       let expenseUsdEquiv = 0;
+      let monthIncomeUsd = 0;
+      let monthExpenseUsd = 0;
+      const todayLocal = new Date();
+      const currentMonthKey = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, '0')}`;
 
       const catTotals = { Comida: 0, Transporte: 0, Estudios: 0, Servicios: 0, Otros: 0 };
 
@@ -1547,6 +1634,10 @@
         // without a saved rate keep the current rate as a backward-compatible fallback.
         const txRate = Number(tx.exchangeRate) > 0 ? Number(tx.exchangeRate) : rate;
         const inUsd = tx.currency === 'USD' ? amt : amt / txRate;
+        const txDate = /^\d{4}-\d{2}-\d{2}$/.test(String(tx.date || '')) ? String(tx.date) : (Number.isFinite(Number(tx.createdAt)) ? (() => { const d = new Date(Number(tx.createdAt)); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })() : '');
+        if (txDate.slice(0, 7) === currentMonthKey) {
+          if (tx.type === 'ingreso') monthIncomeUsd += inUsd; else monthExpenseUsd += inUsd;
+        }
 
         if (tx.currency === 'USD') {
           netUsdWallet += tx.type === 'ingreso' ? amt : -amt;
@@ -1600,6 +1691,9 @@
         totalCombinedVes,
         incomeUsdEquiv,
         expenseUsdEquiv,
+        monthIncomeUsd,
+        monthExpenseUsd,
+        currentMonthKey,
         catTotals,
         owedToMeUsd,
         iOweUsd
@@ -1626,12 +1720,36 @@
     let notifTimer = null;
     let lastNotifConfigSignature = '';
     let notifLastResult = 'Todavía no se ha intentado programar avisos.';
+    function setNotifLastResult(text) {
+      notifLastResult = text;
+      const status = document.getElementById('notifStatusText');
+      if (status) status.textContent = text;
+    }
+    async function refreshNotificationStatus() {
+      await scheduleAllNotifications();
+      const status = document.getElementById('notifStatusText');
+      if (status) status.textContent = notifLastResult;
+    }
+    function setJokeNotificationEnabled(enabled) {
+      appState.jokeNotificationEnabled = !!enabled;
+      saveState();
+      showToast(enabled ? 'Chiste diario activado' : 'Chiste diario desactivado');
+    }
+    function setJokeNotificationHour(hour) {
+      if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(hour || ''))) return;
+      appState.jokeNotificationHour = hour;
+      saveState();
+      showToast('Hora del chiste actualizada');
+    }
     function notifConfigSignature() {
       return JSON.stringify({
         tasks: (appState.tasks || []).map(t => [t.id, t.title, t.date, t.startTime, t.done, t.exam]),
         routines: (appState.routines || []).map(r => [r.id, r.name, r.days, r.time]),
+        debts: (appState.debts || []).map(d => [d.id, d.type, d.person, d.amount, d.dueDate, d.paid]),
         wordHours: appState.wordHours || ['07:00', '13:00', '20:00'],
-        wordMode: appState.wordMode || 'ambos'
+        wordMode: appState.wordMode || 'ambos',
+        jokeNotificationEnabled: !!appState.jokeNotificationEnabled,
+        jokeNotificationHour: appState.jokeNotificationHour || '18:00'
       });
     }
     function scheduleNotifSoon() {
@@ -1643,12 +1761,12 @@
     }
     async function scheduleAllNotifications() {
       const LN = nativePlugin('LocalNotifications');
-      if (!LN) { notifLastResult = 'Plugin de notificaciones no disponible.'; return; }
+      if (!LN) { setNotifLastResult('Plugin de notificaciones no disponible.'); return; }
       try {
         let perm = await LN.checkPermissions();
         if (perm.display !== 'granted') perm = await LN.requestPermissions();
-        if (perm.display !== 'granted') { notifLastResult = 'Permiso de mostrar notificaciones: ' + (perm.display || 'no concedido') + '.'; return; }
-        const now = new Date(), important = [], wordAlerts = [];
+        if (perm.display !== 'granted') { setNotifLastResult('Permiso de mostrar notificaciones: ' + (perm.display || 'no concedido') + '.'); return; }
+        const now = new Date(), important = [], wordAlerts = [], jokeAlerts = [];
         const add = (target, at, title, body) => { if (at instanceof Date && Number.isFinite(at.getTime()) && at > now) target.push({ at, title, body }); };
         (appState.routines || []).forEach(r => { for (let i = 0; i < 7; i++) { const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i); if ((r.days || []).map(Number).includes(day.getDay())) { const time = r.time || '07:00'; add(important, new Date(day.getFullYear(), day.getMonth(), day.getDate(), Number(time.slice(0,2)), Number(time.slice(3,5)), 0), '⏰ ' + (r.name || 'Tu rutina'), 'Es hora de comenzar: ' + (r.name || 'tu rutina')); } } });
         appState.tasks.filter(t => !t.done).forEach(t => {
@@ -1656,6 +1774,23 @@
           add(important, new Date(t.date + 'T' + (t.startTime || '09:00') + ':00'), '📌 ' + nm, 'Empieza a las ' + (t.startTime || '09:00'));
           if (t.exam || (t.title || '').startsWith('📝')) add(important, new Date(shiftIso(t.date, -1) + 'T08:00:00'), '⏰ Mañana: ' + nm, 'Haz un repaso suave y descansa bien.');
         });
+        (appState.debts || []).filter(d => d.type === 'debo' && !d.paid && /^\d{4}-\d{2}-\d{2}$/.test(String(d.dueDate || ''))).forEach(d => {
+          const remindDate = shiftIso(d.dueDate, -1);
+          const amount = `${d.currency === 'USD' ? '$' : 'Bs '}${Number(d.amount || 0).toFixed(2)}`;
+          const reminderAt = new Date(remindDate + 'T08:00:00');
+          if (remindDate === getIsoDateOffset(0) && reminderAt <= now && d.dueDate > getIsoDateOffset(0)) {
+            add(important, new Date(now.getTime() + 60000), '💳 Mañana vence tu pago', `Recuerda pagar ${d.person || 'tu deuda'} (${amount}).`);
+          } else add(important, reminderAt, '💳 Mañana vence tu pago', `Recuerda pagar ${d.person || 'tu deuda'} (${amount}).`);
+        });
+        if (appState.jokeNotificationEnabled) {
+          const jokeTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(appState.jokeNotificationHour || '')) ? appState.jokeNotificationHour : '18:00';
+          for (let i = 0; i < 7; i++) {
+            const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+            const iso = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+            const [jh, jm] = jokeTime.split(':').map(Number);
+            add(jokeAlerts, new Date(day.getFullYear(), day.getMonth(), day.getDate(), jh, jm, 0), '😄 Tu chiste del día', dailyJoke(iso));
+          }
+        }
         const wh = appState.wordHours || ['07:00', '13:00', '20:00'];
         const slots = wh.map((hh, i) => [hh, i, ['Palabra de la mañana', 'Palabra de la tarde', 'Palabra de la noche'][i]]);
         for (let i = 0; i < 7; i++) {
@@ -1666,14 +1801,15 @@
         important.sort((a, b) => a.at - b.at);
         wordAlerts.sort((a, b) => a.at - b.at);
         const selected = important.slice(0, 60);
+        if (selected.length < 60) selected.push(...jokeAlerts.slice(0, 60 - selected.length));
         if (selected.length < 60) selected.push(...wordAlerts.slice(0, 60 - selected.length));
         const list = selected.map((item, i) => ({ id: i + 1, title: item.title, body: item.body, schedule: { at: item.at, allowWhileIdle: true } }));
         const pend = await LN.getPending();
         if (pend.notifications.length) await LN.cancel({ notifications: pend.notifications });
         if (list.length) await LN.schedule({ notifications: list });
-        const omitted = Math.max(0, important.length + wordAlerts.length - list.length);
-        notifLastResult = `Programadas ${list.length} notificaciones${omitted ? `; ${omitted} quedaron fuera del límite` : ''}.`;
-      } catch (e) { notifLastResult = 'Error al programar: ' + (e && e.message ? e.message : String(e)); }
+        const omitted = Math.max(0, important.length + jokeAlerts.length + wordAlerts.length - list.length);
+        setNotifLastResult(`Programadas ${list.length} notificaciones${omitted ? `; ${omitted} quedaron fuera del límite` : ''}.`);
+      } catch (e) { setNotifLastResult('Error al programar: ' + (e && e.message ? e.message : String(e))); }
     }
     window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
     document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleAllNotifications(); });
@@ -2223,7 +2359,7 @@
       appState.elevenLabsVoiceId = value;
       safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
     }
-    function saveElevenLabsSettings() {
+    async function saveElevenLabsSettings() {
       const url = String(document.getElementById('elevenLabsProxyUrl')?.value || '').trim().replace(/\/+$/, '');
       if (url) {
         try {
@@ -2234,15 +2370,17 @@
         } catch (e) { showToast('Escribe una URL válida para el servidor ElevenLabs.'); return; }
       }
       appState.elevenLabsProxyUrl = url;
-      setRuntimeElevenLabsProxyToken(document.getElementById('elevenLabsProxyToken')?.value || '');
+      let secretStored = false;
+      try { secretStored = await setRuntimeElevenLabsProxyToken(document.getElementById('elevenLabsProxyToken')?.value || ''); }
+      catch (e) { showToast('No pude guardar el token protegido: ' + (e.message || e)); return false; }
       const voice = document.getElementById('elevenLabsVoiceSelect')?.value;
       if (voice && Object.prototype.hasOwnProperty.call(ELEVENLABS_PREMADE_VOICES, voice)) appState.elevenLabsVoiceId = voice;
       saveState();
-      showToast('Ajustes de ElevenLabs guardados; el token queda solo en esta sesión.');
+      showToast(secretStored ? 'Ajustes guardados con token protegido en Android' : 'Ajustes guardados; token temporal solo en esta sesión web.');
       return true;
     }
     async function testElevenLabsTts() {
-      if (!saveElevenLabsSettings()) return;
+      if (!await saveElevenLabsSettings()) return;
       try {
         await playElevenLabsTts('Hola, soy ALMA. Esta es una prueba de mi voz natural.');
         showToast('La voz de ElevenLabs funcionó.');
@@ -2328,12 +2466,12 @@
     }
 
     // ---- Ajustes ----
-    function saveApiKeySettings() {
-      setRuntimeApiKey(document.getElementById('setApiKey').value);
-      setRuntimeProviderKey('groq', document.getElementById('setGroqApiKey').value);
-      setRuntimeProviderKey('openrouter', document.getElementById('setOpenRouterApiKey').value);
-      saveState();
-      showToast('Claves de IA guardadas solo en esta sesión');
+    async function saveApiKeySettings() {
+      try {
+        const results = await Promise.all([setRuntimeApiKey(document.getElementById('setApiKey').value), setRuntimeProviderKey('groq', document.getElementById('setGroqApiKey').value), setRuntimeProviderKey('openrouter', document.getElementById('setOpenRouterApiKey').value)]);
+        saveState();
+        showToast(NATIVE && results.every(Boolean) ? 'Claves guardadas en almacenamiento protegido de Android' : 'Claves disponibles solo durante esta sesión web; no son seguras en navegador.');
+      } catch (e) { showToast('No pude guardar todas las claves protegidas: ' + (e.message || e)); }
     }
     function setWordHour(i, v) {
       const a = (appState.wordHours || ['07:00', '13:00', '20:00']).slice();
@@ -2343,6 +2481,7 @@
       const el = document.getElementById('settingsBody');
       if (!el) return;
       const mode = appState.wordMode || 'ambos', wh = appState.wordHours || ['07:00', '13:00', '20:00'];
+      const jokeOn = !!appState.jokeNotificationEnabled, jokeHour = appState.jokeNotificationHour || '18:00';
       const card = (t, inner) => `<div class="bg-white dark:bg-[#151C2C] rounded-3xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-soft space-y-3"><h3 class="text-sm font-extrabold text-slate-900 dark:text-white">${t}</h3>${inner}</div>`;
       const row = (label, btn) => `<div class="flex items-center justify-between gap-3"><span class="text-xs font-semibold text-slate-600 dark:text-slate-300">${label}</span>${btn}</div>`;
       const pill = (txt, fn, on) => `<button onclick="${fn}" class="px-3 py-1.5 rounded-full text-[11px] font-bold ${on ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}">${txt}</button>`;
@@ -2376,6 +2515,14 @@
           <div class="flex gap-1.5">${pill('Ambos', "setWordMode('ambos')", mode === 'ambos')}${pill('Frases', "setWordMode('frases')", mode === 'frases')}${pill('Versículos', "setWordMode('versiculos')", mode === 'versiculos')}</div>
           ${['Mañana', 'Tarde', 'Noche'].map((n, i) => row(n, `<input type="time" value="${wh[i]}" onchange="setWordHour(${i}, this.value)" class="${inp}" />`)).join('')}
           ${NATIVE ? pill('🔔 Probar notificación', 'testNotification()', false) : ''}`) +
+        card('😄 Chiste diario', `
+          <label class="flex items-center justify-between gap-3 rounded-2xl bg-amber-50 p-3 dark:bg-amber-950/30"><span><span class="block text-xs font-bold text-amber-900 dark:text-amber-100">Recibir un chiste al día</span><span class="mt-0.5 block text-[10px] text-amber-800/80 dark:text-amber-200/80">Opcional; se programa para los próximos 7 días.</span></span><input type="checkbox" ${jokeOn ? 'checked' : ''} onchange="setJokeNotificationEnabled(this.checked)" class="h-5 w-5 accent-amber-600" /></label>
+          ${row('Hora del chiste', `<input aria-label="Hora del chiste diario" type="time" value="${escapeHtml(jokeHour)}" onchange="setJokeNotificationHour(this.value)" class="${inp}" />`)}
+          <p class="text-[10px] leading-relaxed text-slate-400">Apagado por defecto. Al activarlo, ALMA enviará un chiste al día a la hora elegida; no enviará avisos aleatorios durante el día.</p>`) +
+        card('🔔 Notificaciones del teléfono', `
+          <p id="notifStatusText" class="rounded-2xl bg-slate-50 p-3 text-[11px] font-semibold leading-relaxed text-slate-700 dark:bg-[#0B1120] dark:text-slate-200">${escapeHtml(notifLastResult)}</p>
+          <p class="text-[10px] leading-relaxed text-slate-400">El estado muestra el último intento de programación. El permiso y las alarmas exactas también dependen de Android; usa Diagnóstico si los avisos no llegan o se retrasan.</p>
+          <div class="flex flex-wrap gap-2">${pill('Revisar permisos y programar', 'refreshNotificationStatus()', true)}${NATIVE ? pill('Probar aviso en 5 s', 'testNotification()', false) : ''}</div>`) +
         card('🎨 Apariencia', row('Tema', pill(appState.theme === 'dark' ? 'Oscuro · cambiar a claro' : 'Claro · cambiar a oscuro', 'toggleTheme()', false))) +
         card('💾 Datos y dinero', `
           ${row('Respaldo de datos', pill('Abrir', 'openBackupModal()', false))}
@@ -2600,7 +2747,15 @@
       'Lo que estudias hoy es la tranquilidad de tu examen.',
       'Empieza aunque sea con diez minutos; lo difícil es arrancar.',
       'Cada tarea terminada es una preocupación menos.',
-      'Tu esfuerzo de hoy está construyendo a la persona que quieres ser.'
+      'Tu esfuerzo de hoy está construyendo a la persona que quieres ser.',
+      'No midas el día por todo lo que falta, sino por el primer paso que diste.',
+      'Una pausa a tiempo también es una forma de cuidarte.',
+      'No necesitas tener todas las respuestas para empezar.',
+      'Pedir ayuda cuando hace falta también es avanzar.',
+      'Tu ritmo puede ser distinto y seguir llevándote hacia adelante.',
+      'Haz lo posible con calma; mañana podrás continuar.',
+      'Un error no borra todo lo que ya aprendiste.',
+      'Celebra los avances pequeños: también cuentan.'
     ];
     const WORD_VERSOS = [
       { t: 'Todo lo puedo en Cristo que me fortalece.', r: 'Filipenses 4:13' },
@@ -2610,8 +2765,43 @@
       { t: 'Encomienda a Jehová tus obras, y tus pensamientos serán afirmados.', r: 'Proverbios 16:3' },
       { t: 'Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.', r: 'Mateo 6:33' },
       { t: 'No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo.', r: 'Isaías 41:10' },
-      { t: 'Esfuérzate y sé valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo.', r: 'Josué 1:9' }
+      { t: 'Esfuérzate y sé valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo.', r: 'Josué 1:9' },
+      { t: 'Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones.', r: 'Salmo 46:1 · RVR 1909' },
+      { t: 'Mi socorro viene de Jehová, que hizo los cielos y la tierra.', r: 'Salmo 121:2 · RVR 1909' },
+      { t: 'En paz me acostaré, y asimismo dormiré; porque solo tú, Jehová, me harás estar confiado.', r: 'Salmo 4:8 · RVR 1909' },
+      { t: 'Espera en Jehová, y haz bien; vivirás en la tierra, y en verdad serás alimentado.', r: 'Salmo 37:3 · RVR 1909' },
+      { t: 'Gustad, y ved que es bueno Jehová: dichoso el hombre que confiará en él.', r: 'Salmo 34:8 · RVR 1909' },
+      { t: 'Cercano está Jehová a los quebrantados de corazón; y salvará a los contritos de espíritu.', r: 'Salmo 34:18 · RVR 1909' },
+      { t: 'Esforzaos todos vosotros los que esperáis en Jehová, y tome vuestro corazón aliento.', r: 'Salmo 31:24 · RVR 1909' },
+      { t: 'Jehová guardará tu salida y tu entrada, desde ahora y para siempre.', r: 'Salmo 121:8 · RVR 1909' },
+      { t: 'Cuando cayere, no quedará postrado; porque Jehová sostiene su mano.', r: 'Salmo 37:24 · RVR 1909' },
+      { t: 'Jehová de los ejércitos es con nosotros; nuestro refugio es el Dios de Jacob.', r: 'Salmo 46:7 · RVR 1909' }
     ];
+    const WORD_CHISTES = [
+      '¿Qué hace una abeja en el gimnasio? ¡Zum-ba!',
+      '¿Qué le dijo el cero al ocho? ¡Bonito cinturón!',
+      '¿Qué hace un pez? ¡Nada!',
+      '¿Qué le dice una pared a otra? Nos vemos en la esquina.',
+      '¿Por qué estaba triste el libro de matemáticas? Tenía muchos problemas.',
+      '¿Qué hace una computadora cuando tiene frío? Cierra Windows.',
+      '¿Cómo se despiden los químicos? ¡Ácido un placer!',
+      '¿Cuál es el colmo de un jardinero? Que siempre lo dejen plantado.',
+      '¿Qué le dijo una iguana a su hermana gemela? Somos iguanitas.',
+      '¿Qué hace una vaca cuando sale el sol? ¡Sombra!',
+      '¿Qué le dice una taza a otra? ¿Qué taza haciendo?',
+      '¿Cuál es el animal más antiguo? La cebra, porque está en blanco y negro.',
+      '¿Qué le dijo el semáforo al carro? No me mires, me estoy cambiando.',
+      '¿Por qué el lápiz estaba contento? Porque tenía buena punta.',
+      '¿Qué le dijo una escoba a otra? ¡Vamos barriendo!'
+    ];
+    function dailyJoke(date = getIsoDateOffset(0)) {
+      const seed = String(date).replace(/\D/g, '').split('').reduce((a, b) => a + Number(b), 0);
+      return WORD_CHISTES[seed % WORD_CHISTES.length];
+    }
+    function toggleDailyJoke() {
+      const el = document.getElementById('homeJokeText');
+      if (el) el.classList.toggle('hidden');
+    }
     const WORD_ESTUDIO = [
       'Hoy toca estudiar: un bloque a la vez y sin distracciones.',
       'Quien estudia con constancia no necesita suerte.',
@@ -2653,6 +2843,7 @@
           ${study ? `<p class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">📚 Hoy toca: ${escapeHtml(study.title)}</p>` : ''}
           <p class="text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-100">${w.text}</p>
           ${w.ref ? `<p class="text-xs font-bold text-indigo-600 dark:text-indigo-300 mt-1.5">${w.ref}</p>` : ''}
+          <div class="mt-3 border-t border-indigo-100/80 dark:border-indigo-800/50 pt-2.5"><button onclick="toggleDailyJoke()" class="text-[11px] font-extrabold text-indigo-700 dark:text-indigo-300">😄 Cuéntame un chiste</button><p id="homeJokeText" class="hidden mt-2 rounded-2xl bg-white/70 dark:bg-slate-900/40 p-3 text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-200">${escapeHtml(dailyJoke())}</p></div>
         </div>`;
     }
     function renderAlerts() {
@@ -2670,6 +2861,10 @@
       });
       const hoy = appState.tasks.filter(t => !t.done && t.date === today);
       if (hoy.length) rows.push({ hot: false, text: `⏳ Hoy te faltan ${hoy.length} ${hoy.length === 1 ? 'tarea' : 'tareas'}: ${hoy[0].title}${hoy.length > 1 ? '…' : ''}` });
+      appState.debts.filter(d => d.type === 'debo' && !d.paid && /^\d{4}-\d{2}-\d{2}$/.test(String(d.dueDate || ''))).forEach(d => {
+        const days = Math.round((new Date(d.dueDate + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
+        if (days >= 0 && days <= 3) rows.push({ hot: days <= 1, text: days === 0 ? `💳 Hoy vence el pago a ${d.person}` : days === 1 ? `💳 Mañana debes pagar a ${d.person}` : `💳 En ${days} días debes pagar a ${d.person}` });
+      });
       el.innerHTML = rows.length ? `
         <div class="rounded-3xl p-4 bg-white dark:bg-[#151C2C] border border-amber-200 dark:border-amber-800/60 shadow-card">
           <div class="text-xs font-extrabold text-amber-700 dark:text-amber-300 mb-2">🔔 Avisos</div>
@@ -2957,22 +3152,31 @@
     }
     function importBackup() {
       try {
-        const o = JSON.parse(document.getElementById('backupText').value.trim());
+        const rawText = document.getElementById('backupText').value.trim();
+        if (!rawText || rawText.length > 10 * 1024 * 1024) throw new Error('size');
+        const o = JSON.parse(rawText);
         if (!o || typeof o !== 'object' || Array.isArray(o) || !Array.isArray(o.tasks) || !Array.isArray(o.transactions)) throw new Error('bad');
+        if (o.tasks.length > 50000 || o.transactions.length > 100000) throw new Error('size');
         const arrayFields = ['subjects','goals','personalGoals','debts','habits','routines','studyLog','memories','chat','actionLog'];
         if (arrayFields.some(k => Object.prototype.hasOwnProperty.call(o, k) && !Array.isArray(o[k]))) throw new Error('bad');
         if (o.tasks.some(t => !t || typeof t !== 'object' || typeof t.title !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(String(t.date || '')))) throw new Error('bad');
-        if (o.transactions.some(t => !t || typeof t !== 'object' || !(Number(t.amount) > 0) || !['USD','VES'].includes(t.currency) || !['ingreso','gasto'].includes(t.type))) throw new Error('bad');
-        if (!confirm('Esto reemplazará los datos actuales de ALMA. Antes de continuar, exporta un respaldo de tus datos actuales. ¿Quieres restaurar este archivo?')) return;
+        if (o.transactions.some(t => !t || typeof t !== 'object' || !(Number(t.amount) > 0) || !Number.isFinite(Number(t.amount)) || !['USD','VES'].includes(t.currency) || !['ingreso','gasto'].includes(t.type))) throw new Error('bad');
+        if (o.schemaVersion !== undefined && (!Number.isInteger(Number(o.schemaVersion)) || Number(o.schemaVersion) < 1 || Number(o.schemaVersion) > 3)) throw new Error('bad');
+        if (!confirm('ALMA guardará una copia previa local antes de restaurar. Confirma que también descargaste y comprobaste tu respaldo actual. ¿Quieres continuar?')) return;
+        const previousState = appState;
+        const preRestore = JSON.stringify(getPersistableState());
+        const preKey = 'alma_pre_restore_backup_v3';
+        try { window.localStorage.setItem(preKey, preRestore); if (window.localStorage.getItem(preKey) !== preRestore) throw new Error('snapshot'); }
+        catch (e) { throw new Error('snapshot'); }
         const localApiKeys = { customApiKey: appState.customApiKey || '', groqApiKey: appState.groqApiKey || '', openRouterApiKey: appState.openRouterApiKey || '', elevenLabsProxyToken: appState.elevenLabsProxyToken || '' };
         const preservedMemories = o.memoriesExcluded === true || !Object.prototype.hasOwnProperty.call(o, 'memories') ? (appState.memories || []) : (Array.isArray(o.memories) ? o.memories : []);
-        const safeBackup = { ...o, memories: preservedMemories, ...localApiKeys };
-        delete safeBackup.memoriesExcluded;
-        appState = migrateLegacyHabits({ ...createDefaultState(), ...safeBackup }, Object.prototype.hasOwnProperty.call(o, 'routines'));
-        closeModal('modalBackup');
-        saveState();
-        showToast('Datos restaurados');
-      } catch (e) { showToast('Ese texto no es un respaldo válido'); }
+        const safeBackup = { ...o, memories: preservedMemories, ...localApiKeys, schemaVersion: 3 };
+        for (const secretField of ['customApiKey','groqApiKey','openRouterApiKey','elevenLabsProxyToken']) delete safeBackup[secretField];
+        appState = migrateLegacyHabits({ ...createDefaultState(), ...safeBackup, ...localApiKeys }, Object.prototype.hasOwnProperty.call(o, 'routines'));
+        if (!safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()))) { appState = previousState; renderAll(); throw new Error('save'); }
+        closeModal('modalBackup'); renderAll(); scheduleNotifSoon();
+        showToast('Datos restaurados; copia previa guardada en este dispositivo');
+      } catch (e) { showToast(e.message === 'snapshot' ? 'No restauré los datos: no pude verificar la copia previa local.' : e.message === 'size' ? 'El respaldo supera el tamaño permitido.' : 'Ese texto no es un respaldo válido o no se pudo guardar. Tus datos previos siguen protegidos.'); }
     }
 
     function renderHome() {
@@ -2999,6 +3203,14 @@
       document.getElementById('bentoRoutinePct').textContent = `${routineToday.percent || (routineToday.total ? Math.round(routineToday.done * 100 / routineToday.total) : 0)}%`;
       document.getElementById('bentoRoutineSub').textContent = `${routineToday.done} de ${routineToday.total} pasos`;
       document.getElementById('bentoStreakBadge').textContent = `🔥 ${typeof routineCurrentStreak === 'function' ? routineCurrentStreak() : appState.streakDays}d`;
+      const studyMinutesToday = (appState.studyLog || []).filter(x => x.date === today).reduce((sum, x) => sum + (Number(x.minutes) || 0), 0);
+      const upcomingExams = appState.tasks.filter(t => !t.done && (t.exam || (t.title || '').startsWith('📝')) && t.date >= today).length;
+      document.getElementById('bentoStudyValue').textContent = studyMinutesToday ? fmtMin(studyMinutesToday) : '0 min';
+      document.getElementById('bentoStudySub').textContent = upcomingExams ? `${upcomingExams} evaluación${upcomingExams === 1 ? '' : 'es'} pendiente${upcomingExams === 1 ? '' : 's'}` : `${(appState.subjects || []).length} materias registradas`;
+      const monthlyBudget = Number.isFinite(Number(appState.monthlyBudget)) ? Number(appState.monthlyBudget) : 250;
+      const budgetLeft = monthlyBudget - fin.monthExpenseUsd;
+      document.getElementById('bentoBudgetValue').textContent = `${budgetLeft < 0 ? '−' : ''}$${Math.abs(budgetLeft).toFixed(0)}`;
+      document.getElementById('bentoBudgetSub').textContent = budgetLeft < 0 ? `Excediste el límite de $${monthlyBudget.toFixed(0)}` : `De $${monthlyBudget.toFixed(0)} · gastado $${fin.monthExpenseUsd.toFixed(0)}`;
       // Today's Tasks
       const listEl = document.getElementById('homeTodayList');
       if (todayTasks.length === 0) {
@@ -3318,9 +3530,10 @@
 
       // Budget & Goals
       const limit = appState.monthlyBudget || 250;
-      const bPct = Math.min(100, Math.round((fin.expenseUsdEquiv / limit) * 100));
-      const remaining = limit - fin.expenseUsdEquiv;
-      document.getElementById('budgetSpentBig').textContent = `$${fin.expenseUsdEquiv.toFixed(2)}`;
+      const monthlySpent = fin.monthExpenseUsd;
+      const bPct = Math.min(100, Math.round((monthlySpent / limit) * 100));
+      const remaining = limit - monthlySpent;
+      document.getElementById('budgetSpentBig').textContent = `$${monthlySpent.toFixed(2)}`;
       document.getElementById('budgetLimitBig').textContent = `$${limit.toFixed(2)}`;
       document.getElementById('budgetMainBar').style.width = `${bPct}%`;
       document.getElementById('budgetMainBar').className = bPct >= 90
@@ -3371,6 +3584,8 @@
         debtsEl.innerHTML = appState.debts.map(d => {
           const isOwedToMe = d.type === 'me_deben';
           const symbol = d.currency === 'USD' ? '$' : 'Bs ';
+          const validDueDate = /^\d{4}-\d{2}-\d{2}$/.test(String(d.dueDate || ''));
+          const dueDateLabel = validDueDate ? `${d.dueDate.slice(8, 10)}/${d.dueDate.slice(5, 7)}/${d.dueDate.slice(0, 4)}` : '';
           return `
             <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-100 dark:border-slate-800/80 gap-2">
               <div class="min-w-0">
@@ -3384,8 +3599,10 @@
                 }">
                   ${isOwedToMe ? 'Me debe' : 'Le debo'}: ${symbol}${Number(d.amount).toFixed(2)}
                 </span>
+                ${validDueDate ? `<div class="mt-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400">${isOwedToMe ? 'Fecha acordada' : 'Pagar antes de'}: ${dueDateLabel}${!isOwedToMe && !d.paid ? ' · aviso el día anterior' : ''}</div>` : ''}
               </div>
               <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button aria-label="Añadir o cambiar fecha de vencimiento" title="Fecha de vencimiento" onclick="openDebtDueDateModal(${Number(d.id)})" class="grid h-8 w-8 place-items-center rounded-xl bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300">📅</button>
                 <button onclick="toggleDebtPaid(${d.id})" class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold ${
                   d.paid
                     ? 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
@@ -3933,6 +4150,7 @@
           `;
         }
 
+        const sourcesHtml = (m.sources || []).filter(source => source && typeof source.url === 'string' && /^https:\/\//i.test(source.url)).slice(0, 8).map(source => `<a class="mt-1 block break-all text-[10px] font-semibold text-indigo-600 underline dark:text-indigo-300" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title || 'Fuente web')}</a>`).join('');
         const actionsHtml = (m.actions || []).map((act, aIdx) => {
           if (act.status === 'pending_confirm') {
             const needsPrivateConsent = act.raw && act.raw.tipo === 'guardar_recuerdo' && isSensitiveMemoryText(act.raw.texto);
@@ -3961,6 +4179,7 @@
             <div class="max-w-[92%] px-4 py-3 rounded-3xl rounded-bl-md bg-slate-100 dark:bg-[#0B1120] border border-slate-200/70 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-xs leading-relaxed">
               <div>${escapeHtml(m.text)}</div>
               ${actionsHtml}
+              ${sourcesHtml ? `<div class="mt-2 border-t border-slate-200 pt-2 dark:border-slate-700"><div class="text-[10px] font-extrabold text-slate-500">Fuentes consultadas</div>${sourcesHtml}</div>` : ''}
               ${m.createdAt ? `<div class="mt-1.5 text-[9px] font-medium text-slate-400">${escapeHtml(formatChatTimestamp(m.createdAt))}</div>` : ''}
             </div>
           </div>
@@ -4819,7 +5038,7 @@
         const m = lower.match(/(\d+(?:[.,]\d+)?)/);
         const askUsd = m ? parseFloat(m[1].replace(',', '.')) : 0;
         const canAfford = fin.totalCombinedUsd >= askUsd;
-        const budgetLeft = (appState.monthlyBudget || 250) - fin.expenseUsdEquiv;
+        const budgetLeft = (appState.monthlyBudget || 250) - fin.monthExpenseUsd;
         return {
           respuesta: canAfford
             ? `Sí, puedes gastar $${askUsd.toFixed(2)}. Actualmente tienes $${fin.totalCombinedUsd.toFixed(2)} disponibles (≈ ${fin.totalCombinedVes.toFixed(2)} Bs) y te quedan $${Math.max(0, budgetLeft).toFixed(2)} de tu presupuesto mensual.`
@@ -4830,9 +5049,9 @@
 
       if (/cu[aá]nto dinero|cu[aá]nto tengo|mi dinero|mi balance|mi saldo|mi capital|capital actual|cu[aá]nto me queda|presupuesto|c[oó]mo van mis finanzas/.test(lower)) {
         if (!appState.capitalBase && /cu[aá]nto dinero|cu[aá]nto tengo|mi dinero|mi balance|mi saldo|mi capital|capital actual|cu[aá]nto me queda/.test(lower)) return { respuesta: 'Aún no tengo tu capital disponible de partida. Ve a Finanzas → Capital actual y registra cuánto tienes en dólares o bolívares; luego podré decirte cuánto te queda tras cada movimiento.', acciones: [] };
-        const budgetLeft = (appState.monthlyBudget || 250) - fin.expenseUsdEquiv;
+        const budgetLeft = (appState.monthlyBudget || 250) - fin.monthExpenseUsd;
         return {
-          respuesta: `Resumen de tus finanzas actuales:\n• Balance disponible: $${fin.totalCombinedUsd.toFixed(2)} (≈ ${fin.totalCombinedVes.toFixed(2)} Bs a tasa ${fin.rate.toFixed(2)})\n• Ingresos del mes: +$${fin.incomeUsdEquiv.toFixed(2)}\n• Gastos del mes: -$${fin.expenseUsdEquiv.toFixed(2)}\n• Presupuesto restante: $${budgetLeft.toFixed(2)} de $${appState.monthlyBudget.toFixed(2)}`,
+          respuesta: `Resumen de tus finanzas actuales:\n• Balance disponible: $${fin.totalCombinedUsd.toFixed(2)} (≈ ${fin.totalCombinedVes.toFixed(2)} Bs a tasa ${fin.rate.toFixed(2)})\n• Ingresos del mes: +$${fin.monthIncomeUsd.toFixed(2)}\n• Gastos del mes: -$${fin.monthExpenseUsd.toFixed(2)}\n• Presupuesto restante: $${budgetLeft.toFixed(2)} de $${appState.monthlyBudget.toFixed(2)}`,
           acciones: []
         };
       }
@@ -4991,7 +5210,7 @@
     // -------------------------------------------------------------------------
     // GEMINI CLOUD CALL (WITH INSTANT FALLBACK TO LOCAL ENGINE)
     // -------------------------------------------------------------------------
-    async function geminiRequest(parts) {
+    async function geminiRequest(parts, options = {}) {
       const key = appState.customApiKey;
       let lastErr = 'sin respuesta', lastStatus = 0, busy = false, quota = false;
       const t0 = Date.now();
@@ -5004,9 +5223,11 @@
           const ctrl = new AbortController();
           const to = setTimeout(() => ctrl.abort(), 15000);
           try {
+            const requestBody = { contents: [{ parts }], generationConfig: { responseMimeType: 'application/json' } };
+            if (options.googleSearch) { requestBody.tools = [{ google_search: {} }]; delete requestBody.generationConfig.responseMimeType; }
             resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', {
               method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, signal: ctrl.signal,
-              body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: 'application/json' } })
+              body: JSON.stringify(requestBody)
             });
           } catch (e) { clearTimeout(to); if (e && e.name === 'AbortError') { lastErr = 'Gemini tardó demasiado en responder'; break; } throw new Error('no hay conexión con Gemini, revisa tu internet'); }
           clearTimeout(to);
@@ -5014,7 +5235,12 @@
           if (resp.ok) {
             const c = data.candidates && data.candidates[0] && data.candidates[0].content;
             const t = c && c.parts && c.parts[0] && c.parts[0].text;
-            if (t) return t;
+            if (t) {
+              if (!options.googleSearch) return t;
+              const gm = data.candidates[0].groundingMetadata || {};
+              const sources = (gm.groundingChunks || []).map(chunk => chunk.web).filter(web => web && typeof web.uri === 'string' && /^https:\/\//i.test(web.uri)).map(web => ({ title: String(web.title || 'Fuente web').slice(0, 160), url: web.uri })).slice(0, 8);
+              return { text: t, sources };
+            }
             lastErr = 'Gemini respondió vacío';
             break;
           }
@@ -5174,7 +5400,7 @@
           balance_usd: Number(fin.totalCombinedUsd.toFixed(2)),
           balance_bs: Number(fin.totalCombinedVes.toFixed(2)),
           ingresos_mes_usd: Number(fin.incomeUsdEquiv.toFixed(2)),
-          gastos_mes_usd: Number(fin.expenseUsdEquiv.toFixed(2)),
+          gastos_mes_usd: Number(fin.monthExpenseUsd.toFixed(2)),
           presupuesto_mensual_usd: appState.monthlyBudget,
           deudas_activas: (appState.debts || []).filter(d => !d.paid),
           metas_ahorro: appState.goals || [],
@@ -5206,11 +5432,13 @@
       return snapshot;
     }
 
-    async function callGeminiCloud(userMessage, sectionHint) {
+    async function callGeminiCloud(userMessage, sectionHint, useWebSearch = false) {
       window._aiErr = '';
+      if (useWebSearch && !appState.customApiKey) { window._aiErr = 'Para búsqueda web necesitas configurar Gemini en Ajustes.'; return null; }
       if (isSensitiveMemoryText(userMessage)) return null;
       let sample = null;
       try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
+      if (useWebSearch) sample = null;
       if (!sample && !hasAnyCloudAiKey()) return null;
       const snapshot = buildAiContextSnapshot(userMessage, sectionHint);
       if (window._voiceLoop) snapshot.instruccion_de_contexto += ' En conversación por voz, responde normalmente en una a tres frases, evita listas largas y ofrece ampliar si la persona lo pide.';
@@ -5232,6 +5460,7 @@ ${JSON.stringify(snapshot)}
 
 MENSAJE DEL USUARIO:
 ${userMessage}`;
+      const requestPrompt = useWebSearch ? prompt + '\n\nBÚSQUEDA WEB ACTIVADA POR EL USUARIO: consulta Google Search Grounding para responder con información actual. No inventes enlaces ni atribuciones; las fuentes verificadas que devuelva Google se añadirán por separado.' : prompt;
       const image = window._pendingImage;
       window._pendingImage = null;
       const failures = [];
@@ -5243,11 +5472,15 @@ ${userMessage}`;
       };
       if (appState.customApiKey) {
         try {
-          const parts = [{ text: prompt }];
+          const parts = [{ text: requestPrompt }];
           if (image) parts.push({ inline_data: { mime_type: 'image/jpeg', data: image } });
-          return accept(await geminiRequest(parts), 'Gemini');
+          const response = await geminiRequest(parts, { googleSearch: useWebSearch });
+          const result = accept(typeof response === 'string' ? response : response.text, 'Gemini');
+          if (useWebSearch && response && Array.isArray(response.sources)) result._almaSources = response.sources;
+          return result;
         } catch (e) { failures.push('Gemini: ' + (e && e.message || 'error')); }
       }
+      if (useWebSearch) { window._aiErr = failures.join(' · ') || 'No se pudo usar Google Search Grounding.'; return null; }
       // The free Groq/OpenRouter fallback models are text-only here. Never forward an image to them.
       if (image) {
         window._aiErr = failures.join(' · ') || 'Para analizar fotos, configura una clave Gemini; los respaldos actuales de Groq y OpenRouter son solo para texto.';
@@ -5271,12 +5504,26 @@ ${userMessage}`;
       return null;
     }
 
+    let almaWebSearchEnabled = false;
+    function toggleWebSearch() {
+      almaWebSearchEnabled = !almaWebSearchEnabled;
+      const button = document.getElementById('webSearchToggle');
+      if (button) {
+        button.setAttribute('aria-pressed', String(almaWebSearchEnabled));
+        button.textContent = almaWebSearchEnabled ? '🌐 Buscar en Internet: sí' : '🌐 Buscar en Internet: no';
+        button.className = almaWebSearchEnabled ? 'rounded-full border border-indigo-300 bg-indigo-50 px-3 py-1.5 text-[11px] font-bold text-indigo-700 dark:border-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-200' : 'rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 dark:border-slate-700 dark:bg-[#151C2C] dark:text-slate-300';
+      }
+    }
     async function handleSendChat(contextualSection) {
       const inp = document.getElementById('aiChatInput');
       const btn = document.getElementById('aiSendBtn');
       const orb = document.getElementById('aiOrbContainer');
       const text = inp.value.trim();
       if (!text) return;
+      const useWebSearch = almaWebSearchEnabled;
+      almaWebSearchEnabled = false;
+      const webButton = document.getElementById('webSearchToggle');
+      if (webButton) { webButton.setAttribute('aria-pressed', 'false'); webButton.textContent = '🌐 Buscar en Internet: no'; webButton.className = 'rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 dark:border-slate-700 dark:bg-[#151C2C] dark:text-slate-300'; }
       const memoryCommand = parseMemoryCommand(text);
       const savedMemoryAnswer = memoryCommand ? null : answerFromSavedMemories(text);
       const memoryAnswer = memoryCommand || savedMemoryAnswer ? null : answerFromChatMemory(text);
@@ -5308,6 +5555,9 @@ ${userMessage}`;
         aiResult = { respuesta: `Ahora mismo estamos en ${currentSectionName}. Puedes seguir hablándome mientras usas esta pantalla.`, acciones: [] };
       } else if (isSensitiveMemoryText(text)) {
         aiResult = { respuesta: 'Para cuidar tu privacidad, no envié este mensaje a ningún proveedor de nube porque parece incluir un dato sensible. No hice cambios en la app; puedes reformularlo sin ese dato si quieres continuar.', acciones: [] };
+      } else if (useWebSearch) {
+        aiResult = await callGeminiCloud(text, currentSectionKey, true);
+        if (!aiResult) aiResult = { respuesta: 'No pude completar la búsqueda web. No recurrí a otra IA ni afirmo haber buscado. Revisa tu clave de Gemini y la conexión, e inténtalo cuando quieras.', acciones: [] };
       } else {
         // Gemini handles general conversation; the local engine is reserved for app-related requests.
         aiResult = await callGeminiCloud(text, currentSectionKey);
@@ -5362,6 +5612,7 @@ ${userMessage}`;
         role: 'ai',
         text: [aiResult.respuesta || '¡Listo!', ...actionNotes].join('\n\n'),
         actions: processedActions,
+        sources: Array.isArray(aiResult._almaSources) ? aiResult._almaSources : [],
         createdAt: Date.now()
       });
 
@@ -5397,12 +5648,19 @@ ${userMessage}`;
       if (activeTab === 'ajustes') renderSettings();
     }
 
-    applyTheme();
-    const recurringTasksAddedAtStartup = generateRecurringTaskOccurrences();
-    if (recurringTasksAddedAtStartup) safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
-    renderAll();
+    async function initializeAlma() {
+      await restoreRuntimeSecrets();
+      applyTheme();
+      const recurringTasksAddedAtStartup = generateRecurringTaskOccurrences();
+      if (recurringTasksAddedAtStartup) safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
+      renderAll();
+      const homeView = document.getElementById('view-inicio');
+      if (homeView) { homeView.classList.add('alma-start-in'); setTimeout(() => homeView.classList.remove('alma-start-in'), 700); }
+    }
+    window.addEventListener('load', () => initializeAlma().catch(e => { renderAll(); showToast('ALMA inició con una advertencia de almacenamiento protegido.'); }));
   </script>
   <!-- Se genera en el workflow Android; en navegador web este archivo puede no existir. -->
   <script src="./plugins.js"></script>
+  <script src="./secure-storage.js"></script>
 </body>
 </html>
