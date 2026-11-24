@@ -326,6 +326,11 @@
           <button onclick="toggleVoiceReplies()" aria-label="Voz" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0B1120] text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🔊</button>
           <button onclick="openMemoryModal()" aria-label="Mis recuerdos" title="Mis recuerdos" class="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-950/50 text-base flex items-center justify-center active:scale-95 transition flex-shrink-0">🧠</button>
         </div>
+        <div class="flex items-center gap-2 px-4 py-2 border-b border-slate-200/70 dark:border-slate-800/80 overflow-x-auto no-scrollbar">
+          <button onclick="newChat()" class="flex-shrink-0 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-[#0B1120] text-xs font-bold text-slate-700 dark:text-slate-200 active:scale-95 transition">＋ Nuevo chat</button>
+          <button onclick="openChatsModal()" class="flex-shrink-0 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-[#0B1120] text-xs font-bold text-slate-700 dark:text-slate-200 active:scale-95 transition">🕘 Chats anteriores</button>
+          <button onclick="deleteCurrentChat()" class="flex-shrink-0 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-[#0B1120] text-xs font-bold text-slate-700 dark:text-slate-200 active:scale-95 transition">🗑 Borrar este chat</button>
+        </div>
         <div id="aiChatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
         <div class="px-3 pt-2 pb-3 border-t border-slate-200/70 dark:border-slate-800/80 bg-white/90 dark:bg-[#111827]/95">
           <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
@@ -435,6 +440,12 @@
           <span class="text-[10px] font-bold">Agenda</span>
         </button>
 
+        <!-- Tab 4: Materias -->
+        <button id="nav-materias" onclick="switchTab('materias')" aria-label="Materias" class="flex min-w-0 flex-col items-center justify-center py-1 text-slate-400 dark:text-slate-500 transition">
+          <svg class="mb-0.5 h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path><path d="M8 7h8M8 11h7"></path></svg>
+          <span class="whitespace-nowrap text-[9px] font-bold">Materias</span>
+        </button>
+
         <!-- Tab 3: Central Elevated Glowing IA Button -->
         <div class="flex flex-col items-center justify-center">
           <button id="nav-ia" onclick="switchTab('ia')" aria-label="Asistente IA" class="-mt-7 w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-600 via-blue-500 to-cyan-400 text-white shadow-orb flex items-center justify-center ring-4 ring-[#F6F8FC] dark:ring-[#0B1120] active:scale-90 transition">
@@ -442,12 +453,6 @@
           </button>
           <span id="nav-ia-label" class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 mt-0.5">ALMA</span>
         </div>
-
-        <!-- Tab 4: Materias -->
-        <button id="nav-materias" onclick="switchTab('materias')" aria-label="Materias" class="flex min-w-0 flex-col items-center justify-center py-1 text-slate-400 dark:text-slate-500 transition">
-          <svg class="mb-0.5 h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path><path d="M8 7h8M8 11h7"></path></svg>
-          <span class="whitespace-nowrap text-[9px] font-bold">Materias</span>
-        </button>
 
         <!-- Tab 5: Finanzas -->
         <button id="nav-finanzas" onclick="switchTab('finanzas')" class="flex min-w-0 flex-col items-center justify-center py-1 text-slate-400 dark:text-slate-500 transition">
@@ -512,6 +517,16 @@
         <button id="almaVoiceToggle" onclick="toggleAlmaVoice()" aria-label="Activar a ALMA" title="Hablar con ALMA" class="grid h-14 w-14 flex-shrink-0 place-items-center rounded-full bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 text-white shadow-xl ring-4 ring-white/80 transition active:scale-90 dark:ring-[#0B1120]">
           <svg id="almaVoiceMicIcon" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"></path></svg>
         </button>
+      </div>
+    </div>
+
+    <div id="modalChats" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+      <div class="w-full max-w-md max-h-[80vh] overflow-y-auto bg-white dark:bg-[#151C2C] rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Chats anteriores</h3>
+          <button onclick="closeModal('modalChats')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">✕</button>
+        </div>
+        <div id="chatsList" class="space-y-2"></div>
       </div>
     </div>
 
@@ -824,6 +839,9 @@
       const persisted = { ...appState };
       // API secrets must never be written into the app's durable local database.
       delete persisted.customApiKey;
+      delete persisted.groqApiKey;
+      delete persisted.openRouterApiKey;
+      delete persisted.elevenLabsProxyToken;
       persisted.chat = (appState.chat || []).filter(m => !m.isTemp).map(m => {
         const copy = { ...m };
         const pendingSensitive = (m.actions || []).some(a => a.status === 'pending_confirm' && a.raw && a.raw.tipo === 'guardar_recuerdo' && isSensitiveMemoryText(a.raw.texto));
@@ -885,9 +903,15 @@
         ttsVoiceURI: '',
         geminiTtsEnabled: false,
         geminiTtsVoice: 'Sulafat',
+        elevenLabsTtsEnabled: false,
+        elevenLabsVoiceId: 'cgSgspJ2msm6clMCkdW9',
+        elevenLabsProxyUrl: '',
+        elevenLabsProxyToken: '',
         studyLog: [],
         rateUpdated: '',
         customApiKey: '',
+        groqApiKey: '',
+        openRouterApiKey: '',
         exchangeRate: 45.00,
         monthlyBudget: 250.00,
         tasks: [],
@@ -906,6 +930,7 @@
           { role: 'ai', text: '¡Hola! Soy ALMA. Estoy aquí para ayudarte con tu agenda, tus finanzas, tus rutinas y tus estudios. Puedes pedirme que consulte tus datos o que te ayude a organizarlos.', actions: [] }
         ],
         memories: [],
+        chatArchive: [],
         actionLog: []
       };
     }
@@ -955,15 +980,42 @@
       }
       return createDefaultState();
     })();
-    // Keep the Gemini key only for this browser tab/session. Older versions may
-    // have stored it in localStorage; it is deliberately not reloaded from there.
-    try { appState.customApiKey = sessionStorage.getItem('alma_gemini_key_session') || ''; } catch (e) { appState.customApiKey = ''; }
-    function setRuntimeApiKey(value) {
-      appState.customApiKey = String(value || '').trim();
+    // Provider keys stay in sessionStorage, never in ALMA's durable data or backups.
+    const RUNTIME_AI_KEYS = {
+      gemini: { field: 'customApiKey', storage: 'alma_gemini_key_session' },
+      groq: { field: 'groqApiKey', storage: 'alma_groq_key_session' },
+      openrouter: { field: 'openRouterApiKey', storage: 'alma_openrouter_key_session' }
+    };
+    try {
+      appState.customApiKey = sessionStorage.getItem(RUNTIME_AI_KEYS.gemini.storage) || '';
+      appState.groqApiKey = sessionStorage.getItem(RUNTIME_AI_KEYS.groq.storage) || '';
+      appState.openRouterApiKey = sessionStorage.getItem(RUNTIME_AI_KEYS.openrouter.storage) || '';
+      appState.elevenLabsProxyToken = sessionStorage.getItem('alma_elevenlabs_proxy_session') || '';
+    } catch (e) {
+      appState.customApiKey = '';
+      appState.groqApiKey = '';
+      appState.openRouterApiKey = '';
+      appState.elevenLabsProxyToken = '';
+    }
+    function setRuntimeProviderKey(provider, value) {
+      const config = RUNTIME_AI_KEYS[provider];
+      if (!config) return false;
+      const clean = String(value || '').trim();
+      appState[config.field] = clean;
       try {
-        if (appState.customApiKey) sessionStorage.setItem('alma_gemini_key_session', appState.customApiKey);
-        else sessionStorage.removeItem('alma_gemini_key_session');
-      } catch (e) { /* Key remains in memory until this page is closed. */ }
+        if (clean) sessionStorage.setItem(config.storage, clean);
+        else sessionStorage.removeItem(config.storage);
+      } catch (e) { /* The key remains in memory until this page is closed. */ }
+      return true;
+    }
+    function setRuntimeApiKey(value) { return setRuntimeProviderKey('gemini', value); }
+    function setRuntimeElevenLabsProxyToken(value) {
+      const clean = String(value || '').trim();
+      appState.elevenLabsProxyToken = clean;
+      try {
+        if (clean) sessionStorage.setItem('alma_elevenlabs_proxy_session', clean);
+        else sessionStorage.removeItem('alma_elevenlabs_proxy_session');
+      } catch (e) { /* The token remains in memory until this page is closed. */ }
     }
 
     let storageWarningShown = false;
@@ -1626,7 +1678,27 @@
     window.addEventListener('load', () => setTimeout(scheduleAllNotifications, 2500));
     document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleAllNotifications(); });
     let activeGeminiAudio = null, activeGeminiAudioUrl = null, activeGeminiController = null, activeGeminiAudioStop = null;
+    let activeElevenLabsController = null;
     const GEMINI_TTS_VOICES = { Sulafat: 'Cálida', Aoede: 'Suave', Achird: 'Amigable', Kore: 'Segura', Zephyr: 'Alegre', Charon: 'Serena' };
+    const ELEVENLABS_PREMADE_VOICES = {
+      cgSgspJ2msm6clMCkdW9: 'Jessica — cálida y conversacional',
+      EXAVITQu4vr4xnSDxMaL: 'Sarah — serena y segura',
+      hpp4J3VqNfWAUOO0d1Us: 'Bella — clara y cálida',
+      pFZP5JQG7iQjIQuC4Bku: 'Lily — suave y expresiva',
+      Xb7hH8MSUJpSbSDYk0k2: 'Alice — clara y didáctica',
+      XrExE9yKIg1WjnnlVkGX: 'Matilda — animada y profesional',
+      FGY2WhTYpPnrIDTdsKH5: 'Laura — vivaz y espontánea'
+    };
+    function pcmToWavBlob(pcm, rate) {
+      const buf = new ArrayBuffer(44 + pcm.length), v = new DataView(buf);
+      const w = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+      w(0, 'RIFF'); v.setUint32(4, 36 + pcm.length, true); w(8, 'WAVE'); w(12, 'fmt ');
+      v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+      v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+      w(36, 'data'); v.setUint32(40, pcm.length, true);
+      new Uint8Array(buf, 44).set(pcm);
+      return new Blob([buf], { type: 'audio/wav' });
+    }
     async function playGeminiTts(text, modelId = 'gemini-3.8-flash-tts') {
       const key = appState.customApiKey;
       if (!key) throw new Error('Guarda primero tu clave de Gemini en Ajustes.');
@@ -1642,10 +1714,7 @@
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
           signal: controller.signal,
           body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{
-              text,
-              speechMetadata: { style: 'Habla en español latinoamericano natural, con voz cálida, cercana y conversacional. Usa ritmo moderado, pausas naturales y pronunciación clara. Suena como una persona amable ayudando a alguien, no como locutor ni asistente robótico. Mantén una emoción sutil y auténtica.' }
-            }]}],
+            contents: [{ role: 'user', parts: [{ text: 'Dilo en español latinoamericano, con voz femenina cálida, natural y conversacional, con pausas naturales y sin sonar robótica: ' + text }]}],
             generationConfig: {
               responseModalities: ['AUDIO'],
               speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: appState.geminiTtsVoice || 'Sulafat' } } }
@@ -1670,7 +1739,8 @@
       const audioPart = parts.find(p => p.inlineData && p.inlineData.data);
       if (!audioPart) throw new Error('Gemini no devolvió audio.');
       const bytes = Uint8Array.from(atob(audioPart.inlineData.data), c => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: audioPart.inlineData.mimeType || 'audio/wav' });
+      const mt = String(audioPart.inlineData.mimeType || ''), rateM = mt.match(/rate=(\d+)/);
+      const blob = /wav|mpeg|mp3|ogg/i.test(mt) ? new Blob([bytes], { type: mt }) : pcmToWavBlob(bytes, rateM ? Number(rateM[1]) : 24000);
       if (activeGeminiAudio) { activeGeminiAudio.pause(); activeGeminiAudio = null; }
       if (activeGeminiAudioUrl) URL.revokeObjectURL(activeGeminiAudioUrl);
       activeGeminiAudioUrl = URL.createObjectURL(blob);
@@ -1690,9 +1760,74 @@
         if (activeGeminiAudioUrl === objectUrl) { URL.revokeObjectURL(objectUrl); activeGeminiAudioUrl = null; }
       }
     }
+    async function playElevenLabsTts(text) {
+      const configuredUrl = String(appState.elevenLabsProxyUrl || '').trim().replace(/\/+$/, '');
+      const baseUrl = configuredUrl || (!NATIVE && /^https?:$/.test(location.protocol) ? location.origin : '');
+      if (!baseUrl) throw new Error('Configura la URL HTTPS del servidor ElevenLabs en Ajustes.');
+      let endpoint;
+      try {
+        const parsed = new URL(baseUrl);
+        const localHttp = parsed.protocol === 'http:' && /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(parsed.hostname);
+        if (parsed.protocol !== 'https:' && !localHttp) throw new Error('Usa una URL HTTPS para el servidor ElevenLabs.');
+        if (parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) throw new Error('Escribe solo el origen HTTPS del servidor, sin credenciales ni rutas.');
+        endpoint = parsed.origin + '/api/elevenlabs/tts';
+      } catch (e) { throw new Error(e && e.message || 'La URL del servidor ElevenLabs no es válida.'); }
+      if (!navigator.onLine) throw new Error('No hay conexión a Internet.');
+      if (window._voiceLoop) setVoiceStatus('Preparando voz natural de ElevenLabs…', text);
+      const controller = new AbortController();
+      activeElevenLabsController = controller;
+      const timeout = setTimeout(() => controller.abort(), 35000);
+      let response;
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (appState.elevenLabsProxyToken) headers.Authorization = 'Bearer ' + appState.elevenLabsProxyToken;
+        response = await fetch(endpoint, {
+          method: 'POST', headers, signal: controller.signal, cache: 'no-store', credentials: 'omit',
+          body: JSON.stringify({ text, voiceId: appState.elevenLabsVoiceId || 'cgSgspJ2msm6clMCkdW9' })
+        });
+      } catch (e) {
+        if (e && e.name === 'AbortError') throw e;
+        throw new Error('No pude conectar con el servidor protegido de ElevenLabs.');
+      } finally {
+        clearTimeout(timeout);
+        if (activeElevenLabsController === controller) activeElevenLabsController = null;
+      }
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) throw new Error('Falta el token de acceso del servidor ElevenLabs o no es válido.');
+        throw new Error(String(data.error || 'El servidor ElevenLabs no pudo generar la voz.').slice(0, 180));
+      }
+      const blob = await response.blob();
+      if (!blob.size || !/^audio\//i.test(blob.type || '')) throw new Error('El servidor no devolvió un archivo de audio válido.');
+      if (activeGeminiAudio) { activeGeminiAudio.pause(); activeGeminiAudio = null; }
+      if (activeGeminiAudioUrl) URL.revokeObjectURL(activeGeminiAudioUrl);
+      const objectUrl = URL.createObjectURL(blob);
+      const audio = new Audio(objectUrl);
+      activeGeminiAudioUrl = objectUrl;
+      activeGeminiAudio = audio;
+      try {
+        await new Promise((resolve, reject) => {
+          activeGeminiAudioStop = resolve;
+          audio.onended = resolve;
+          audio.onerror = () => reject(new Error('El teléfono no pudo reproducir la voz de ElevenLabs.'));
+          audio.play().catch(reject);
+        });
+      } finally {
+        activeGeminiAudioStop = null;
+        if (activeGeminiAudio === audio) activeGeminiAudio = null;
+        if (activeGeminiAudioUrl === objectUrl) { URL.revokeObjectURL(objectUrl); activeGeminiAudioUrl = null; }
+      }
+    }
     async function speakAsync(text) {
       const clean = String(text || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').replace(/[•*_#]+/g, ' ').replace(/\n+/g, '. ').slice(0, 1200);
       if (!clean.trim()) return;
+      if (appState.elevenLabsTtsEnabled) {
+        try { await playElevenLabsTts(clean); return; }
+        catch (e) {
+          if (e && e.name === 'AbortError') return;
+          showToast('No pude generar voz con ElevenLabs; usaré el respaldo disponible.');
+        }
+      }
       if (appState.geminiTtsEnabled && appState.customApiKey) {
         let ttsError = null;
         for (const modelId of ['gemini-3.8-flash-lite-tts', 'gemini-3.8-flash-tts']) {
@@ -1743,6 +1878,7 @@
     }
     function stopSpeaking() {
       if (activeGeminiController) { try { activeGeminiController._userCancelled = true; activeGeminiController.abort(); } catch (e) {} activeGeminiController = null; }
+      if (activeElevenLabsController) { try { activeElevenLabsController.abort(); } catch (e) {} activeElevenLabsController = null; }
       if (activeGeminiAudioStop) { const stop = activeGeminiAudioStop; activeGeminiAudioStop = null; try { stop(); } catch (e) {} }
       if (activeGeminiAudio) { try { activeGeminiAudio.pause(); activeGeminiAudio.currentTime = 0; } catch (e) {} activeGeminiAudio = null; }
       if (activeGeminiAudioUrl) { URL.revokeObjectURL(activeGeminiAudioUrl); activeGeminiAudioUrl = null; }
@@ -1868,6 +2004,7 @@
       paintAlmaVoiceDock();
       if (!voiceRunning) runVoiceLoop();
     }
+    var voiceSession = [];
     async function runVoiceLoop() {
       if (voiceRunning || !voiceLoopOn) return;
       voiceRunning = true;
@@ -1904,11 +2041,19 @@
         const input = document.getElementById('aiChatInput');
         if (input) input.value = heard;
         const responseStartedAt = Date.now();
+        const voiceBase = appState.chat.length;
+        appState.chat.push(...voiceSession);
         await handleSendChat(voiceContextSection);
         const responseSeconds = (Date.now() - responseStartedAt) / 1000;
+        const addedMsgs = appState.chat.slice(voiceBase).filter(m => !m.isTemp);
+        const lastAi = [...addedMsgs].reverse().find(m => m.role === 'ai');
+        const reply = lastAi ? lastAi.text : '';
+        const needsConfirm = addedMsgs.some(m => (m.actions || []).some(a => a.status === 'pending_confirm'));
+        voiceSession = addedMsgs.slice(-12);
+        appState.chat = appState.chat.slice(0, voiceBase);
+        if (needsConfirm) appState.chat.push(...addedMsgs.slice(-2));
+        saveState();
         if (!voiceLoopOn) break;
-        const last = appState.chat[appState.chat.length - 1];
-        const reply = last && last.role === 'ai' ? last.text : '';
         setVoiceStatus('Respondiendo…', `ALMA preparó la respuesta en ${responseSeconds.toFixed(1)} s; ahora la está diciendo.`);
         const speechStartedAt = Date.now();
         await speakAsync(reply);
@@ -1980,9 +2125,20 @@
     }
     async function testGemini() {
       if (!appState.customApiKey) { showToast('Primero pega y guarda tu clave de Gemini'); return; }
-      showToast('Probando conexión…');
+      showToast('Probando conexión con Gemini…');
       try { await geminiRequest([{ text: 'Responde solo este JSON: {"ok":true}' }]); showToast('Gemini funciona ✓'); }
       catch (e) { showToast('Gemini falló: ' + e.message); }
+    }
+    async function testGroq() { await testOpenAiCompatibleProvider('groq'); }
+    async function testOpenRouter() { await testOpenAiCompatibleProvider('openrouter'); }
+    async function testOpenAiCompatibleProvider(provider) {
+      const config = AI_COMPATIBLE_PROVIDERS[provider];
+      if (!config || !appState[config.keyField]) { showToast(`Primero pega y guarda tu clave de ${config ? config.label : 'IA'}`); return; }
+      showToast(`Probando conexión con ${config.label}…`);
+      try {
+        await openAiCompatibleRequest(provider, 'Responde únicamente: OK');
+        showToast(`${config.label} funciona ✓`);
+      } catch (e) { showToast(`${config.label} falló: ${e.message}`); }
     }
     function toggleVoiceReplies() {
       appState.voiceReplies = !appState.voiceReplies;
@@ -2056,6 +2212,44 @@
       if (!appState.customApiKey) { showToast('Guarda primero tu clave de Gemini en Ajustes.'); return; }
       speakAsync('Hola, César. Qué gusto hablar contigo. Esta es mi voz natural en español.');
     }
+    function setElevenLabsTtsEnabled(value) {
+      appState.elevenLabsTtsEnabled = !!value;
+      if (!safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()))) { showToast('No se pudo guardar el ajuste de voz.'); return; }
+      showToast(appState.elevenLabsTtsEnabled ? 'Voz ElevenLabs activada; requiere un servidor HTTPS configurado' : 'Voz ElevenLabs apagada');
+    }
+    function setElevenLabsVoice(value) {
+      if (!Object.prototype.hasOwnProperty.call(ELEVENLABS_PREMADE_VOICES, value)) return;
+      appState.elevenLabsVoiceId = value;
+      safeSetItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
+    }
+    function saveElevenLabsSettings() {
+      const url = String(document.getElementById('elevenLabsProxyUrl')?.value || '').trim().replace(/\/+$/, '');
+      if (url) {
+        try {
+          const parsed = new URL(url);
+          const localHttp = parsed.protocol === 'http:' && /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(parsed.hostname);
+          if (parsed.protocol !== 'https:' && !localHttp) { showToast('La URL del servidor debe usar HTTPS.'); return; }
+          if (parsed.pathname !== '/' || parsed.search || parsed.hash) { showToast('Escribe solo el origen del servidor, sin rutas ni parámetros.'); return; }
+        } catch (e) { showToast('Escribe una URL válida para el servidor ElevenLabs.'); return; }
+      }
+      appState.elevenLabsProxyUrl = url;
+      setRuntimeElevenLabsProxyToken(document.getElementById('elevenLabsProxyToken')?.value || '');
+      const voice = document.getElementById('elevenLabsVoiceSelect')?.value;
+      if (voice && Object.prototype.hasOwnProperty.call(ELEVENLABS_PREMADE_VOICES, voice)) appState.elevenLabsVoiceId = voice;
+      saveState();
+      showToast('Ajustes de ElevenLabs guardados; el token queda solo en esta sesión.');
+      return true;
+    }
+    async function testElevenLabsTts() {
+      if (!saveElevenLabsSettings()) return;
+      try {
+        await playElevenLabsTts('Hola, soy ALMA. Esta es una prueba de mi voz natural.');
+        showToast('La voz de ElevenLabs funcionó.');
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+        showToast('No pude probar ElevenLabs: ' + String(e && e.message || 'revisa el proxy').slice(0, 120));
+      }
+    }
     async function startVoice() {
       const SR = nativePlugin('SpeechRecognition');
       const inp = document.getElementById('aiChatInput');
@@ -2126,8 +2320,8 @@
     function resetAllData() {
       if (!resetArmed) { resetArmed = true; showToast('Toca otra vez para borrar todo'); setTimeout(() => { resetArmed = false; }, 4000); return; }
       resetArmed = false;
-      const runtimeKey = appState.customApiKey;
-      appState = { ...createDefaultState(), theme: appState.theme, customApiKey: runtimeKey };
+      const runtimeKeys = { customApiKey: appState.customApiKey || '', groqApiKey: appState.groqApiKey || '', openRouterApiKey: appState.openRouterApiKey || '', elevenLabsProxyToken: appState.elevenLabsProxyToken || '' };
+      appState = { ...createDefaultState(), theme: appState.theme, ...runtimeKeys };
       saveState();
       switchTab('inicio');
     }
@@ -2135,8 +2329,10 @@
     // ---- Ajustes ----
     function saveApiKeySettings() {
       setRuntimeApiKey(document.getElementById('setApiKey').value);
+      setRuntimeProviderKey('groq', document.getElementById('setGroqApiKey').value);
+      setRuntimeProviderKey('openrouter', document.getElementById('setOpenRouterApiKey').value);
       saveState();
-      showToast(appState.customApiKey ? 'Clave de Gemini guardada' : 'Clave eliminada');
+      showToast('Claves de IA guardadas solo en esta sesión');
     }
     function setWordHour(i, v) {
       const a = (appState.wordHours || ['07:00', '13:00', '20:00']).slice();
@@ -2152,9 +2348,12 @@
       const inp = 'bg-slate-100 dark:bg-[#0B1120] rounded-xl px-2.5 py-2 text-xs font-bold text-slate-900 dark:text-white outline-none';
       el.innerHTML =
         card('🤖 Asistente IA', `
-          <input id="setApiKey" type="password" value="${escapeHtml(appState.customApiKey || '')}" placeholder="Clave de Gemini (AIza...)" autocomplete="off" class="w-full ${inp} font-mono" />
-          <p class="text-[10px] leading-relaxed text-slate-400">Por seguridad, la clave solo se conserva en esta sesión del navegador y no se incluye en los respaldos ni en los datos guardados de ALMA. Para una protección más fuerte, la conexión debe pasar por un servidor privado.</p>
-          <div class="flex flex-wrap gap-2">${pill('Guardar clave', 'saveApiKeySettings()', true)}${pill('Probar conexión', 'testGemini()', false)}${pill('🩺 Diagnóstico', 'runDiagnostics()', false)}${pill('Limpiar chat', 'clearChatHistory()', false)}</div>
+          <div><label for="setApiKey" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">Principal · Gemini</label><input id="setApiKey" type="password" value="${escapeHtml(appState.customApiKey || '')}" placeholder="Clave Gemini (AIza...)" autocomplete="off" class="w-full ${inp} font-mono" /></div>
+          <div><label for="setGroqApiKey" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">Respaldo 1 · Groq</label><input id="setGroqApiKey" type="password" value="${escapeHtml(appState.groqApiKey || '')}" placeholder="Pega tu clave Groq" autocomplete="off" class="w-full ${inp} font-mono" /></div>
+          <div><label for="setOpenRouterApiKey" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">Respaldo 2 · OpenRouter</label><input id="setOpenRouterApiKey" type="password" value="${escapeHtml(appState.openRouterApiKey || '')}" placeholder="Pega tu clave OpenRouter" autocomplete="off" class="w-full ${inp} font-mono" /></div>
+          <p class="text-[10px] leading-relaxed text-slate-400">ALMA prueba Gemini y, si falla, Groq y luego OpenRouter. Las claves se guardan solo en esta sesión y no entran en respaldos. Las respuestas envían el contexto pertinente al proveedor usado; no compartas datos que no quieras transmitir. Para reducir el riesgo, no se incrustan claves en el APK.</p>
+          <div class="flex flex-wrap gap-2 text-[10px] font-bold"><a class="text-indigo-600 underline dark:text-indigo-300" href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">Obtener clave Groq</a><a class="text-indigo-600 underline dark:text-indigo-300" href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener noreferrer">Obtener clave OpenRouter</a></div>
+          <div class="flex flex-wrap gap-2">${pill('Guardar claves', 'saveApiKeySettings()', true)}${pill('Probar Gemini', 'testGemini()', false)}${pill('Probar Groq', 'testGroq()', false)}${pill('Probar OpenRouter', 'testOpenRouter()', false)}${pill('🩺 Diagnóstico', 'runDiagnostics()', false)}${pill('Limpiar chat', 'clearChatHistory()', false)}</div>
           ${row('Respuestas en voz alta', pill(appState.voiceReplies ? 'Activadas' : 'Apagadas', 'toggleVoiceReplies()', !!appState.voiceReplies))}`) +
         card('🗣️ Voz del asistente', `
           <div class="rounded-2xl bg-indigo-50 dark:bg-indigo-950/35 p-3 space-y-2"><div class="flex items-center justify-between gap-2"><span class="text-xs font-bold text-indigo-800 dark:text-indigo-200">Voz natural de Gemini</span><input aria-label="Activar voz natural Gemini" type="checkbox" ${appState.geminiTtsEnabled ? 'checked' : ''} onchange="setGeminiTtsEnabled(this.checked)" class="w-5 h-5 accent-indigo-600" /></div><p class="text-[10px] leading-relaxed text-indigo-700 dark:text-indigo-300">Cuando está activa y las respuestas en voz alta están encendidas, Gemini genera el audio por Internet. Se envía a Google el texto de la respuesta. El uso depende de los límites y la facturación de tu clave.</p></div>
@@ -2165,6 +2364,13 @@
           <div><label class="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-300"><span>Tono</span><span>${Number(appState.ttsPitch || 1).toFixed(2)}×</span></label><input type="range" min="0.8" max="1.2" step="0.05" value="${Number(appState.ttsPitch || 1)}" onchange="setTtsPitch(this.value)" class="w-full accent-indigo-600" /></div>
           <button onclick="testTtsVoice()" class="px-3 py-2 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold">▶ Escuchar prueba</button>
           <p class="text-[10px] leading-relaxed text-slate-400">La naturalidad depende de las voces instaladas en Android. Para más opciones, revisa Ajustes del teléfono → Texto a voz e instala voces españolas de alta calidad.</p>` ) +
+        card('🎙️ Voz natural de ElevenLabs', `
+          <div class="flex items-center justify-between gap-2 rounded-2xl bg-rose-50 p-3 dark:bg-rose-950/30"><div><div class="text-xs font-bold text-rose-800 dark:text-rose-200">Usar ElevenLabs</div><p class="mt-0.5 text-[10px] leading-relaxed text-rose-700 dark:text-rose-300">Opcional y apagada al inicio. Si falla, ALMA vuelve a Gemini o a la voz del teléfono.</p></div><input aria-label="Activar voz natural ElevenLabs" type="checkbox" ${appState.elevenLabsTtsEnabled ? 'checked' : ''} onchange="setElevenLabsTtsEnabled(this.checked)" class="h-5 w-5 accent-rose-600" /></div>
+          <div><label for="elevenLabsProxyUrl" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">URL HTTPS del servidor de voz</label><input id="elevenLabsProxyUrl" type="url" value="${escapeHtml(appState.elevenLabsProxyUrl || '')}" placeholder="https://tu-servidor.example" autocomplete="url" class="w-full ${inp} font-mono" /><p class="mt-1 text-[10px] leading-relaxed text-slate-400">El APK necesita un proxy privado para no incluir la API key de ElevenLabs.</p></div>
+          <div><label for="elevenLabsProxyToken" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">Token de acceso al servidor</label><input id="elevenLabsProxyToken" type="password" value="${escapeHtml(appState.elevenLabsProxyToken || '')}" placeholder="Token de tu proxy" autocomplete="off" class="w-full ${inp} font-mono" /><p class="mt-1 text-[10px] leading-relaxed text-slate-400">Solo se conserva durante esta sesión y nunca entra en respaldos.</p></div>
+          <div><label for="elevenLabsVoiceSelect" class="mb-1 block text-[11px] font-bold text-slate-600 dark:text-slate-300">Voz preestablecida</label><select id="elevenLabsVoiceSelect" onchange="setElevenLabsVoice(this.value)" class="w-full ${inp}">${Object.entries(ELEVENLABS_PREMADE_VOICES).map(([id, label]) => `<option value="${id}" ${id === (appState.elevenLabsVoiceId || 'cgSgspJ2msm6clMCkdW9') ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select><p class="mt-1 text-[10px] leading-relaxed text-slate-400">Jessica queda seleccionada inicialmente. ALMA usa eleven_flash_v2_5 y envía el texto de la respuesta a ElevenLabs.</p></div>
+          <div class="flex flex-wrap gap-2"><button onclick="saveElevenLabsSettings()" class="rounded-full bg-rose-600 px-3 py-2 text-xs font-bold text-white">Guardar ajustes de voz</button><button onclick="testElevenLabsTts()" class="rounded-full bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 dark:bg-rose-950/50 dark:text-rose-200">Probar ElevenLabs</button></div>
+          <p class="text-[10px] leading-relaxed text-slate-400">Antes de usarlo en Android, despliega el proxy en HTTPS y configura el token; esta carpeta no incluye un servidor ya publicado ni se compiló un APK.</p>` ) +
         card('✨ Palabra del día', `
           <div class="flex gap-1.5">${pill('Ambos', "setWordMode('ambos')", mode === 'ambos')}${pill('Frases', "setWordMode('frases')", mode === 'frases')}${pill('Versículos', "setWordMode('versiculos')", mode === 'versiculos')}</div>
           ${['Mañana', 'Tarde', 'Noche'].map((n, i) => row(n, `<input type="time" value="${wh[i]}" onchange="setWordHour(${i}, this.value)" class="${inp}" />`)).join('')}
@@ -2715,7 +2921,7 @@
     // ---- Respaldo ----
     function openBackupModal() { document.getElementById('backupText').value = ''; document.getElementById('backupIncludeMemories').checked = false; openModal('modalBackup'); }
     async function exportBackup() {
-      const backupState = { ...getPersistableState(), customApiKey: '' };
+      const backupState = { ...getPersistableState(), customApiKey: '', groqApiKey: '', openRouterApiKey: '', elevenLabsProxyToken: '' };
       if (!document.getElementById('backupIncludeMemories').checked) {
         delete backupState.memories;
         backupState.memoriesExcluded = true;
@@ -2757,9 +2963,9 @@
         if (o.tasks.some(t => !t || typeof t !== 'object' || typeof t.title !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(String(t.date || '')))) throw new Error('bad');
         if (o.transactions.some(t => !t || typeof t !== 'object' || !(Number(t.amount) > 0) || !['USD','VES'].includes(t.currency) || !['ingreso','gasto'].includes(t.type))) throw new Error('bad');
         if (!confirm('Esto reemplazará los datos actuales de ALMA. Antes de continuar, exporta un respaldo de tus datos actuales. ¿Quieres restaurar este archivo?')) return;
-        const localApiKey = appState.customApiKey || '';
+        const localApiKeys = { customApiKey: appState.customApiKey || '', groqApiKey: appState.groqApiKey || '', openRouterApiKey: appState.openRouterApiKey || '', elevenLabsProxyToken: appState.elevenLabsProxyToken || '' };
         const preservedMemories = o.memoriesExcluded === true || !Object.prototype.hasOwnProperty.call(o, 'memories') ? (appState.memories || []) : (Array.isArray(o.memories) ? o.memories : []);
-        const safeBackup = { ...o, memories: preservedMemories, customApiKey: localApiKey };
+        const safeBackup = { ...o, memories: preservedMemories, ...localApiKeys };
         delete safeBackup.memoriesExcluded;
         appState = migrateLegacyHabits({ ...createDefaultState(), ...safeBackup }, Object.prototype.hasOwnProperty.call(o, 'routines'));
         closeModal('modalBackup');
@@ -3710,7 +3916,8 @@
 
       const engineLbl = document.getElementById('aiEngineLabel');
       if (engineLbl) {
-        engineLbl.textContent = (window.claude ? 'Claude + IA local' : (appState.customApiKey ? 'Gemini + IA local' : 'IA local'));
+        const configured = [appState.customApiKey && 'Gemini', appState.groqApiKey && 'Groq', appState.openRouterApiKey && 'OpenRouter'].filter(Boolean);
+        engineLbl.textContent = window._almaLastProviderLabel || (window.claude ? 'Manus AI + IA local' : (configured.length ? configured.join(' → ') + ' · respaldo local' : 'IA local'));
       }
 
       box.innerHTML = appState.chat.map((m, mIdx) => {
@@ -3781,6 +3988,66 @@
       switchTab('ia');
       document.getElementById('aiChatInput').value = 'No pude hacer mis tareas pendientes, reorganízalas en bloques horarios ordenados.';
       handleSendChat();
+    }
+
+    function chatHasUserMessages() { return (appState.chat || []).some(m => m.role === 'user'); }
+    function archiveCurrentChat() {
+      if (!chatHasUserMessages()) return;
+      const msgs = appState.chat.filter(m => !m.isTemp).map(m => {
+        const c = { ...m };
+        c.actions = (m.actions || []).filter(a => a.status !== 'pending_confirm');
+        if (c.redactOnDisk || isSensitiveMemoryText(c.text)) c.text = '[Contenido sensible omitido del historial local por privacidad]';
+        return c;
+      });
+      const first = msgs.find(m => m.role === 'user');
+      const title = first ? (first.text.length > 42 ? first.text.slice(0, 42) + '…' : first.text) : 'Chat';
+      appState.chatArchive = [{ id: Date.now(), title, updatedAt: Date.now(), messages: msgs }, ...(appState.chatArchive || [])].slice(0, 30);
+    }
+    const NEW_CHAT_GREETING = [{ role: 'ai', text: 'Chat nuevo. ¿En qué te ayudo?', actions: [] }];
+    function newChat() {
+      archiveCurrentChat();
+      voiceSession = [];
+      appState.chat = NEW_CHAT_GREETING.map(m => ({ ...m }));
+      saveState();
+      showToast('Chat nuevo creado');
+    }
+    let deleteChatArmed = false;
+    function deleteCurrentChat() {
+      if (!deleteChatArmed) { deleteChatArmed = true; showToast('Toca otra vez para borrar este chat'); setTimeout(() => { deleteChatArmed = false; }, 4000); return; }
+      deleteChatArmed = false;
+      voiceSession = [];
+      appState.chat = NEW_CHAT_GREETING.map(m => ({ ...m }));
+      saveState();
+      showToast('Chat borrado');
+    }
+    function openChatsModal() { renderChatsList(); openModal('modalChats'); }
+    function renderChatsList() {
+      const el = document.getElementById('chatsList');
+      const list = appState.chatArchive || [];
+      el.innerHTML = list.length ? list.map(c => `
+        <div class="flex items-center gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-[#0B1120]">
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(c.title)}</div>
+            <div class="text-[11px] text-slate-400">${new Date(c.updatedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} · ${c.messages.filter(m => m.role === 'user').length} mensajes tuyos</div>
+          </div>
+          <button onclick="openArchivedChat(${c.id})" class="px-3 py-1.5 rounded-full bg-indigo-600 text-white text-[11px] font-bold">Abrir</button>
+          <button onclick="deleteArchivedChat(${c.id})" aria-label="Borrar" class="w-8 h-8 rounded-full text-slate-400 hover:text-rose-500 font-bold">✕</button>
+        </div>`).join('') : '<p class="text-xs text-slate-400 text-center py-4">Todavía no tienes chats anteriores. Cuando crees un chat nuevo, el actual se guarda aquí.</p>';
+    }
+    function openArchivedChat(id) {
+      const c = (appState.chatArchive || []).find(x => x.id === id);
+      if (!c) return;
+      archiveCurrentChat();
+      appState.chatArchive = appState.chatArchive.filter(x => x.id !== id);
+      voiceSession = [];
+      appState.chat = c.messages;
+      saveState();
+      closeModal('modalChats');
+    }
+    function deleteArchivedChat(id) {
+      appState.chatArchive = (appState.chatArchive || []).filter(x => x.id !== id);
+      saveState();
+      renderChatsList();
     }
 
     function clearChatHistory() {
@@ -4715,7 +4982,7 @@
         return { respuesta: `¡Hola! 👋 Hoy tienes ${pend} ${pend === 1 ? 'tarea pendiente' : 'tareas pendientes'}. ¿Qué quieres organizar o registrar?`, acciones: [] };
       }
       return {
-        respuesta: `No estoy segura de haber entendido eso, así que no hice ningún cambio.${appState.customApiKey ? '' : ' Para que converse contigo de verdad, pega tu clave de Gemini en Ajustes ⚙️.'} Prueba con frases como:\n• "Tengo examen de química el viernes de la otra semana"\n• "Gasté 5$ en pasaje"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"`,
+        respuesta: `No estoy segura de haber entendido eso, así que no hice ningún cambio.${hasAnyCloudAiKey() ? '' : ' Para conversar sobre temas generales, agrega una clave de IA en Ajustes ⚙️.'} Prueba con frases como:\n• "Tengo examen de química el viernes de la otra semana"\n• "Gasté 5$ en pasaje"\n• "Mañana a las 3 pm ir al banco"\n• "Juan me debe 15$"`,
         acciones: []
       };
     }
@@ -4769,6 +5036,62 @@
       if (quota) throw new Error('límite gratuito alcanzado, espera un momento');
       if (lastStatus === 400 || lastStatus === 404) throw new Error('No pude usar los modelos Gemini disponibles. Google respondió: ' + lastErr);
       throw new Error(lastErr);
+    }
+
+    const AI_COMPATIBLE_PROVIDERS = {
+      groq: { label: 'Groq', keyField: 'groqApiKey', endpoint: 'https://api.groq.com/openai/v1/chat/completions', model: 'openai/gpt-oss-120b' },
+      openrouter: { label: 'OpenRouter', keyField: 'openRouterApiKey', endpoint: 'https://openrouter.ai/api/v1/chat/completions', model: 'openrouter/free' }
+    };
+    function hasAnyCloudAiKey() {
+      return Boolean(appState.customApiKey || appState.groqApiKey || appState.openRouterApiKey);
+    }
+    async function openAiCompatibleRequest(provider, prompt) {
+      const config = AI_COMPATIBLE_PROVIDERS[provider];
+      if (!config) throw new Error('Proveedor no reconocido');
+      const key = String(appState[config.keyField] || '').trim();
+      if (!key) throw new Error(`Falta la clave de ${config.label}`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      let response;
+      try {
+        response = await fetch(config.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+          signal: controller.signal,
+          body: JSON.stringify({ model: config.model, messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 2200 })
+        });
+      } catch (e) {
+        if (e && e.name === 'AbortError') throw new Error(`${config.label} tardó demasiado en responder`);
+        throw new Error(`No pude conectar con ${config.label}; revisa Internet o el acceso a la API`);
+      } finally { clearTimeout(timeout); }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = data.error && (data.error.message || data.error) || `HTTP ${response.status}`;
+        const error = new Error(`${config.label} (${response.status}): ${String(detail).slice(0, 220)}`);
+        error.httpStatus = response.status;
+        throw error;
+      }
+      const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      const text = Array.isArray(content) ? content.map(x => x && x.text || '').join('') : content;
+      if (typeof text !== 'string' || !text.trim()) throw new Error(`${config.label} respondió vacío`);
+      return text;
+    }
+    function parseCloudAiResult(text) {
+      const rawText = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+      let parsed;
+      try { parsed = JSON.parse(rawText); }
+      catch (firstParseError) {
+        const start = rawText.indexOf('{'), end = rawText.lastIndexOf('}');
+        if (start >= 0 && end > start) {
+          try { parsed = JSON.parse(rawText.slice(start, end + 1)); }
+          catch (e) { return { respuesta: rawText, acciones: [] }; }
+        } else if (rawText) return { respuesta: rawText, acciones: [] };
+        else throw firstParseError;
+      }
+      const result = Array.isArray(parsed) ? parsed[0] : parsed;
+      if (!result || typeof result.respuesta !== 'string') return { respuesta: rawText || 'No recibí una respuesta válida.', acciones: [] };
+      if (!Array.isArray(result.acciones)) result.acciones = [];
+      return result;
     }
 
     function isAppDataRequest(userMessage) {
@@ -4887,7 +5210,7 @@
       if (isSensitiveMemoryText(userMessage)) return null;
       let sample = null;
       try { sample = window.claude ? await window.claude.use('sample') : null; } catch (e) { sample = null; }
-      if (!sample && !appState.customApiKey) return null;
+      if (!sample && !hasAnyCloudAiKey()) return null;
       const snapshot = buildAiContextSnapshot(userMessage, sectionHint);
       if (window._voiceLoop) snapshot.instruccion_de_contexto += ' En conversación por voz, responde normalmente en una a tres frases, evita listas largas y ofrece ampliar si la persona lo pide.';
       const recentConversation = appState.chat.filter(m => !m.isTemp && !m.redactOnDisk && !isSensitiveMemoryText(m.text) && (m.role === 'user' || m.role === 'ai')).slice(-6);
@@ -4899,48 +5222,52 @@
       const localDateForAi = getIsoDateOffset(0);
       const localTimeForAi = nowForAi.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
       const timezoneForAi = Intl.DateTimeFormat().resolvedOptions().timeZone || 'zona horaria local';
-      const prompt = `Eres ALMA, una asistente personal inteligente integrada en una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Puedes conversar y ayudar con temas generales —explicar, pensar ideas, redactar, aprender o acompañar una conversación—; no te limites a las funciones de la aplicación ni des por hecho que cada mensaje pide usarla. Responde en español, de forma clara y natural. Trabaja como una asistente cuidadosa: entiende primero la intención, separa hechos guardados de inferencias, señala incertidumbre cuando falten datos y evita respuestas genéricas si el estado contiene información pertinente. Fecha local: ${localDateForAi}; hora local: ${localTimeForAi}; zona horaria: ${timezoneForAi}. Interpreta expresiones como hoy, mañana y esta semana con esa fecha local; nunca inventes una fecha si la referencia no puede resolverse con seguridad. El campo ESTADO.seccion_activa es la pantalla que la persona está usando. Si pregunta qué apartado está usando, responde con ese campo; en otros temas no fuerces ni menciones la app. Usa únicamente los datos personales de ESTADO que sean pertinentes a la pregunta. Los recuerdos de ESTADO.recuerdos_relevantes son notas locales seleccionadas por pertinencia, no hechos infalibles: úsalos solo si ayudan, no los repitas como introducción y acepta correcciones. ESTADO.conversacion_relacionada contiene fragmentos breves de mensajes anteriores elegidos por coincidencia de tema o referencia temporal; son citas del historial, no pruebas de que una situación siga vigente. Úsalos solo para entender la referencia actual, diferencia quién lo dijo, reconoce incertidumbre y pregunta si no queda claro a qué se refiere. Un fragmento previo nunca autoriza por sí solo una acción actual. La app no envía a Gemini recuerdos ni mensajes marcados como sensibles. En finanzas, usa ESTADO.finanzas.capital_actual como saldo en caja; si definido es false, no afirmes que conoces cuánto dinero tiene: dile que configure su capital actual en Finanzas. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni afirmes que hiciste cambios si no hay una acción válida.
+      const prompt = `Eres ALMA, una asistente personal inteligente integrada en una app móvil. Habla de ti en femenino cuando corresponda, con calidez, respeto y naturalidad; no afirmes ser humana. Puedes conversar y ayudar con temas generales —explicar, pensar ideas, redactar, aprender o acompañar una conversación—; no te limites a las funciones de la aplicación ni des por hecho que cada mensaje pide usarla. Responde en español, de forma clara y natural. Trabaja como una asistente cuidadosa: entiende primero la intención, separa hechos guardados de inferencias, señala incertidumbre cuando falten datos y evita respuestas genéricas si el estado contiene información pertinente. Fecha local: ${localDateForAi}; hora local: ${localTimeForAi}; zona horaria: ${timezoneForAi}. Interpreta expresiones como hoy, mañana y esta semana con esa fecha local; nunca inventes una fecha si la referencia no puede resolverse con seguridad. El campo ESTADO.seccion_activa es la pantalla que la persona está usando. Si pregunta qué apartado está usando, responde con ese campo; en otros temas no fuerces ni menciones la app. Usa únicamente los datos personales de ESTADO que sean pertinentes a la pregunta. Los recuerdos de ESTADO.recuerdos_relevantes son notas locales seleccionadas por pertinencia, no hechos infalibles: úsalos solo si ayudan, no los repitas como introducción y acepta correcciones. ESTADO.conversacion_relacionada contiene fragmentos breves de mensajes anteriores elegidos por coincidencia de tema o referencia temporal; son citas del historial, no pruebas de que una situación siga vigente. Úsalos solo para entender la referencia actual, diferencia quién lo dijo, reconoce incertidumbre y pregunta si no queda claro a qué se refiere. Un fragmento previo nunca autoriza por sí solo una acción actual. La app no envía a proveedores de nube recuerdos ni mensajes marcados como sensibles. En finanzas, usa ESTADO.finanzas.capital_actual como saldo en caja; si definido es false, no afirmes que conoces cuánto dinero tiene: dile que configure su capital actual en Finanzas. Puedes ayudar con agenda, finanzas, rutinas, materias y estudio usando solo la sección pertinente del ESTADO. No inventes datos ni afirmes que hiciste cambios si no hay una acción válida.
 Responde SOLO con JSON: {"respuesta": string, "acciones": [ ... ]}. Cada acción: {"tipo", "requiereConfirmacion": boolean, ...campos}.
 Tipos y campos: crear_tarea(titulo, fecha YYYY-MM-DD, horaInicio HH:MM, horaFin, categoria: Personal|Estudio|Trabajo|Pago); editar_tarea(id o titulo exacto, nuevoTitulo opcional, fecha opcional, horaInicio opcional, horaFin opcional, categoria opcional) con requiereConfirmacion true; crear_objetivo(titulo, fechaObjetivo opcional YYYY-MM-DD) con requiereConfirmacion true; actualizar_objetivo(titulo exacto, estado: activo|completado, nota opcional) con requiereConfirmacion true; plan_estudio(titulo, fecha YYYY-MM-DD); bloquear_dia(fecha YYYY-MM-DD); reorganizar_tareas(fechaDestino); completar_tarea(titulo); borrar_tarea(titulo) con requiereConfirmacion true; registrar_movimiento(subtipo: gasto|ingreso, monto, moneda: USD|VES, categoria: Comida|Transporte|Estudios|Servicios|Otros, nota); registrar_deuda(subtipo: me_deben|debo, persona, monto, moneda, nota); saldar_deuda(persona) con requiereConfirmacion true; abonar_deuda(persona, monto) con requiereConfirmacion true; abonar_meta(metaNombre, monto); completar_paso_rutina(rutinaNombre, pasoNombre); crear_rutina(nombre, dias como índices 0=domingo a 6=sábado, hora HH:MM, pasos como [{titulo, minutos opcional}]) con requiereConfirmacion true; actualizar_tasa(tasa).
 En planificación, detecta choques con ESTADO.agenda.conflictos_horarios, menciona tareas pendientes reales y sugiere huecos libres sin afirmar que se movieron. Si existe ESTADO.seguimiento_personal, responde desde esos registros, cita la fecha de corte y distingue objetivos y tareas; no infieras progreso ni relación entre ellos. Distingue ESTADO.objetivos_personales de metas_ahorro: nunca mezcles objetivos personales con finanzas. Solo crea acciones para cambiar datos si el usuario ha pedido claramente hacer ese cambio (por ejemplo: “anota este gasto”, “agenda esta tarea”, “marca ese paso”, “guarda este objetivo”). Una conversación general, pregunta, ejemplo hipotético o relato no es autorización para modificar la app. Si el mensaje es ambiguo, pregunta primero y devuelve acciones = []. Nunca inventes montos, fechas, pasos ni materias. Crear una rutina requiere confirmación y al menos nombre, un día, hora y un paso. No borres ni saldes información sin confirmación. Si solo conversa o pregunta, responde con naturalidad y acciones = [].
-
 ESTADO:
 ${JSON.stringify(snapshot)}
 
 MENSAJE DEL USUARIO:
 ${userMessage}`;
-      try {
-        let t = '';
-        if (sample) {
-          const r = await sample(prompt, { cache: false, modelTier: 'quick' });
-          t = r.text || '';
-        } else {
-          const img = window._pendingImage;
-          window._pendingImage = null;
-          const parts = [{ text: prompt }];
-          if (img) parts.push({ inline_data: { mime_type: 'image/jpeg', data: img } });
-          t = await geminiRequest(parts);
-        }
-        let o;
-        const rawText = String(t || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+      const image = window._pendingImage;
+      window._pendingImage = null;
+      const failures = [];
+      const accept = (text, provider) => {
+        const result = parseCloudAiResult(text);
+        result._almaProvider = provider;
+        result._almaUsedFallback = failures.length > 0;
+        return result;
+      };
+      if (appState.customApiKey) {
         try {
-          o = JSON.parse(rawText);
-        } catch (firstParseError) {
-          // Some model versions wrap the JSON in a short preamble. Extract the
-          // outermost object without treating arbitrary prose as an action.
-          const start = rawText.indexOf('{'), end = rawText.lastIndexOf('}');
-          if (start >= 0 && end > start) o = JSON.parse(rawText.slice(start, end + 1));
-          else if (rawText) return { respuesta: rawText, acciones: [] };
-          else throw firstParseError;
-        }
-        const r = Array.isArray(o) ? o[0] : o;
-        if (!r || typeof r.respuesta !== 'string') throw new Error('respuesta no válida');
-        if (!Array.isArray(r.acciones)) r.acciones = [];
-        return r;
-      } catch (e) {
-        window._aiErr = (e && e.message && !/JSON/.test(e.message)) ? e.message : 'respuesta no válida';
+          const parts = [{ text: prompt }];
+          if (image) parts.push({ inline_data: { mime_type: 'image/jpeg', data: image } });
+          return accept(await geminiRequest(parts), 'Gemini');
+        } catch (e) { failures.push('Gemini: ' + (e && e.message || 'error')); }
+      }
+      // The free Groq/OpenRouter fallback models are text-only here. Never forward an image to them.
+      if (image) {
+        window._aiErr = failures.join(' · ') || 'Para analizar fotos, configura una clave Gemini; los respaldos actuales de Groq y OpenRouter son solo para texto.';
         return null;
       }
+      for (const provider of ['groq', 'openrouter']) {
+        const config = AI_COMPATIBLE_PROVIDERS[provider];
+        if (!appState[config.keyField]) continue;
+        try { return accept(await openAiCompatibleRequest(provider, prompt), config.label); }
+        catch (e) { failures.push(config.label + ': ' + (e && e.message || 'error')); }
+      }
+      // Preserve the existing Manus-provided AI as a final fallback when available.
+      if (sample && !image) {
+        try {
+          const r = await sample(prompt, { cache: false, modelTier: 'quick' });
+          if (r && r.text) return accept(r.text, 'Manus AI');
+          failures.push('Manus AI: respuesta vacía');
+        } catch (e) { failures.push('Manus AI: ' + (e && e.message || 'error')); }
+      }
+      window._aiErr = failures.join(' · ') || 'No hay claves de proveedores de IA configuradas';
+      return null;
     }
 
     async function handleSendChat(contextualSection) {
@@ -4979,7 +5306,7 @@ ${userMessage}`;
       } else if (asksCurrentSection) {
         aiResult = { respuesta: `Ahora mismo estamos en ${currentSectionName}. Puedes seguir hablándome mientras usas esta pantalla.`, acciones: [] };
       } else if (isSensitiveMemoryText(text)) {
-        aiResult = { respuesta: 'Para cuidar tu privacidad, no envié este mensaje a Gemini porque parece incluir un dato sensible. No hice cambios en la app; puedes reformularlo sin ese dato si quieres continuar.', acciones: [] };
+        aiResult = { respuesta: 'Para cuidar tu privacidad, no envié este mensaje a ningún proveedor de nube porque parece incluir un dato sensible. No hice cambios en la app; puedes reformularlo sin ese dato si quieres continuar.', acciones: [] };
       } else {
         // Gemini handles general conversation; the local engine is reserved for app-related requests.
         aiResult = await callGeminiCloud(text, currentSectionKey);
@@ -4987,13 +5314,13 @@ ${userMessage}`;
           if (appDataRequested || permitsAppActions) {
             await new Promise(r => setTimeout(r, 220));
             aiResult = smartLocalAiEngine(text);
-            if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
+            if (hasAnyCloudAiKey() && window._aiErr) aiResult.respuesta = '⚠️ No pude conectar con los proveedores configurados: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
           } else {
-            const generalReply = appState.customApiKey
-              ? 'No pude conectarme con Gemini para responderte ahora. No hice cambios en tus datos; inténtalo de nuevo cuando tengas conexión.'
-              : 'Puedo conversar contigo sobre temas generales cuando Gemini esté configurado en Ajustes. Sin conexión a Gemini, por ahora solo puedo responder algunas consultas y comandos sencillos de la app.';
+            const generalReply = hasAnyCloudAiKey()
+              ? 'No pude conectarme con los proveedores de IA configurados. No hice cambios en tus datos; inténtalo de nuevo cuando haya conexión.'
+              : 'Puedo conversar contigo sobre temas generales cuando configures Gemini, Groq u OpenRouter en Ajustes. Sin conexión a una IA de nube, por ahora solo puedo responder algunas consultas y comandos sencillos de la app.';
             aiResult = { respuesta: generalReply, acciones: [] };
-            if (appState.customApiKey && window._aiErr) aiResult.respuesta = '⚠️ No pude usar Gemini: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
+            if (hasAnyCloudAiKey() && window._aiErr) aiResult.respuesta = '⚠️ No pude conectar con los proveedores configurados: ' + window._aiErr + '.\n\n' + aiResult.respuesta;
           }
         }
       }
@@ -5028,6 +5355,8 @@ ${userMessage}`;
         return { raw: action, label, status: requiresConfirm ? 'pending_confirm' : 'executed' };
       });
 
+      window._almaLastProviderLabel = aiResult._almaProvider || 'IA local';
+      if (aiResult._almaUsedFallback && aiResult._almaProvider) showToast(`Gemini no respondió; contestó ${aiResult._almaProvider}`);
       appState.chat.push({
         role: 'ai',
         text: [aiResult.respuesta || '¡Listo!', ...actionNotes].join('\n\n'),
