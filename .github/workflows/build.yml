@@ -1,4 +1,4 @@
-name: Crear APK
+name: Crear APK firmado de ALMA
 
 on:
   push:
@@ -20,17 +20,19 @@ jobs:
       - name: Configurar Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
-      - name: Preparar app, plugins nativos y compilar APK
+      - name: Preparar app, plugins nativos y puente seguro
         run: |
+          set -euo pipefail
           npm init -y
           npm install --legacy-peer-deps @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 \
             @capacitor/local-notifications@6 \
             @capacitor-community/speech-recognition@6 \
             @capacitor-community/text-to-speech@6 \
-            tailwindcss@3 esbuild
+            capacitor-secure-storage-plugin@0.10.0 \
+            esbuild tailwindcss@3
           cat > tailwind.config.js <<-'EOF'
           module.exports = { darkMode: 'class', content: ['./index.html'], theme: { extend: { boxShadow: { soft: '0 8px 24px -6px rgba(15,23,42,0.05)', card: '0 4px 16px -2px rgba(15,23,42,0.04)', orb: '0 12px 32px -4px rgba(79,70,229,0.45)' } } } }
           EOF
@@ -38,25 +40,66 @@ jobs:
           mkdir -p www
           cp index.html www/index.html
           npx tailwindcss -i in.css -o www/tw.css --minify
-          cat > plugins.js <<-'EOF'
-          import { LocalNotifications } from '@capacitor/local-notifications';
-          import { SpeechRecognition } from '@capacitor-community/speech-recognition';
-          import { TextToSpeech } from '@capacitor-community/text-to-speech';
-          window.__nativePlugins = { LocalNotifications, SpeechRecognition, TextToSpeech };
+          cat > secure-storage-bridge.js <<'EOF'
+          import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
+          window.__nativePlugins = Object.assign(window.__nativePlugins || {}, { SecureStoragePlugin });
           EOF
-          npx esbuild plugins.js --bundle --format=iife --outfile=www/plugins.js
+          npx esbuild secure-storage-bridge.js --bundle --format=iife --outfile=www/secure-storage.js
           sed -i 's/VERSION_21/VERSION_17/g' node_modules/@capacitor-community/*/android/build.gradle || true
-          npx cap init "Mi Asistente" "com.miasistente.app" --web-dir=www
+          npx cap init "ALMA" "com.miasistente.app" --web-dir=www
           npx cap add android
           npx cap sync android
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           sed -i 's|<application|<uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />\n    <application|' "$MANIFEST"
+          sed -i "s/versionCode 1/versionCode $((1000 + GITHUB_RUN_NUMBER))/" android/app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"1.0.${GITHUB_RUN_NUMBER}\"/" android/app/build.gradle
+
+      - name: Preparar firma estable desde GitHub Actions Secrets
+        env:
+          ALMA_SIGNING_KEYSTORE_BASE64: ${{ secrets.ALMA_SIGNING_KEYSTORE_BASE64 }}
+          ALMA_SIGNING_STORE_PASSWORD: ${{ secrets.ALMA_SIGNING_STORE_PASSWORD }}
+          ALMA_SIGNING_KEY_ALIAS: ${{ secrets.ALMA_SIGNING_KEY_ALIAS }}
+          ALMA_SIGNING_KEY_PASSWORD: ${{ secrets.ALMA_SIGNING_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ALMA_SIGNING_KEYSTORE_BASE64" ] || [ -z "$ALMA_SIGNING_STORE_PASSWORD" ] || [ -z "$ALMA_SIGNING_KEY_ALIAS" ] || [ -z "$ALMA_SIGNING_KEY_PASSWORD" ]; then
+            echo 'Faltan secrets de firma. Configúralos en GitHub > Settings > Secrets and variables > Actions antes de compilar.' >&2
+            exit 1
+          fi
+          printf '%s' "$ALMA_SIGNING_KEYSTORE_BASE64" | base64 --decode > android/app/alma-release.jks
+          cat >> android/app/build.gradle <<'EOF'
+          android {
+              signingConfigs {
+                  almaStable {
+                      storeFile file('alma-release.jks')
+                      storePassword System.getenv('ALMA_SIGNING_STORE_PASSWORD')
+                      keyAlias System.getenv('ALMA_SIGNING_KEY_ALIAS')
+                      keyPassword System.getenv('ALMA_SIGNING_KEY_PASSWORD')
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.almaStable
+                      minifyEnabled false
+                  }
+              }
+          }
+          EOF
+
+      - name: Compilar APK release firmado
+        env:
+          ALMA_SIGNING_STORE_PASSWORD: ${{ secrets.ALMA_SIGNING_STORE_PASSWORD }}
+          ALMA_SIGNING_KEY_ALIAS: ${{ secrets.ALMA_SIGNING_KEY_ALIAS }}
+          ALMA_SIGNING_KEY_PASSWORD: ${{ secrets.ALMA_SIGNING_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
       - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
-          name: Mi-Asistente-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: ALMA-APK-firmado
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
