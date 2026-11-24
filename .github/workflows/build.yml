@@ -1,4 +1,4 @@
-name: Crear APK firmado de ALMA
+name: Crear APK debug de ALMA
 
 on:
   push:
@@ -54,22 +54,16 @@ jobs:
           sed -i "s/versionCode 1/versionCode $((1000 + GITHUB_RUN_NUMBER))/" android/app/build.gradle
           sed -i "s/versionName \"1.0\"/versionName \"1.0.${GITHUB_RUN_NUMBER}\"/" android/app/build.gradle
 
-
-
-      - name: Compilar APK release firmado
-        env:
-          ALMA_SIGNING_STORE_PASSWORD: ${{ secrets.ALMA_SIGNING_STORE_PASSWORD }}
-          ALMA_SIGNING_KEY_ALIAS: ${{ secrets.ALMA_SIGNING_KEY_ALIAS }}
-          ALMA_SIGNING_KEY_PASSWORD: ${{ secrets.ALMA_SIGNING_KEY_PASSWORD }}
+      - name: Compilar APK debug (sin secrets de firma release)
         run: |
           set -euo pipefail
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleDebug
 
-      - name: Guardar APK
+      - name: Guardar APK debug
         uses: actions/upload-artifact@v4
         with:
-          name: ALMA-APK-firmado
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: ALMA-APK-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
